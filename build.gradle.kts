@@ -30,8 +30,8 @@ subprojects {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    // creates a reusable function which configures proper deployment to Bintray
-    ext["configureBintray"] = { artifactId: String ->
+    // creates a reusable function which configures proper deployment to Maven Central
+    ext["configureMavenCentral"] = { artifactId: String ->
 
         java {
             withJavadocJar()
