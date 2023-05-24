@@ -1,6 +1,7 @@
 @file:OptIn(ExperimentalCli::class)
 
 import com.github.mvysny.shepherd.api.FakeClient
+import com.github.mvysny.shepherd.api.ProjectId
 import com.github.mvysny.shepherd.api.ShepherdClient
 import kotlinx.cli.*
 
@@ -12,7 +13,7 @@ import kotlinx.cli.*
 data class Args(
     val fake: Boolean,
     val command: Command,
-    val listProjects: ListProjects
+    val project: ProjectId?
 ) {
 
     fun createClient(): ShepherdClient = FakeClient
@@ -21,9 +22,9 @@ data class Args(
         fun parse(args: Array<String>): Args {
             val parser = ArgParser("shepherd-cli")
             val fake by parser.option(ArgType.Boolean, "fake", description = "Use fake client").default(false)
+            val project by parser.option(ArgType.String, "project", shortName = "p", description = "Project ID")
 
-            val listProjects = ListProjects()
-            parser.subcommands(listProjects)
+            parser.subcommands(ListProjects(), ShowProject())
             val parserResult = parser.parse(args)
             val commandName = parserResult.commandName.takeUnless { it == parser.programName }
             val cmd = Command.values().firstOrNull { it.argName == commandName }
@@ -32,12 +33,15 @@ data class Args(
             return Args(
                 fake,
                 cmd,
-                listProjects
+                project?.let { ProjectId(it) }
             )
         }
     }
 }
 
-class ListProjects: Subcommand("list", "List all projects") {
+class ListProjects: Subcommand(Command.ListProjects.argName, "List all projects") {
+    override fun execute() {}
+}
+class ShowProject: Subcommand(Command.ShowProject.argName, "Show project info") {
     override fun execute() {}
 }
