@@ -9,6 +9,9 @@ fun main(args: Array<String>) {
 }
 
 enum class Command(val argName: String) {
+    /**
+     * List all projects: their IDs and a quick info about the project: the description, the owner and such.
+     */
     ListProjects("list") {
         override fun run(args: Args, client: ShepherdClient) {
             client.getAllProjects().forEach { projectId ->
@@ -17,6 +20,10 @@ enum class Command(val argName: String) {
             }
         }
     },
+
+    /**
+     * The `show` command, shows all information about certain project as a JSON.
+     */
     ShowProject("show") {
         override fun run(args: Args, client: ShepherdClient) {
             val project = client.getProjectInfo(requireProjectId(args))
@@ -25,8 +32,15 @@ enum class Command(val argName: String) {
         }
     }
     ;
+
+    /**
+     * Runs the command, with given [args] over given [client].
+     */
     abstract fun run(args: Args, client: ShepherdClient)
 
+    /**
+     * Utility function to get the [Args.project], failing if it's missing on the command line.
+     */
     protected fun requireProjectId(args: Args): ProjectId {
         require(args.project != null) { "This command requires the project ID" }
         return args.project

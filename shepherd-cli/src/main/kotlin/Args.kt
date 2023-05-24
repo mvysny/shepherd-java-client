@@ -21,8 +21,8 @@ data class Args(
     companion object {
         fun parse(args: Array<String>): Args {
             val parser = ArgParser("shepherd-cli")
-            val fake by parser.option(ArgType.Boolean, "fake", description = "Use fake client").default(false)
-            val project by parser.option(ArgType.String, "project", shortName = "p", description = "Project ID")
+            val fake by parser.option(ArgType.Boolean, "fake", description = "Use fake client which provides fake data. Good for testing.").default(false)
+            val project by parser.option(ArgType.String, "project", shortName = "p", description = "The project ID to control via the subcommands. Some subcommands do not require this.")
 
             parser.subcommands(ListProjects(), ShowProject())
             val parserResult = parser.parse(args)
@@ -39,9 +39,9 @@ data class Args(
     }
 }
 
-class ListProjects: Subcommand(Command.ListProjects.argName, "List all projects") {
-    override fun execute() {}
+class ListProjects: Subcommand(Command.ListProjects.argName, "List all projects: their IDs and a quick info about the project: the description, the owner and such") {
+    override fun execute() {} // implemented elsewhere, since this function doesn't have access to
 }
-class ShowProject: Subcommand(Command.ShowProject.argName, "Show project info") {
+class ShowProject: Subcommand(Command.ShowProject.argName, "Show project information as a pretty-printed JSON") {
     override fun execute() {}
 }
