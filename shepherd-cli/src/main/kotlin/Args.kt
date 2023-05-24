@@ -6,9 +6,10 @@ import com.github.mvysny.shepherd.api.ShepherdClient
 import kotlinx.cli.*
 
 /**
+ * Parsed command-line parameters.
  * @property fake use fake client
  * @property command which command was called
- * @property listProjects
+ * @property project The project ID to control via the subcommands. Some subcommands do not require this.
  */
 data class Args(
     val fake: Boolean,
