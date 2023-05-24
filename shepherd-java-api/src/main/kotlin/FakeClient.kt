@@ -12,7 +12,7 @@ import kotlin.io.path.*
 
 private val fakeProject = Project(
     id = ProjectId("vaadin-boot-example-gradle"),
-    description = "vaadin-boot-example-gradle",
+    description = "Gradle example for Vaadin Boot",
     gitRepo = "https://github.com/mvysny/vaadin-boot-example-gradle",
     owner = ProjectOwner("Martin Vysny", "mavi@vaadin.com"),
     runtimeResources = Resources.defaultRuntimeResources,

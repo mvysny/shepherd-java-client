@@ -31,7 +31,9 @@ public value class ProjectId(public val id: String) {
 public data class ProjectOwner(
     val name: String,
     val email: String
-)
+) {
+    override fun toString(): String = "$name <$email>"
+}
 
 /**
  * Resources the app needs.
