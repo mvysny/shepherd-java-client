@@ -38,7 +38,7 @@ public class LinuxShepherdClient(
 
     override fun deleteProject(id: ProjectId) {
         jenkins.deleteJobIfExists(id)
-        kubernetes.delete(id)
+        kubernetes.deleteIfExists(id)
         projectConfigFolder.deleteIfExists(id)
     }
 
