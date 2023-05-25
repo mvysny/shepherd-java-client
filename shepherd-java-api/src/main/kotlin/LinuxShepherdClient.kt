@@ -45,13 +45,13 @@ public class LinuxShepherdClient(
         // 3. Run Jenkins job
     }
 
-    private val Project.namespace: String get() = "shepherd-${id.id}"
+    private val Project.kubernetesNamespace: String get() = "shepherd-${id.id}"
 
     override fun getRunLogs(project: Project): String {
         // main deployment is always called "deployment"
-        val podNames = kubernetesClient.getPods(project.namespace)
+        val podNames = kubernetesClient.getPods(project.kubernetesNamespace)
         val podName = podNames.firstOrNull { it.startsWith("deployment-") }
         requireNotNull(podName) { "No deployment pod for ${project.id.id}: $podNames" }
-        return kubernetesClient.getLogs(podName, project.namespace)
+        return kubernetesClient.getLogs(podName, project.kubernetesNamespace)
     }
 }
