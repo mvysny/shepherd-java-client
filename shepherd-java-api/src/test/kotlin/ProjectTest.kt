@@ -9,7 +9,7 @@ import kotlin.test.expect
 val fakeProject = Project(
     id = ProjectId("vaadin-boot-example-gradle"),
     description = "vaadin-boot-example-gradle",
-    gitRepo = "https://github.com/mvysny/vaadin-boot-example-gradle",
+    gitRepo = GitRepo("https://github.com/mvysny/vaadin-boot-example-gradle", "master"),
     owner = ProjectOwner("Martin Vysny", "mavi@vaadin.com"),
     runtimeResources = Resources.defaultRuntimeResources,
     build = Build(resources = Resources.defaultBuildResources)
@@ -38,6 +38,6 @@ class ProjectIdTest : DynaTest({
 
 class ProjectTest : DynaTest({
     test("json serialization") {
-        expect("""{"id":"vaadin-boot-example-gradle","description":"vaadin-boot-example-gradle","gitRepo":"https://github.com/mvysny/vaadin-boot-example-gradle","owner":{"name":"Martin Vysny","email":"mavi@vaadin.com"},"runtimeResources":{"memoryMb":256,"cpu":1.0},"build":{"resources":{"memoryMb":2048,"cpu":2.0}}}""") { Json.encodeToString(fakeProject) }
+        expect("""{"id":"vaadin-boot-example-gradle","description":"vaadin-boot-example-gradle","gitRepo":{"url":"https://github.com/mvysny/vaadin-boot-example-gradle","branch":"master"},"owner":{"name":"Martin Vysny","email":"mavi@vaadin.com"},"runtimeResources":{"memoryMb":256,"cpu":1.0},"build":{"resources":{"memoryMb":2048,"cpu":2.0}}}""") { Json.encodeToString(fakeProject) }
     }
 })

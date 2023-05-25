@@ -1,8 +1,5 @@
-@file:OptIn(ExperimentalSerializationApi::class)
-
 package com.github.mvysny.shepherd.api
 
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import java.nio.file.Files
 import kotlin.io.path.*
@@ -10,7 +7,7 @@ import kotlin.io.path.*
 private val fakeProject = Project(
     id = ProjectId("vaadin-boot-example-gradle"),
     description = "Gradle example for Vaadin Boot",
-    gitRepo = "https://github.com/mvysny/vaadin-boot-example-gradle",
+    gitRepo = GitRepo("https://github.com/mvysny/vaadin-boot-example-gradle", "master"),
     owner = ProjectOwner("Martin Vysny", "mavi@vaadin.com"),
     runtimeResources = Resources.defaultRuntimeResources,
     build = Build(resources = Resources.defaultBuildResources)

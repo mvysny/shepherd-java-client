@@ -66,10 +66,21 @@ public data class Build(
 )
 
 /**
+ * A git repository.
+ * @property url the git repository from where the project comes from, e.g. `https://github.com/mvysny/vaadin-boot-example-gradle`
+ * @property branch usually `master` or `main`
+ */
+@Serializable
+public data class GitRepo(
+    val url: String,
+    val branch: String
+)
+
+/**
  * @property id the project ID, must be unique.
  * @property description any additional vital information about the project
- * @property gitRepo the git repository from where the project comes from, e.g. `https://github.com/mvysny/vaadin-boot-example-gradle`
- * @property owner the project owner
+ * @property gitRepo the git repository from where the project comes from
+ * @property owner the project owner: a contact person responsible for the project.
  * @property runtimeResources what resources the project needs for running
  * @property build build info
  * @property additionalServices any additional services the project needs, e.g. additional databases and such.
@@ -78,7 +89,7 @@ public data class Build(
 public data class Project(
     val id: ProjectId,
     val description: String,
-    val gitRepo: String,
+    val gitRepo: GitRepo,
     val owner: ProjectOwner,
     val runtimeResources: Resources,
     val build: Build,

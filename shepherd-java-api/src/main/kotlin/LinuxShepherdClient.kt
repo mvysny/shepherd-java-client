@@ -1,5 +1,7 @@
 package com.github.mvysny.shepherd.api
 
+import com.offbytwo.jenkins.JenkinsServer
+import java.net.URI
 import java.nio.file.Path
 import kotlin.io.path.*
 
@@ -9,7 +11,8 @@ import kotlin.io.path.*
  */
 public class LinuxShepherdClient(
     private val kubernetesClient: SimpleKubernetesClient = SimpleKubernetesClient(),
-    private val etcShepherdPath: Path = Path("/etc/shepherd")
+    private val etcShepherdPath: Path = Path("/etc/shepherd"),
+    private val jenkins: SimpleJenkinsClient = SimpleJenkinsClient()
 ) : ShepherdClient {
     /**
      * Project config JSONs are stored here. Defaults to `/etc/shepherd/projects`.
@@ -21,13 +24,18 @@ public class LinuxShepherdClient(
     override fun getProjectInfo(id: ProjectId): Project = projectConfigFolder.getProjectInfo(id)
 
     override fun createProject(project: Project) {
+        // 1. Create project JSON file
         projectConfigFolder.requireProjectDoesntExist(project.id)
         projectConfigFolder.writeProjectJson(project)
 
         // TODO
-        // 1. Create Kubernetes config file at /etc/shepherd/k8s/PROJECT_ID.yaml
-        // 2. Create Jenkins job
-        // 3. Run Jenkins job
+        // 2. Create Kubernetes config file at /etc/shepherd/k8s/PROJECT_ID.yaml
+
+        // 3. Create Jenkins job
+        jenkins.createJob(project)
+
+        // 4. Run Jenkins job
+        jenkins.build(project.id)
     }
 
     private val ProjectId.kubernetesNamespace: String get() = "shepherd-${id}"
@@ -39,4 +47,9 @@ public class LinuxShepherdClient(
         requireNotNull(podName) { "No deployment pod for ${id.id}: $podNames" }
         return kubernetesClient.getLogs(podName, id.kubernetesNamespace)
     }
+}
+
+public fun main() {
+    val jenkins: JenkinsServer = JenkinsServer(URI("http://localhost:8080"), "admin", "admin")
+    jenkins.getJob("vaadin-boot-example-gradle").details()
 }
