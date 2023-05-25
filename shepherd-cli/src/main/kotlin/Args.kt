@@ -26,7 +26,7 @@ data class Args(
             val fake by parser.option(ArgType.Boolean, "fake", description = "Use fake client which provides fake data. Good for testing.").default(false)
             val project by parser.option(ArgType.String, "project", shortName = "p", description = "The project ID to control via the subcommands. Some subcommands do not require this.")
 
-            parser.subcommands(ListProjects(), ShowProject())
+            parser.subcommands(ListProjects(), ShowProject(), Logs())
             val parserResult = parser.parse(args)
             val commandName = parserResult.commandName.takeUnless { it == parser.programName }
             val cmd = Command.values().firstOrNull { it.argName == commandName }
@@ -45,5 +45,8 @@ class ListProjects: Subcommand(Command.ListProjects.argName, "List all projects:
     override fun execute() {} // implemented elsewhere, since this function doesn't have access to
 }
 class ShowProject: Subcommand(Command.ShowProject.argName, "Show project information as a pretty-printed JSON") {
+    override fun execute() {}
+}
+class Logs: Subcommand(Command.Logs.argName, "Prints the runtime logs of the main pod of given project") {
     override fun execute() {}
 }

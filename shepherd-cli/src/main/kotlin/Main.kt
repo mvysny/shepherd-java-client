@@ -30,6 +30,15 @@ enum class Command(val argName: String) {
             val json = Json { prettyPrint = true }
             println(json.encodeToString(project))
         }
+    },
+
+    /**
+     * The `logs` command, prints the runtime logs of the main pod of given project.
+     */
+    Logs("logs") {
+        override fun run(args: Args, client: ShepherdClient) {
+            println(client.getRunLogs(requireProjectId(args)))
+        }
     }
     ;
 

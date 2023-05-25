@@ -1,9 +1,5 @@
 package com.github.mvysny.shepherd.api
 
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.decodeFromStream
-import kotlinx.serialization.json.encodeToStream
-import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.*
 
@@ -18,26 +14,15 @@ public class LinuxShepherdClient(
     /**
      * Project config JSONs are stored here. Defaults to `/etc/shepherd/projects`.
      */
-    private val projectConfigFolder = etcShepherdPath / "projects"
-    private val json = Json { prettyPrint = true }
+    private val projectConfigFolder = ProjectConfigFolder(etcShepherdPath / "projects")
 
-    override fun getAllProjects(): List<ProjectId> {
-        val files = Files.list(projectConfigFolder)
-            .map { it.name }
-            .toList()
-        return files.map { ProjectId(it.removeSuffix(".json")) }
-    }
+    override fun getAllProjects(): List<ProjectId> = projectConfigFolder.getAllProjects()
 
-    private fun getConfigFile(id: ProjectId): Path = projectConfigFolder.resolve(id.id + ".json")
-
-    override fun getProjectInfo(id: ProjectId): Project =
-        getConfigFile(id)
-            .inputStream().buffered().use { stream -> json.decodeFromStream(stream) }
+    override fun getProjectInfo(id: ProjectId): Project = projectConfigFolder.getProjectInfo(id)
 
     override fun createProject(project: Project) {
-        val configFile = getConfigFile(project.id)
-        require(!configFile.exists()) { "${project.id}: the file $configFile already exists" }
-        configFile.outputStream().buffered().use { out -> json.encodeToStream(project, out) }
+        projectConfigFolder.requireProjectDoesntExist(project.id)
+        projectConfigFolder.writeProjectJson(project)
 
         // TODO
         // 1. Create Kubernetes config file at /etc/shepherd/k8s/PROJECT_ID.yaml
@@ -45,13 +30,13 @@ public class LinuxShepherdClient(
         // 3. Run Jenkins job
     }
 
-    private val Project.kubernetesNamespace: String get() = "shepherd-${id.id}"
+    private val ProjectId.kubernetesNamespace: String get() = "shepherd-${id}"
 
-    override fun getRunLogs(project: Project): String {
+    override fun getRunLogs(id: ProjectId): String {
         // main deployment is always called "deployment"
-        val podNames = kubernetesClient.getPods(project.kubernetesNamespace)
+        val podNames = kubernetesClient.getPods(id.kubernetesNamespace)
         val podName = podNames.firstOrNull { it.startsWith("deployment-") }
-        requireNotNull(podName) { "No deployment pod for ${project.id.id}: $podNames" }
-        return kubernetesClient.getLogs(podName, project.kubernetesNamespace)
+        requireNotNull(podName) { "No deployment pod for ${id.id}: $podNames" }
+        return kubernetesClient.getLogs(podName, id.kubernetesNamespace)
     }
 }

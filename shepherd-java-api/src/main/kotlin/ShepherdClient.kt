@@ -22,5 +22,5 @@ public interface ShepherdClient {
     /**
      * Retrieves the run logs of the main pod.
      */
-    public fun getRunLogs(project: Project): String
+    public fun getRunLogs(id: ProjectId): String
 }
