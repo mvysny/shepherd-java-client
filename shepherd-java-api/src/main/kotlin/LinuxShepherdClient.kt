@@ -48,8 +48,3 @@ public class LinuxShepherdClient(
         return kubernetesClient.getLogs(podName, id.kubernetesNamespace)
     }
 }
-
-public fun main() {
-    val jenkins: JenkinsServer = JenkinsServer(URI("http://localhost:8080"), "admin", "admin")
-    jenkins.getJob("vaadin-boot-example-gradle").details()
-}
