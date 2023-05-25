@@ -4,6 +4,7 @@ plugins {
 
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
+    implementation("org.zeroturnaround:zt-exec:1.12")
     testImplementation("com.github.mvysny.dynatest:dynatest:0.24")
 }
 

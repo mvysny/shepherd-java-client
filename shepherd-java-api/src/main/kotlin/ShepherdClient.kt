@@ -18,4 +18,9 @@ public interface ShepherdClient {
      * * registers the project to Jenkins and starts first Jenkins build. The build is configured to call the `shepherd-build` script.
      */
     public fun createProject(project: Project)
+
+    /**
+     * Retrieves the run logs of the main pod.
+     */
+    public fun getRunLogs(project: Project): String
 }

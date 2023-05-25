@@ -53,4 +53,8 @@ public object FakeClient : ShepherdClient {
         require(!configFile.exists()) { "${project.id}: the file $configFile already exists" }
         configFile.outputStream().buffered().use { out -> json.encodeToStream(project, out) }
     }
+
+    override fun getRunLogs(project: Project): String = """
+        
+    """.trimIndent()
 }
