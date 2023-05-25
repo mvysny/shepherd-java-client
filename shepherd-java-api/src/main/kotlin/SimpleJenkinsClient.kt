@@ -38,7 +38,7 @@ public class SimpleJenkinsClient(
       </strategy>
     </jenkins.model.BuildDiscarderProperty>
   </properties>
-  <scm class="hudson.plugins.git.GitSCM" plugin="git@5.0.0">
+  <scm class="hudson.plugins.git.GitSCM" plugin="git">
     <configVersion>2</configVersion>
     <userRemoteConfigs>
       <hudson.plugins.git.UserRemoteConfig>
@@ -74,15 +74,15 @@ export CPU_QUOTA=${(project.build.resources.cpu.toDouble() * 100000).toInt()}
     </hudson.tasks.Shell>
   </builders>
   <publishers>
-    <hudson.tasks.Mailer plugin="mailer@448.v5b_97805e3767">
+    <hudson.tasks.Mailer plugin="mailer">
       <recipients>${emailNotificationSendTo}</recipients>
       <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
       <sendToIndividuals>false</sendToIndividuals>
     </hudson.tasks.Mailer>
   </publishers>
   <buildWrappers>
-    <hudson.plugins.timestamper.TimestamperBuildWrapper plugin="timestamper@1.22"/>
-    <hudson.plugins.build__timeout.BuildTimeoutWrapper plugin="build-timeout@1.28">
+    <hudson.plugins.timestamper.TimestamperBuildWrapper plugin="timestamper"/>
+    <hudson.plugins.build__timeout.BuildTimeoutWrapper plugin="build-timeout">
       <strategy class="hudson.plugins.build_timeout.impl.AbsoluteTimeOutStrategy">
         <timeoutMinutes>15</timeoutMinutes>
       </strategy>
