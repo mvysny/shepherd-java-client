@@ -16,6 +16,9 @@ public class SimpleJenkinsClient(
         jenkins.getJob(id.jenkinsJobName).build()
     }
 
+    /**
+     * Creates a new Jenkins job for given project.
+     */
     public fun createJob(project: Project) {
         val emailNotificationSendTo = setOf("mavi@vaadin.com", project.owner.email).joinToString(" ")
         // you can get the job XML from e.g. http://localhost:8080/job/beverage-buddy-vok/config.xml
@@ -65,6 +68,7 @@ public class SimpleJenkinsClient(
   <builders>
     <hudson.tasks.Shell>
       <command>export BUILD_MEMORY=${project.build.resources.memoryMb}m
+export CPU_QUOTA=${(project.build.resources.cpu.toDouble() * 100000).toInt()}
 /opt/shepherd/shepherd-build ${project.id}</command>
       <configuredLocalRules/>
     </hudson.tasks.Shell>
