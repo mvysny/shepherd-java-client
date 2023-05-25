@@ -1,12 +1,14 @@
 package com.github.mvysny.shepherd.api
 
 import com.offbytwo.jenkins.JenkinsServer
+import org.slf4j.LoggerFactory
 import java.net.URI
 
 public class SimpleJenkinsClient(
     private val jenkins: JenkinsServer = JenkinsServer(URI("http://localhost:8080"), "admin", "admin")
 ) {
     private val ProjectId.jenkinsJobName: String get() = id
+    private val Project.jenkinsJobName: String get() = id.jenkinsJobName
 
     /**
      * Starts a build manually.
@@ -102,26 +104,39 @@ public class SimpleJenkinsClient(
         return xml
     }
 
+    private fun hasJob(id: ProjectId) = jenkins.jobs.keys.contains(id.jenkinsJobName)
+
     /**
-     * Creates a new Jenkins job for given project.
+     * Creates a new Jenkins job for given project, or updates existing job if it already exists.
      */
     public fun createJob(project: Project) {
         val xml = getJobXml(project)
-        jenkins.createJob(project.id.id, xml)
+        if (!hasJob(project.id)) {
+            jenkins.createJob(project.jenkinsJobName, xml)
+        } else {
+            log.warn("Jenkins job for ${project.id.id} already exists, updating existing instead")
+            updateJob(project)
+        }
     }
 
     /**
-     * Updates Jenkins job.
+     * Updates Jenkins job. Fails if the job doesn't exist.
      */
     public fun updateJob(project: Project) {
         val xml = getJobXml(project)
-        jenkins.updateJob(project.id.id, xml)
+        jenkins.updateJob(project.jenkinsJobName, xml)
     }
 
     /**
-     * Deletes Jenkins job for given project.
+     * Deletes Jenkins job for given project. Does nothing if the job doesn't exist - logs
+     * a warning log instead.
      */
-    public fun deleteJob(id: ProjectId) {
-        jenkins.deleteJob(id.id)
+    public fun deleteJobIfExists(id: ProjectId) {
+        jenkins.deleteJob(id.jenkinsJobName)
+    }
+
+    public companion object {
+        @JvmStatic
+        private val log = LoggerFactory.getLogger(SimpleJenkinsClient::class.java)
     }
 }

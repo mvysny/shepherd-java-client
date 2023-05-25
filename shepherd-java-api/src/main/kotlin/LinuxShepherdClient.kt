@@ -8,7 +8,7 @@ import kotlin.io.path.*
  * @property etcShepherdPath the root shepherd path, `/etc/shepherd`
  */
 public class LinuxShepherdClient(
-    private val kubernetesClient: SimpleKubernetesClient = SimpleKubernetesClient(),
+    private val kubernetes: SimpleKubernetesClient = SimpleKubernetesClient(),
     private val etcShepherdPath: Path = Path("/etc/shepherd"),
     private val jenkins: SimpleJenkinsClient = SimpleJenkinsClient()
 ) : ShepherdClient {
@@ -36,13 +36,19 @@ public class LinuxShepherdClient(
         jenkins.build(project.id)
     }
 
+    override fun deleteProject(id: ProjectId) {
+        jenkins.deleteJobIfExists(id)
+        kubernetes.delete(id)
+        projectConfigFolder.deleteIfExists(id)
+    }
+
     private val ProjectId.kubernetesNamespace: String get() = "shepherd-${id}"
 
     override fun getRunLogs(id: ProjectId): String {
         // main deployment is always called "deployment"
-        val podNames = kubernetesClient.getPods(id.kubernetesNamespace)
+        val podNames = kubernetes.getPods(id.kubernetesNamespace)
         val podName = podNames.firstOrNull { it.startsWith("deployment-") }
         requireNotNull(podName) { "No deployment pod for ${id.id}: $podNames" }
-        return kubernetesClient.getLogs(podName, id.kubernetesNamespace)
+        return kubernetes.getLogs(podName, id.kubernetesNamespace)
     }
 }

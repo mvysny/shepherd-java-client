@@ -39,6 +39,10 @@ public object FakeShepherdClient : ShepherdClient {
         projectConfigFolder.writeProjectJson(project)
     }
 
+    override fun deleteProject(id: ProjectId) {
+        projectConfigFolder.deleteIfExists(id)
+    }
+
     override fun getRunLogs(id: ProjectId): String {
         projectConfigFolder.requireProjectExists(id)
         return """

@@ -6,12 +6,10 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import kotlinx.serialization.json.encodeToStream
+import org.slf4j.LoggerFactory
 import java.nio.file.Files
 import java.nio.file.Path
-import kotlin.io.path.exists
-import kotlin.io.path.inputStream
-import kotlin.io.path.name
-import kotlin.io.path.outputStream
+import kotlin.io.path.*
 
 /**
  * Manages the project config [folder].
@@ -45,5 +43,20 @@ internal class ProjectConfigFolder(val folder: Path) {
 
     fun writeProjectJson(project: Project) {
         getConfigFile(project.id).outputStream().buffered().use { out -> json.encodeToStream(project, out) }
+    }
+
+    /**
+     * Deletes config file for given project. Does nothing if the file doesn't exist.
+     */
+    fun deleteIfExists(id: ProjectId) {
+        val f = getConfigFile(id)
+        if (!f.deleteIfExists()) {
+            log.warn("File $f doesn't exist, not deleted")
+        }
+    }
+
+    companion object {
+        @JvmStatic
+        private val log = LoggerFactory.getLogger(ProjectConfigFolder::class.java)
     }
 }
