@@ -4,7 +4,7 @@ import com.offbytwo.jenkins.JenkinsServer
 import org.slf4j.LoggerFactory
 import java.net.URI
 
-public class SimpleJenkinsClient(
+public class SimpleJenkinsClient @JvmOverloads constructor(
     private val jenkins: JenkinsServer = JenkinsServer(URI("http://localhost:8080"), "admin", "admin")
 ) {
     private val ProjectId.jenkinsJobName: String get() = id

@@ -12,7 +12,7 @@ import kotlin.io.path.exists
  * @property yamlConfigFolder where the kubernetes yaml config files for projects are stored. Shepherd expects
  * this to be `/etc/shepherd/k8s`.
  */
-public class SimpleKubernetesClient(
+public class SimpleKubernetesClient @JvmOverloads constructor(
     private val kubectl: Array<String> = arrayOf("microk8s", "kubectl"),
     private val yamlConfigFolder: Path = Path("/etc/shepherd/k8s")
 ) {

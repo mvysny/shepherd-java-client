@@ -7,7 +7,7 @@ import kotlin.io.path.*
  * Interacts with the actual shepherd system.
  * @property etcShepherdPath the root shepherd path, `/etc/shepherd`
  */
-public class LinuxShepherdClient(
+public class LinuxShepherdClient @JvmOverloads constructor(
     private val kubernetes: SimpleKubernetesClient = SimpleKubernetesClient(),
     private val etcShepherdPath: Path = Path("/etc/shepherd"),
     private val jenkins: SimpleJenkinsClient = SimpleJenkinsClient()
