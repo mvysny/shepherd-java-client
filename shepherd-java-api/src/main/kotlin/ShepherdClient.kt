@@ -20,7 +20,8 @@ public interface ShepherdClient {
     public fun createProject(project: Project)
 
     /**
-     * Retrieves the run logs of the main pod.
+     * Retrieves the run logs of the main Kubernetes pod (=the app itself). There may be additional pods (e.g. PostgreSQL)
+     * but their logs are not returned.
      */
     public fun getRunLogs(id: ProjectId): String
 }

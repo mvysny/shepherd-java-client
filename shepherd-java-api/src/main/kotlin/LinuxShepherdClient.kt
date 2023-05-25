@@ -1,7 +1,5 @@
 package com.github.mvysny.shepherd.api
 
-import com.offbytwo.jenkins.JenkinsServer
-import java.net.URI
 import java.nio.file.Path
 import kotlin.io.path.*
 

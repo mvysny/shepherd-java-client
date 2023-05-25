@@ -7,7 +7,6 @@ public class SimpleJenkinsClient(
     private val jenkins: JenkinsServer = JenkinsServer(URI("http://localhost:8080"), "admin", "admin")
 ) {
     private val ProjectId.jenkinsJobName: String get() = id
-    private val Project.jenkinsJobName: String get() = id.jenkinsJobName
 
     /**
      * Starts a build manually.
@@ -16,10 +15,7 @@ public class SimpleJenkinsClient(
         jenkins.getJob(id.jenkinsJobName).build()
     }
 
-    /**
-     * Creates a new Jenkins job for given project.
-     */
-    public fun createJob(project: Project) {
+    private fun getJobXml(project: Project): String {
         val emailNotificationSendTo = setOf("mavi@vaadin.com", project.owner.email).joinToString(" ")
         val envVars = mutableListOf(
             "export BUILD_MEMORY=${project.build.resources.memoryMb}m",
@@ -103,6 +99,29 @@ public class SimpleJenkinsClient(
   </buildWrappers>
 </project>            
         """.trim()
+        return xml
+    }
+
+    /**
+     * Creates a new Jenkins job for given project.
+     */
+    public fun createJob(project: Project) {
+        val xml = getJobXml(project)
         jenkins.createJob(project.id.id, xml)
+    }
+
+    /**
+     * Updates Jenkins job.
+     */
+    public fun updateJob(project: Project) {
+        val xml = getJobXml(project)
+        jenkins.updateJob(project.id.id, xml)
+    }
+
+    /**
+     * Deletes Jenkins job for given project.
+     */
+    public fun deleteJob(id: ProjectId) {
+        jenkins.deleteJob(id.id)
     }
 }
