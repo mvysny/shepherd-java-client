@@ -58,11 +58,15 @@ public data class Resources(
 
 /**
  * How to build the project.
- * @property resources how many resources to allocate for the build.
+ * @property resources how many resources to allocate for the build. Passed via `BUILD_MEMORY` and `CPU_QUOTA` env variables to `shepherd-build`.
+ * @property buildArgs optional build args, passed as `--build-arg name="value"` to `docker build` via the `BUILD_ARGS` env variable passed to `shepherd-build`.
+ * @property dockerFile if not null, we build off this dockerfile instead of the default `Dockerfile`. Passed via `DOCKERFILE` env variable to `shepherd-build`.
  */
 @Serializable
 public data class Build(
-    val resources: Resources
+    val resources: Resources,
+    val buildArgs: Map<String, String> = mapOf(),
+    val dockerFile: String? = null
 )
 
 /**

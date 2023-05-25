@@ -21,6 +21,19 @@ public class SimpleJenkinsClient(
      */
     public fun createJob(project: Project) {
         val emailNotificationSendTo = setOf("mavi@vaadin.com", project.owner.email).joinToString(" ")
+        val envVars = mutableListOf(
+            "export BUILD_MEMORY=${project.build.resources.memoryMb}m",
+            "export CPU_QUOTA=${(project.build.resources.cpu.toDouble() * 100000).toInt()}"
+        )
+        if (project.build.buildArgs.isNotEmpty()) {
+            val buildArgs: String =
+                project.build.buildArgs.entries.joinToString(" ") { (k, v) -> """--build-arg $k="$v"""" }
+            envVars.add("export BUILD_ARGS='$buildArgs'")
+        }
+        if (project.build.dockerFile != null) {
+            envVars.add("export DOCKERFILE=${project.build.dockerFile}")
+        }
+
         // you can get the job XML from e.g. http://localhost:8080/job/beverage-buddy-vok/config.xml
         val xml = """
 <?xml version='1.1' encoding='UTF-8'?>
@@ -67,8 +80,7 @@ public class SimpleJenkinsClient(
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>export BUILD_MEMORY=${project.build.resources.memoryMb}m
-export CPU_QUOTA=${(project.build.resources.cpu.toDouble() * 100000).toInt()}
+      <command>${envVars.joinToString("\n")}
 /opt/shepherd/shepherd-build ${project.id}</command>
       <configuredLocalRules/>
     </hudson.tasks.Shell>
