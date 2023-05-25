@@ -23,7 +23,7 @@ private val fakeProject = Project(
  * A fake implementation of [ShepherdClient], doesn't require any Kubernetes running. Initially
  * populated with one fake project.
  */
-public object FakeClient : ShepherdClient {
+public object FakeShepherdClient : ShepherdClient {
     private val rootFolder = createTempDirectory("shepherd-fake-client")
 
     /**
