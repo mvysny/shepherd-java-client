@@ -39,6 +39,17 @@ enum class Command(val argName: String) {
         override fun run(args: Args, client: ShepherdClient) {
             println(client.getRunLogs(requireProjectId(args)))
         }
+    },
+
+    /**
+     * The `delete` command, Deletes a project. Dangerous operation, requires -y to confirm.
+     */
+    Delete("delete") {
+        override fun run(args: Args, client: ShepherdClient) {
+            val pid = requireProjectId(args)
+            require(args.delete.yes) { "Pass in -y to confirm that you really want to delete $pid" }
+            client.deleteProject(pid)
+        }
     }
     ;
 

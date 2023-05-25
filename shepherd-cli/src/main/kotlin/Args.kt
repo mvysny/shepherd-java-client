@@ -15,7 +15,8 @@ import kotlinx.cli.*
 data class Args(
     val fake: Boolean,
     val command: Command,
-    val project: ProjectId?
+    val project: ProjectId?,
+    val delete: Delete
 ) {
 
     fun createClient(): ShepherdClient = if (fake) FakeShepherdClient else LinuxShepherdClient()
@@ -26,7 +27,8 @@ data class Args(
             val fake by parser.option(ArgType.Boolean, "fake", description = "Use fake client which provides fake data. Good for testing.").default(false)
             val project by parser.option(ArgType.String, "project", shortName = "p", description = "The project ID to control via the subcommands. Some subcommands do not require this.")
 
-            parser.subcommands(ListProjects(), ShowProject(), Logs())
+            val delete = Delete()
+            parser.subcommands(ListProjects(), ShowProject(), Logs(), delete)
             val parserResult = parser.parse(args)
             val commandName = parserResult.commandName.takeUnless { it == parser.programName }
             val cmd = Command.values().firstOrNull { it.argName == commandName }
@@ -35,7 +37,8 @@ data class Args(
             return Args(
                 fake,
                 cmd,
-                project?.let { ProjectId(it) }
+                project?.let { ProjectId(it) },
+                delete
             )
         }
     }
@@ -48,5 +51,9 @@ class ShowProject: Subcommand(Command.ShowProject.argName, "Show project informa
     override fun execute() {}
 }
 class Logs: Subcommand(Command.Logs.argName, "Prints the runtime logs of the main pod of given project") {
+    override fun execute() {}
+}
+class Delete: Subcommand(Command.Delete.argName, "Deletes a project. Dangerous operation, requires -y to confirm") {
+    val yes by option(ArgType.Boolean, "yes", "y", "Confirms that you're really sure to delete the project").default(false)
     override fun execute() {}
 }
