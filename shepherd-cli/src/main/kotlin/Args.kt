@@ -1,6 +1,7 @@
 @file:OptIn(ExperimentalCli::class)
 
 import com.github.mvysny.shepherd.api.FakeShepherdClient
+import com.github.mvysny.shepherd.api.LinuxShepherdClient
 import com.github.mvysny.shepherd.api.ProjectId
 import com.github.mvysny.shepherd.api.ShepherdClient
 import kotlinx.cli.*
@@ -17,7 +18,7 @@ data class Args(
     val project: ProjectId?
 ) {
 
-    fun createClient(): ShepherdClient = FakeShepherdClient
+    fun createClient(): ShepherdClient = if (fake) FakeShepherdClient else LinuxShepherdClient()
 
     companion object {
         fun parse(args: Array<String>): Args {
