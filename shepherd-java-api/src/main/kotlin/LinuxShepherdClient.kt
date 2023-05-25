@@ -42,13 +42,5 @@ public class LinuxShepherdClient(
         projectConfigFolder.deleteIfExists(id)
     }
 
-    private val ProjectId.kubernetesNamespace: String get() = "shepherd-${id}"
-
-    override fun getRunLogs(id: ProjectId): String {
-        // main deployment is always called "deployment"
-        val podNames = kubernetes.getPods(id.kubernetesNamespace)
-        val podName = podNames.firstOrNull { it.startsWith("deployment-") }
-        requireNotNull(podName) { "No deployment pod for ${id.id}: $podNames" }
-        return kubernetes.getLogs(podName, id.kubernetesNamespace)
-    }
+    override fun getRunLogs(id: ProjectId): String = kubernetes.getRunLogs(id)
 }
