@@ -107,7 +107,7 @@ public data class ProjectRuntime(
  * @property description any additional vital information about the project
  * @property gitRepo the git repository from where the project comes from
  * @property owner the project owner: a contact person responsible for the project.
- * @property runtimeResources what resources the project needs for running
+ * @property runtime what resources the project needs for running
  * @property build build info
  * @property additionalServices any additional services the project needs, e.g. additional databases and such.
  */
@@ -119,6 +119,7 @@ public data class Project(
     val owner: ProjectOwner,
     val runtime: ProjectRuntime,
     val build: Build,
+    val publication: Publication = Publication(),
     val additionalServices: Set<Service> = setOf()
 ) {
     /**
@@ -168,4 +169,17 @@ public enum class ServiceType {
 @Serializable
 public data class Service(
     val type: ServiceType
+)
+
+/**
+ * The project publication.
+ * @property publishOnMainDomain if true (the default), the project will be published on the main domain as well.
+ * Say the main domain is `v-herd.eu`, then the project will be accessible at `v-herd.eu/PROJECT_ID`.
+ * @property additionalDomains additional domains to publish to project at. Must not contain the main domain.
+ * E.g. `yourproject.com`.
+ */
+@Serializable
+public data class Publication(
+    val publishOnMainDomain: Boolean = true,
+    val additionalDomains: Set<String> = setOf()
 )

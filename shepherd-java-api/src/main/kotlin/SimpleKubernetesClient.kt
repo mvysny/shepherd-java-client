@@ -165,6 +165,10 @@ spec:
             yaml += "\n" + getPostgresqlYaml(service, project)
         }
 
+        for (additionalDomain in project.publication.additionalDomains) {
+            yaml += "\n" + getCustomDomainIngressYaml(additionalDomain, project.id)
+        }
+
         return yaml
     }
 
@@ -234,6 +238,41 @@ spec:
     }
 
     /**
+     * @param dns e.g. `v-herd.eu` or `yourdomain.com`
+     */
+    private fun getCustomDomainIngressYaml(dns: String, pid: ProjectId): String {
+        val name = dnsToValidKubernetesIngressId(dns)
+        val namespace = pid.kubernetesNamespace
+
+        return """
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: $name
+  namespace: $namespace
+  annotations:
+    cert-manager.io/cluster-issuer: lets-encrypt
+spec:
+  tls:
+    - hosts:
+      - $dns
+      secretName: $name-tls
+  rules:
+    - host: "$dns"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: service
+                port:
+                  number: 8080
+        """.trim()
+    }
+
+    /**
      * Writes the file `/etc/shepherd/k8s/PROJECT_ID.yaml`, overwriting anything
      * that was there before.
      */
@@ -245,5 +284,11 @@ spec:
     public companion object {
         @JvmStatic
         private val log = LoggerFactory.getLogger(SimpleKubernetesClient::class.java)
+
+        private val notAllowedIdChars = "[^0-9a-z]".toRegex()
+        internal fun dnsToValidKubernetesIngressId(dns: String): String {
+            val result = dns.lowercase().replace(notAllowedIdChars, "-")
+            return "ingress-${result.trimEnd('-')}"
+        }
     }
 }

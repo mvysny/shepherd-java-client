@@ -309,5 +309,118 @@ spec:
                 SimpleKubernetesClient().getKubernetesYamlConfigFile(p)
             }
         }
+
+// -----------------------------------------------------------------------------------------------
+
+        test("additional domain") {
+            val p = fakeProject.copy(publication = Publication(additionalDomains = setOf("mydomain.com")))
+            expect("""
+#
+# Microk8s resource config file for vaadin-boot-example-gradle
+#
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: shepherd-vaadin-boot-example-gradle
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment
+  namespace: shepherd-vaadin-boot-example-gradle
+spec:
+  selector:
+    matchLabels:
+      app: pod
+  template:
+    metadata:
+      labels:
+        app: pod
+    spec:
+      containers:
+      - name: main
+        image: <<IMAGE_AND_HASH>>
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: 0
+          limits:
+            memory: "256Mi"  # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+            cpu: "1000m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service
+  namespace: shepherd-vaadin-boot-example-gradle
+spec:
+  selector:
+    app: pod
+  ports:
+    - port: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-main
+  namespace: shepherd-vaadin-boot-example-gradle
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /\${'$'}3
+    nginx.ingress.kubernetes.io/proxy-cookie-path: / /\${'$'}1
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      rewrite ^(/vaadin-boot-example-gradle)\${'$'} \${'$'}1/ permanent;
+spec:
+  tls:
+  - hosts:
+    - v-herd.eu
+  rules:
+    - host: v-herd.eu
+      http:
+        paths:
+          - path: /(vaadin-boot-example-gradle)(/|${'$'})(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: service
+                port:
+                  number: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-mydomain-com
+  namespace: shepherd-vaadin-boot-example-gradle
+  annotations:
+    cert-manager.io/cluster-issuer: lets-encrypt
+spec:
+  tls:
+    - hosts:
+      - mydomain.com
+      secretName: ingress-mydomain-com-tls
+  rules:
+    - host: "mydomain.com"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: service
+                port:
+                  number: 8080
+            """.trim()) {
+                SimpleKubernetesClient().getKubernetesYamlConfigFile(p)
+            }
+        }
+    }
+
+// -------------------------------------------------
+
+    test("dnsToValidKubernetesIngressId()") {
+        expect("ingress-v-herd-eu") { SimpleKubernetesClient.dnsToValidKubernetesIngressId("v-herd.eu") }
+        expect("ingress-yourdomain-com") { SimpleKubernetesClient.dnsToValidKubernetesIngressId("yourdomain.com") }
     }
 })
