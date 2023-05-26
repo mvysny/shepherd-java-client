@@ -14,7 +14,7 @@ public class SimpleJenkinsClient @JvmOverloads constructor(
      * Starts a build manually.
      */
     public fun build(id: ProjectId) {
-        jenkins.getJob(id.jenkinsJobName).build()
+        jenkins.getJob(id.jenkinsJobName).build(true)
     }
 
     private fun getJobXml(project: Project): String {
@@ -112,7 +112,8 @@ public class SimpleJenkinsClient @JvmOverloads constructor(
     public fun createJob(project: Project) {
         val xml = getJobXml(project)
         if (!hasJob(project.id)) {
-            jenkins.createJob(project.jenkinsJobName, xml)
+            // crumbFlag=true is necessary: https://serverfault.com/questions/990224/jenkins-server-throws-403-while-accessing-rest-api-or-using-jenkins-java-client/1131973
+            jenkins.createJob(project.jenkinsJobName, xml, true)
         } else {
             log.warn("Jenkins job for ${project.id.id} already exists, updating existing instead")
             updateJob(project)
@@ -124,7 +125,7 @@ public class SimpleJenkinsClient @JvmOverloads constructor(
      */
     public fun updateJob(project: Project) {
         val xml = getJobXml(project)
-        jenkins.updateJob(project.jenkinsJobName, xml)
+        jenkins.updateJob(project.jenkinsJobName, xml, true)
     }
 
     /**
@@ -132,7 +133,7 @@ public class SimpleJenkinsClient @JvmOverloads constructor(
      * a warning log instead.
      */
     public fun deleteJobIfExists(id: ProjectId) {
-        jenkins.deleteJob(id.jenkinsJobName)
+        jenkins.deleteJob(id.jenkinsJobName, true)
     }
 
     public companion object {
