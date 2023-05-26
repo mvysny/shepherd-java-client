@@ -157,6 +157,10 @@ public data class Project(
 public enum class ServiceType {
     /**
      * A PostgreSQL database. Use the following values to access the database:
+     * * JDBC URI: `jdbc:postgresql://postgres-service:5432/postgres`
+     * * username: `postgres`
+     * * password: `mysecretpassword`.
+     * The database is only accessible by your project; no other project has access to the database.
      */
     Postgres
 }

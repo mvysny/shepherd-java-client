@@ -79,7 +79,7 @@ public class SimpleKubernetesClient @JvmOverloads constructor(
         val projectId: String = project.id.id
         val namespace = project.kubernetesNamespace
         val maxMemory = "${project.runtime.resources.memoryMb}Mi"
-        val maxCpu = project.runtime.resources.cpu.toString()
+        val maxCpu = "${(project.runtime.resources.cpu * 1000).toInt()}m"
         val env = if (project.runtime.envVars.isNotEmpty()) {
             "\n        env:\n" + project.runtime.envVars.entries.joinToString("\n") { (k, v) -> "        - name: $k\n          value: \"$v\"" }
         } else {
@@ -121,7 +121,7 @@ spec:
             cpu: 0
           limits:
             memory: "$maxMemory"  # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-            cpu: $maxCpu
+            cpu: "$maxCpu"
 ---
 apiVersion: v1
 kind: Service
