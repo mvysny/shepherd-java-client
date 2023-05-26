@@ -26,13 +26,13 @@ public class LinuxShepherdClient @JvmOverloads constructor(
         projectConfigFolder.requireProjectDoesntExist(project.id)
         projectConfigFolder.writeProjectJson(project)
 
-        // TODO
         // 2. Create Kubernetes config file at /etc/shepherd/k8s/PROJECT_ID.yaml
+        kubernetes.writeConfigYamlFile(project)
 
         // 3. Create Jenkins job
         jenkins.createJob(project)
 
-        // 4. Run Jenkins job
+        // 4. Run the build immediately
         jenkins.build(project.id)
     }
 

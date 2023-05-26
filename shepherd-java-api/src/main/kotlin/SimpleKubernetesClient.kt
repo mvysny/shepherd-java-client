@@ -5,6 +5,7 @@ import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.io.path.exists
+import kotlin.io.path.writeText
 
 /**
  * A very simple Kubernetes client, retrieves stuff by running the kubectl binary.
@@ -161,6 +162,15 @@ spec:
         """.trim()
 
         return yaml
+    }
+
+    /**
+     * Writes the file `/etc/shepherd/k8s/PROJECT_ID.yaml`, overwriting anything
+     * that was there before.
+     */
+    public fun writeConfigYamlFile(project: Project) {
+        val yaml = getKubernetesYamlConfigFile(project)
+        getConfigYamlFile(project.id).writeText(yaml)
     }
 
     public companion object {
