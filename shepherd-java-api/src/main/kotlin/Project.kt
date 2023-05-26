@@ -119,7 +119,7 @@ public data class Project(
     val owner: ProjectOwner,
     val runtime: ProjectRuntime,
     val build: Build,
-    val additionalServices: List<Service> = listOf()
+    val additionalServices: Set<Service> = setOf()
 ) {
     /**
      * Returns URLs on which this project runs (can be browsed to). E.g. for `vaadin-boot-example-gradle`

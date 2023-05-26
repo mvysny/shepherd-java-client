@@ -86,7 +86,7 @@ public class SimpleKubernetesClient @JvmOverloads constructor(
             ""
         }
 
-        val yaml = """
+        var yaml = """
 #
 # Microk8s resource config file for $projectId
 #
@@ -161,7 +161,76 @@ spec:
                   number: 8080
         """.trim()
 
+        for (service in project.additionalServices) {
+            yaml += "\n" + getPostgresqlYaml(service, project)
+        }
+
         return yaml
+    }
+
+    private fun getPostgresqlYaml(service: Service, project: Project): String {
+        require(service.type == ServiceType.Postgres)
+        val namespace = project.kubernetesNamespace
+
+        return """
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+  namespace: $namespace
+spec:
+  accessModes: [ReadWriteOnce]
+  resources: { requests: { storage: 512Mi } }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgresql-deployment
+  namespace: $namespace
+spec:
+  selector:
+    matchLabels:
+      app: postgres-pod
+  template:
+    metadata:
+      labels:
+        app: postgres-pod
+    spec:
+      volumes:
+        - name: postgres-vol
+          persistentVolumeClaim:
+            claimName: postgres-pvc
+      containers:
+        - name: postgresql
+          image: postgres:15.2
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_PASSWORD
+              value: mysecretpassword
+          resources:
+            requests:
+              memory: "2Mi"
+              cpu: 0
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          volumeMounts:
+            - name: postgres-vol
+              mountPath: /var/lib/postgresql/data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service  # this will also be the DNS name of the VM running this service.
+  namespace: $namespace
+spec:
+  selector:
+    app: postgres-pod
+  ports:
+    - port: 5432
+        """.trim()
     }
 
     /**

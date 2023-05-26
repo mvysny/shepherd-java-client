@@ -41,7 +41,7 @@ spec:
             cpu: 0
           limits:
             memory: "256Mi"  # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-            cpu: 1.0
+            cpu: "1000m"
 ---
 apiVersion: v1
 kind: Service
@@ -128,7 +128,7 @@ spec:
             cpu: 0
           limits:
             memory: "256Mi"  # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-            cpu: 1
+            cpu: "1000m"
 ---
 apiVersion: v1
 kind: Service
@@ -174,7 +174,7 @@ spec:
 // -----------------------------------------------------------------------------------------------
 
         test("postgresql") {
-            val p = fakeProject.copy(additionalServices = listOf(Service(type = ServiceType.Postgres)))
+            val p = fakeProject.copy(additionalServices = setOf(Service(type = ServiceType.Postgres)))
             expect("""
 #
 # Microk8s resource config file for vaadin-boot-example-gradle
