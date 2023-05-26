@@ -19,7 +19,7 @@ public class SimpleKubernetesClient @JvmOverloads constructor(
     /**
      * Runs `kubectl get pods` and returns all names.
      */
-    private fun getPods(namespace: String): List<String> {
+    private fun kubeCtlGetPods(namespace: String): List<String> {
         val stdout = exec(*kubectl, "get", "pods", "--namespace", namespace)
         return stdout.lines()
             .drop(1)
@@ -31,16 +31,16 @@ public class SimpleKubernetesClient @JvmOverloads constructor(
     /**
      * Returns the logs of given pod.
      */
-    private fun getLogs(podName: String, namespace: String): String =
+    private fun kubeCtlGetLogs(podName: String, namespace: String): String =
         exec(*kubectl, "logs", podName, "--namespace", namespace)
 
     public fun getRunLogs(id: ProjectId): String {
         // main deployment is always called "deployment"
-        val podNames = getPods(id.kubernetesNamespace)
+        val podNames = kubeCtlGetPods(id.kubernetesNamespace)
         val podName = podNames.firstOrNull { it.startsWith("deployment-") }
         requireNotNull(podName) { "No deployment pod for ${id.id}: $podNames" }
 
-        return getLogs(podName, id.kubernetesNamespace)
+        return kubeCtlGetLogs(podName, id.kubernetesNamespace)
     }
 
     private fun getConfigYamlFile(id: ProjectId): Path = yamlConfigFolder / "${id.id}.yaml"
