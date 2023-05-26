@@ -21,7 +21,11 @@ public interface ShepherdClient {
     public fun createProject(project: Project)
 
     /**
-     * Deletes given project: stops and removes all builds, stops and removes all Kubernetes rules.
+     * Deletes given project: stops and removes all builds, stops and removes all Kubernetes rules,
+     * and removes the project json config.
+     *
+     * This function will still try to unregister the project from Jenkins and Kubernetes
+     * even if the project json config is already nonexistent.
      */
     public fun deleteProject(id: ProjectId)
 
