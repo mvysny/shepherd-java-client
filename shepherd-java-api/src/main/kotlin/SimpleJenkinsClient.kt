@@ -24,8 +24,9 @@ public class SimpleJenkinsClient @JvmOverloads constructor(
             "export CPU_QUOTA=${(project.build.resources.cpu.toDouble() * 100000).toInt()}"
         )
         if (project.build.buildArgs.isNotEmpty()) {
+            // don't wrap $v in "" - --build-arg can't handle that and e.g. Vaadin Key won't be accepted.
             val buildArgs: String =
-                project.build.buildArgs.entries.joinToString(" ") { (k, v) -> """--build-arg $k="$v"""" }
+                project.build.buildArgs.entries.joinToString(" ") { (k, v) -> """--build-arg $k=$v""" }
             envVars.add("export BUILD_ARGS='$buildArgs'")
         }
         if (project.build.dockerFile != null) {
