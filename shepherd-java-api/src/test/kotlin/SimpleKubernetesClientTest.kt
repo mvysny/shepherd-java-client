@@ -60,10 +60,10 @@ metadata:
   name: ingress-main
   namespace: shepherd-vaadin-boot-example-gradle
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /\${'$'}3
-    nginx.ingress.kubernetes.io/proxy-cookie-path: / /\${'$'}1
+    nginx.ingress.kubernetes.io/rewrite-target: /${'$'}3
+    nginx.ingress.kubernetes.io/proxy-cookie-path: / /${'$'}1
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      rewrite ^(/vaadin-boot-example-gradle)\${'$'} \${'$'}1/ permanent;
+      rewrite ^(/vaadin-boot-example-gradle)${'$'} ${'$'}1/ permanent;
 spec:
   tls:
   - hosts:
@@ -147,10 +147,10 @@ metadata:
   name: ingress-main
   namespace: shepherd-vaadin-boot-example-gradle
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /\${'$'}3
-    nginx.ingress.kubernetes.io/proxy-cookie-path: / /\${'$'}1
+    nginx.ingress.kubernetes.io/rewrite-target: /${'$'}3
+    nginx.ingress.kubernetes.io/proxy-cookie-path: / /${'$'}1
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      rewrite ^(/vaadin-boot-example-gradle)\${'$'} \${'$'}1/ permanent;
+      rewrite ^(/vaadin-boot-example-gradle)${'$'} ${'$'}1/ permanent;
 spec:
   tls:
   - hosts:
@@ -229,10 +229,10 @@ metadata:
   name: ingress-main
   namespace: shepherd-vaadin-boot-example-gradle
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /\${'$'}3
-    nginx.ingress.kubernetes.io/proxy-cookie-path: / /\${'$'}1
+    nginx.ingress.kubernetes.io/rewrite-target: /${'$'}3
+    nginx.ingress.kubernetes.io/proxy-cookie-path: / /${'$'}1
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      rewrite ^(/vaadin-boot-example-gradle)\${'$'} \${'$'}1/ permanent;
+      rewrite ^(/vaadin-boot-example-gradle)${'$'} ${'$'}1/ permanent;
 spec:
   tls:
   - hosts:
@@ -368,10 +368,10 @@ metadata:
   name: ingress-main
   namespace: shepherd-vaadin-boot-example-gradle
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /\${'$'}3
-    nginx.ingress.kubernetes.io/proxy-cookie-path: / /\${'$'}1
+    nginx.ingress.kubernetes.io/rewrite-target: /${'$'}3
+    nginx.ingress.kubernetes.io/proxy-cookie-path: / /${'$'}1
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      rewrite ^(/vaadin-boot-example-gradle)\${'$'} \${'$'}1/ permanent;
+      rewrite ^(/vaadin-boot-example-gradle)${'$'} ${'$'}1/ permanent;
 spec:
   tls:
   - hosts:
