@@ -140,10 +140,10 @@ metadata:
   name: ingress-main
   namespace: $namespace
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /\${'$'}3
-    nginx.ingress.kubernetes.io/proxy-cookie-path: / /\${'$'}1
+    nginx.ingress.kubernetes.io/rewrite-target: /${'$'}3
+    nginx.ingress.kubernetes.io/proxy-cookie-path: / /${'$'}1
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      rewrite ^(/$projectId)\${'$'} \${'$'}1/ permanent;
+      rewrite ^(/$projectId)${'$'} ${'$'}1/ permanent;
 spec:
   tls:
   - hosts:
