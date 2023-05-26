@@ -9,7 +9,7 @@ import kotlin.io.path.exists
 /**
  * A very simple Kubernetes client, retrieves stuff by running the kubectl binary.
  * @property kubectl the kubectl binary
- * @property yamlConfigFolder where the kubernetes yaml config files for projects are stored. Shepherd expects
+ * @property yamlConfigFolder where the kubernetes yaml config files for projects are stored. Shepherd scripts expects
  * this to be `/etc/shepherd/k8s`.
  */
 public class SimpleKubernetesClient @JvmOverloads constructor(
