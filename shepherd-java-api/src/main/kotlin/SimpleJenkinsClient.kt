@@ -37,7 +37,7 @@ public class SimpleJenkinsClient @JvmOverloads constructor(
 <?xml version='1.1' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>${project.description}. Web page: ${project.gitRepo}. Owner: ${project.owner}</description>
+  <description>${project.description.escapeXml()}. Web page: ${project.gitRepo.url.escapeXml()}. Owner: ${project.owner.toString().escapeXml()}</description>
   <keepDependencies>false</keepDependencies>
   <properties>
     <jenkins.model.BuildDiscarderProperty>
@@ -53,12 +53,12 @@ public class SimpleJenkinsClient @JvmOverloads constructor(
     <configVersion>2</configVersion>
     <userRemoteConfigs>
       <hudson.plugins.git.UserRemoteConfig>
-        <url>${project.gitRepo.url}</url>
+        <url>${project.gitRepo.url.escapeXml()}</url>
       </hudson.plugins.git.UserRemoteConfig>
     </userRemoteConfigs>
     <branches>
       <hudson.plugins.git.BranchSpec>
-        <name>*/${project.gitRepo.branch}</name>
+        <name>*/${project.gitRepo.branch.escapeXml()}</name>
       </hudson.plugins.git.BranchSpec>
     </branches>
     <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
@@ -78,14 +78,14 @@ public class SimpleJenkinsClient @JvmOverloads constructor(
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>${envVars.joinToString("\n")}
-/opt/shepherd/shepherd-build ${project.id}</command>
+      <command>${envVars.joinToString("\n").escapeXml()}
+/opt/shepherd/shepherd-build ${project.id.id.escapeXml()}</command>
       <configuredLocalRules/>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
     <hudson.tasks.Mailer plugin="mailer">
-      <recipients>${emailNotificationSendTo}</recipients>
+      <recipients>${emailNotificationSendTo.escapeXml()}</recipients>
       <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
       <sendToIndividuals>false</sendToIndividuals>
     </hudson.tasks.Mailer>
@@ -139,5 +139,11 @@ public class SimpleJenkinsClient @JvmOverloads constructor(
     public companion object {
         @JvmStatic
         private val log = LoggerFactory.getLogger(SimpleJenkinsClient::class.java)
+
+        private fun String.escapeXml(): String = this
+            .replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            .replace("'", "&apos;")
     }
 }
