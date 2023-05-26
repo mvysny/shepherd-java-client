@@ -1,6 +1,17 @@
+@file:OptIn(ExperimentalSerializationApi::class)
+
 package com.github.mvysny.shepherd.api
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.decodeFromStream
+import kotlinx.serialization.json.encodeToStream
+import java.nio.file.Path
+import kotlin.io.path.inputStream
+import kotlin.io.path.outputStream
 
 /**
  * The Project ID must:
@@ -116,12 +127,36 @@ public data class Project(
      */
     public fun getPublishedURLs(host: String): List<String> =
         listOf("https://$host/${id.id}")
+
+    public companion object {
+        @JvmStatic
+        public fun loadFromFile(file: Path): Project =
+            file.inputStream().buffered().use { stream -> Json.decodeFromStream(stream) }
+
+        private val jsonPrettyPrint = Json { prettyPrint = true }
+        private fun getJson(prettyPrint: Boolean): Json = if (prettyPrint) jsonPrettyPrint else Json
+
+        @JvmStatic
+        public fun fromJson(json: String): Project = Json.decodeFromString(json)
+    }
+
+    /**
+     * Saves this project as a JSON to given [file]. Pretty-prints the JSON by default;
+     * override via the [prettyPrint] parameter.
+     */
+    @JvmOverloads
+    public fun saveToFile(file: Path, prettyPrint: Boolean = true) {
+        file.outputStream().buffered().use { stream -> getJson(prettyPrint).encodeToStream(this, stream) }
+    }
+
+    @JvmOverloads
+    public fun toJson(prettyPrint: Boolean = false): String = getJson(prettyPrint).encodeToString(this)
 }
 
 @Serializable
 public enum class ServiceType {
     /**
-     * A PostgreSQL database.
+     * A PostgreSQL database. Use the following values to access the database:
      */
     Postgres
 }

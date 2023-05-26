@@ -2,8 +2,6 @@ package com.github.mvysny.shepherd.api
 
 import com.github.mvysny.dynatest.DynaTest
 import com.github.mvysny.dynatest.expectThrows
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import kotlin.test.expect
 
 val fakeProject = Project(
@@ -14,6 +12,7 @@ val fakeProject = Project(
     runtime = ProjectRuntime(Resources.defaultRuntimeResources),
     build = Build(resources = Resources.defaultBuildResources)
 )
+private val serializedJson = """{"id":"vaadin-boot-example-gradle","description":"vaadin-boot-example-gradle","gitRepo":{"url":"https://github.com/mvysny/vaadin-boot-example-gradle","branch":"master"},"owner":{"name":"Martin Vysny","email":"mavi@vaadin.com"},"runtime":{"resources":{"memoryMb":256,"cpu":1.0}},"build":{"resources":{"memoryMb":2048,"cpu":2.0}}}"""
 
 class ProjectIdTest : DynaTest({
     test("validation pass") {
@@ -38,6 +37,9 @@ class ProjectIdTest : DynaTest({
 
 class ProjectTest : DynaTest({
     test("json serialization") {
-        expect("""{"id":"vaadin-boot-example-gradle","description":"vaadin-boot-example-gradle","gitRepo":{"url":"https://github.com/mvysny/vaadin-boot-example-gradle","branch":"master"},"owner":{"name":"Martin Vysny","email":"mavi@vaadin.com"},"runtime":{"resources":{"memoryMb":256,"cpu":1.0}},"build":{"resources":{"memoryMb":2048,"cpu":2.0}}}""") { Json.encodeToString(fakeProject) }
+        expect(serializedJson) { fakeProject.toJson() }
+    }
+    test("json deserialization") {
+        expect(fakeProject) { Project.fromJson(serializedJson) }
     }
 })

@@ -1,7 +1,10 @@
+import com.github.mvysny.shepherd.api.Project
 import com.github.mvysny.shepherd.api.ProjectId
 import com.github.mvysny.shepherd.api.ShepherdClient
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.decodeFromStream
+import kotlin.io.path.Path
 
 fun main(args: Array<String>) {
     val a = Args.parse(args)
@@ -51,8 +54,18 @@ enum class Command(val argName: String) {
     Delete("delete") {
         override fun run(args: Args, client: ShepherdClient) {
             val pid = requireProjectId(args)
-            require(args.delete.yes) { "Pass in -y to confirm that you really want to delete $pid" }
+            require(args.deleteSubcommand.yes) { "Pass in -y to confirm that you really want to delete $pid" }
             client.deleteProject(pid)
+        }
+    },
+
+    /**
+     * The `create` command, creates a new project. Fails if the project already exists.
+     */
+    Create("create") {
+        override fun run(args: Args, client: ShepherdClient) {
+            val project = Project.loadFromFile(Path(args.createSubcommand.jsonFile))
+            client.createProject(project)
         }
     }
     ;

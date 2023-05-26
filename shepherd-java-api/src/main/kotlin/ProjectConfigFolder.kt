@@ -1,11 +1,5 @@
-@file:OptIn(ExperimentalSerializationApi::class)
-
 package com.github.mvysny.shepherd.api
 
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.decodeFromStream
-import kotlinx.serialization.json.encodeToStream
 import org.slf4j.LoggerFactory
 import java.nio.file.Files
 import java.nio.file.Path
@@ -15,8 +9,6 @@ import kotlin.io.path.*
  * Manages the project config [folder].
  */
 internal class ProjectConfigFolder(val folder: Path) {
-    private val json = Json { prettyPrint = true }
-
     fun getAllProjects(): List<ProjectId> {
         val files = Files.list(folder)
             .map { it.name }
@@ -38,11 +30,10 @@ internal class ProjectConfigFolder(val folder: Path) {
     }
 
     fun getProjectInfo(id: ProjectId): Project =
-        getConfigFile(id)
-            .inputStream().buffered().use { stream -> json.decodeFromStream(stream) }
+        Project.loadFromFile(getConfigFile(id))
 
     fun writeProjectJson(project: Project) {
-        getConfigFile(project.id).outputStream().buffered().use { out -> json.encodeToStream(project, out) }
+        project.saveToFile(getConfigFile(project.id))
     }
 
     /**
