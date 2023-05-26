@@ -46,7 +46,7 @@ public data class Resources(
     val cpu: Float
 ) {
     init {
-        require(memoryMb >= 64) { "Give the process at least 64mb: $memoryMb" }
+        require(memoryMb >= 32) { "Give the process at least 32mb: $memoryMb" }
         require(cpu > 0) { "$cpu" }
     }
     public companion object {
@@ -81,6 +81,17 @@ public data class GitRepo(
 )
 
 /**
+ * Runtime project config.
+ * @property resources what resources the project needs for running
+ * @property envVars environment variables, e.g. `SPRING_DATASOURCE_URL` to `jdbc:postgresql://liukuri-postgres:5432/postgres`
+ */
+@Serializable
+public data class ProjectRuntime(
+    val resources: Resources,
+    val envVars: Map<String, String> = mapOf()
+)
+
+/**
  * @property id the project ID, must be unique.
  * @property description any additional vital information about the project
  * @property gitRepo the git repository from where the project comes from
@@ -95,7 +106,7 @@ public data class Project(
     val description: String,
     val gitRepo: GitRepo,
     val owner: ProjectOwner,
-    val runtimeResources: Resources,
+    val runtime: ProjectRuntime,
     val build: Build,
     val additionalServices: List<Service> = listOf()
 ) {

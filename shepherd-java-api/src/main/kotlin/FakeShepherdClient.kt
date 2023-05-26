@@ -9,7 +9,7 @@ private val fakeProject = Project(
     description = "Gradle example for Vaadin Boot",
     gitRepo = GitRepo("https://github.com/mvysny/vaadin-boot-example-gradle", "master"),
     owner = ProjectOwner("Martin Vysny", "mavi@vaadin.com"),
-    runtimeResources = Resources.defaultRuntimeResources,
+    runtime = ProjectRuntime(Resources.defaultRuntimeResources),
     build = Build(resources = Resources.defaultBuildResources)
 )
 
@@ -24,7 +24,6 @@ public object FakeShepherdClient : ShepherdClient {
      * Stores projects as json files named `projectid.json`.
      */
     private val projectConfigFolder = ProjectConfigFolder(rootFolder / "projects")
-    private val json = Json { prettyPrint = true }
     init {
         Files.createDirectories(projectConfigFolder.folder)
         createProject(fakeProject)

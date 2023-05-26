@@ -11,10 +11,12 @@ import kotlin.io.path.exists
  * @property kubectl the kubectl binary
  * @property yamlConfigFolder where the kubernetes yaml config files for projects are stored. Shepherd scripts expects
  * this to be `/etc/shepherd/k8s`.
+ * @property defaultDNS where the Shepherd is running, defaults to `v-herd.eu`.
  */
 public class SimpleKubernetesClient @JvmOverloads constructor(
     private val kubectl: Array<String> = arrayOf("microk8s", "kubectl"),
-    private val yamlConfigFolder: Path = Path("/etc/shepherd/k8s")
+    private val yamlConfigFolder: Path = Path("/etc/shepherd/k8s"),
+    private val defaultDNS: String = "v-herd.eu"
 ) {
     /**
      * Runs `kubectl get pods` and returns all names.
@@ -27,6 +29,7 @@ public class SimpleKubernetesClient @JvmOverloads constructor(
     }
 
     private val ProjectId.kubernetesNamespace: String get() = "shepherd-${id}"
+    private val Project.kubernetesNamespace: String get() = id.kubernetesNamespace
 
     /**
      * Returns the logs of given pod.
@@ -52,6 +55,112 @@ public class SimpleKubernetesClient @JvmOverloads constructor(
         } else {
             log.warn("$f doesn't exist, not deleting project objects from Kubernetes")
         }
+    }
+
+    /**
+     * Creates new Kubernetes YAML config file for the [project].
+     *
+     * The value of [imageAndHash] depends on your scenario:
+     *
+     * * If this file is going to be written to [yamlConfigFolder] then use the default value of `"<<IMAGE_AND_HASH>>"`.
+     *   The way this works is that Jenkins will, after the project has been built, call the
+     *   `shepherd-build` script will calls the `shepherd-apply` script, which then copies the YAML file, updates the IMAGE_AND_HASH
+     *   placeholder with the actual image+hash uploaded in Kubernetes registry and calls `mkctl apply -f`.
+     * * However, if you want to update the app configuration quickly without launching Jenkins build, then
+     *   you can skip the Jenkins build and the script invocation, write this file to a temp folder and `mkctl apply -f` it yourself,
+     *   to restart the project quickly.
+     *
+     * @param imageAndHash which Docker image+hash to use, either `"<<IMAGE_AND_HASH>>"` or
+     * a valid Docker image+hash uploaded in Kubernetes registry, e.g. `localhost:32000/test/vaadin-boot-example-gradle@sha256:62d6de89ced35ed07571fb9190227b08a7a10c80c97eccfa69b1aa5829f44b9a`
+     *
+     */
+    internal fun getKubernetesYamlConfigFile(project: Project, imageAndHash: String = "<<IMAGE_AND_HASH>>"): String {
+        val projectId: String = project.id.id
+        val namespace = project.kubernetesNamespace
+        val maxMemory = "${project.runtime.resources.memoryMb}Mi"
+        val maxCpu = project.runtime.resources.cpu.toString()
+        val env = if (project.runtime.envVars.isNotEmpty()) {
+            "\n        env:\n" + project.runtime.envVars.entries.joinToString("\n") { (k, v) -> "        - name: $k\n          value: \"$v\"" }
+        } else {
+            ""
+        }
+
+        val yaml = """
+#
+# Microk8s resource config file for $projectId
+#
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: $namespace
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment
+  namespace: $namespace
+spec:
+  selector:
+    matchLabels:
+      app: pod
+  template:
+    metadata:
+      labels:
+        app: pod
+    spec:
+      containers:
+      - name: main
+        image: $imageAndHash$env
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: 0
+          limits:
+            memory: "$maxMemory"  # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+            cpu: $maxCpu
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service
+  namespace: $namespace
+spec:
+  selector:
+    app: pod
+  ports:
+    - port: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-main
+  namespace: $namespace
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /\${'$'}3
+    nginx.ingress.kubernetes.io/proxy-cookie-path: / /\${'$'}1
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      rewrite ^(/$projectId)\${'$'} \${'$'}1/ permanent;
+spec:
+  tls:
+  - hosts:
+    - $defaultDNS
+  rules:
+    - host: $defaultDNS
+      http:
+        paths:
+          - path: /($projectId)(/|${'$'})(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: service
+                port:
+                  number: 8080
+        """.trim()
+
+        return yaml
     }
 
     public companion object {
