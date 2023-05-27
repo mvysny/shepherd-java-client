@@ -3,12 +3,15 @@ import com.github.mvysny.shepherd.api.ProjectId
 import com.github.mvysny.shepherd.api.ShepherdClient
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.decodeFromStream
+import java.time.LocalDateTime
+import java.time.ZoneId
 import kotlin.io.path.Path
 
 fun main(args: Array<String>) {
     val a = Args.parse(args)
-    a.command.run(a, a.createClient())
+    a.createClient().use { client ->
+        a.command.run(a, client)
+    }
 }
 
 enum class Command(val argName: String) {
@@ -18,9 +21,9 @@ enum class Command(val argName: String) {
     ListProjects("list") {
         override fun run(args: Args, client: ShepherdClient) {
             val projects = client.getAllProjects()
-            projects.forEach { projectId ->
-                val project = client.getProjectInfo(projectId)
-                println("${projectId.id}: ${project.description}; ${project.gitRepo} (${project.owner})")
+            projects.forEach { v ->
+                println("${v.project.id.id}: ${v.project.description}; ${v.project.gitRepo} (${v.project.owner})")
+                println("   Last Build: ${v.lastBuildOutcome} at ${LocalDateTime.ofInstant(v.lastBuildTimestamp, ZoneId.systemDefault())}")
             }
             if (projects.isEmpty()) {
                 println("No projects registered.")

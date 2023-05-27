@@ -2,11 +2,12 @@ package com.github.mvysny.shepherd.api
 
 import com.offbytwo.jenkins.JenkinsServer
 import org.slf4j.LoggerFactory
+import java.io.Closeable
 import java.net.URI
 
 public class SimpleJenkinsClient @JvmOverloads constructor(
     private val jenkins: JenkinsServer = JenkinsServer(URI("http://localhost:8080"), "admin", "admin")
-) {
+) : Closeable {
     private val ProjectId.jenkinsJobName: String get() = id
     private val Project.jenkinsJobName: String get() = id.jenkinsJobName
 
@@ -146,5 +147,9 @@ public class SimpleJenkinsClient @JvmOverloads constructor(
             .replace("<", "&lt;")
             .replace(">", "&gt;")
             .replace("'", "&apos;")
+    }
+
+    override fun close() {
+        jenkins.close()
     }
 }

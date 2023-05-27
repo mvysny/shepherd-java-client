@@ -1,10 +1,20 @@
 package com.github.mvysny.shepherd.api
 
-public interface ShepherdClient {
+import com.offbytwo.jenkins.model.BuildResult
+import java.io.Closeable
+import java.time.Instant
+
+public interface ShepherdClient : Closeable {
     /**
      * Lists all registered projects.
      */
-    public fun getAllProjects(): List<ProjectId>
+    public fun getAllProjectIDs(): List<ProjectId>
+
+    /**
+     * Gets all projects, including metadata.
+     * @param ownerEmail if not null, return only projects owned by given owner (e-mail address, refers to [ProjectOwner.email].
+     */
+    public fun getAllProjects(ownerEmail: String? = null): List<ProjectView>
 
     /**
      * Retrieves info about given project. Fails with an exception if there is no such project.
@@ -34,4 +44,16 @@ public interface ShepherdClient {
      * but their logs are not returned.
      */
     public fun getRunLogs(id: ProjectId): String
+}
+
+public data class ProjectView(
+    val project: Project,
+    val lastBuildOutcome: BuildResult,
+    val lastBuildTimestamp: Instant
+) {
+    /**
+     * Returns URLs on which this project runs (can be browsed to). E.g. for `vaadin-boot-example-gradle`
+     * on the `v-herd.eu` [host], this returns `https://v-herd.eu/vaadin-boot-example-gradle`.
+     */
+    public fun getPublishedURLs(host: String): List<String> = project.getPublishedURLs(host)
 }

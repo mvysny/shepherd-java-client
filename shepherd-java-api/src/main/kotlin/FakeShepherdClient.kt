@@ -1,7 +1,8 @@
 package com.github.mvysny.shepherd.api
 
-import kotlinx.serialization.json.Json
+import com.offbytwo.jenkins.model.BuildResult
 import java.nio.file.Files
+import java.time.Instant
 import kotlin.io.path.*
 
 private val fakeProject = Project(
@@ -29,7 +30,15 @@ public object FakeShepherdClient : ShepherdClient {
         createProject(fakeProject)
     }
 
-    override fun getAllProjects(): List<ProjectId> = projectConfigFolder.getAllProjects()
+    override fun getAllProjectIDs(): List<ProjectId> = projectConfigFolder.getAllProjects()
+
+    override fun getAllProjects(ownerEmail: String?): List<ProjectView> {
+        var projects = getAllProjectIDs().map { getProjectInfo(it) }
+        if (ownerEmail != null) {
+            projects = projects.filter { it.owner.email == ownerEmail }
+        }
+        return projects.map { ProjectView(it, BuildResult.SUCCESS, Instant.now()) }
+    }
 
     override fun getProjectInfo(id: ProjectId): Project = projectConfigFolder.getProjectInfo(id)
 
@@ -61,4 +70,6 @@ public object FakeShepherdClient : ShepherdClient {
     2023-05-22 21:04:15.328 [qtp473581465-15] INFO com.vaadin.flow.server.DefaultDeploymentConfiguration - Vaadin is running in production mode.
         """.trim()
     }
+
+    override fun close() {}
 }

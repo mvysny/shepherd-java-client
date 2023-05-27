@@ -1,6 +1,8 @@
 package com.github.mvysny.shepherd.api
 
+import com.offbytwo.jenkins.model.BuildResult
 import java.nio.file.Path
+import java.time.Instant
 import kotlin.io.path.*
 
 /**
@@ -17,7 +19,16 @@ public class LinuxShepherdClient @JvmOverloads constructor(
      */
     private val projectConfigFolder = ProjectConfigFolder(etcShepherdPath / "projects")
 
-    override fun getAllProjects(): List<ProjectId> = projectConfigFolder.getAllProjects()
+    override fun getAllProjectIDs(): List<ProjectId> = projectConfigFolder.getAllProjects()
+
+    override fun getAllProjects(ownerEmail: String?): List<ProjectView> {
+        var projects = FakeShepherdClient.getAllProjectIDs()
+            .map { FakeShepherdClient.getProjectInfo(it) }
+        if (ownerEmail != null) {
+            projects = projects.filter { it.owner.email == ownerEmail }
+        }
+        TODO("implement")
+    }
 
     override fun getProjectInfo(id: ProjectId): Project = projectConfigFolder.getProjectInfo(id)
 
@@ -43,4 +54,8 @@ public class LinuxShepherdClient @JvmOverloads constructor(
     }
 
     override fun getRunLogs(id: ProjectId): String = kubernetes.getRunLogs(id)
+
+    override fun close() {
+        jenkins.close()
+    }
 }
