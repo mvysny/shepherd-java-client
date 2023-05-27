@@ -68,7 +68,7 @@ public class SimpleKubernetesClient @JvmOverloads constructor(
         //deployment-59b67fd4c5-2sdmw   2m           126Mi
         // parse and return the second line
         val stdout = exec(*kubectl, "top", "pod", podName, "--namespace", namespace)
-        val lastLine = stdout.lines().filter { it.isNotBlank() } .last()
+        val lastLine = stdout.lines().last { it.isNotBlank() } .trim()
         return parseTopPod(lastLine)
     }
 
