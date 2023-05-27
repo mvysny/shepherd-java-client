@@ -1,6 +1,5 @@
 package com.github.mvysny.shepherd.api
 
-import com.offbytwo.jenkins.model.BuildResult
 import java.nio.file.Path
 import java.time.Instant
 import kotlin.io.path.*
@@ -27,7 +26,12 @@ public class LinuxShepherdClient @JvmOverloads constructor(
         if (ownerEmail != null) {
             projects = projects.filter { it.owner.email == ownerEmail }
         }
-        TODO("implement")
+        val jobs: Map<ProjectId, JenkinsJob> = jenkins.getJobsOverview().associateBy { ProjectId(it.name) }
+        return projects.map { project ->
+            val job = jobs[project.id]
+            val timestamp = job?.lastBuild?.timestamp
+            ProjectView(project, job?.lastBuild?.result ?: BuildResult.NOT_BUILT, timestamp?.let { Instant.ofEpochMilli(it) })
+        }
     }
 
     override fun getProjectInfo(id: ProjectId): Project = projectConfigFolder.getProjectInfo(id)

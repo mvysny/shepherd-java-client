@@ -1,6 +1,5 @@
 package com.github.mvysny.shepherd.api
 
-import com.offbytwo.jenkins.model.BuildResult
 import java.io.Closeable
 import java.time.Instant
 
@@ -46,14 +45,50 @@ public interface ShepherdClient : Closeable {
     public fun getRunLogs(id: ProjectId): String
 }
 
+/**
+ * @property lastBuildTimestamp may be null if there is no build yet
+ */
 public data class ProjectView(
     val project: Project,
     val lastBuildOutcome: BuildResult,
-    val lastBuildTimestamp: Instant
+    val lastBuildTimestamp: Instant?
 ) {
     /**
      * Returns URLs on which this project runs (can be browsed to). E.g. for `vaadin-boot-example-gradle`
      * on the `v-herd.eu` [host], this returns `https://v-herd.eu/vaadin-boot-example-gradle`.
      */
     public fun getPublishedURLs(host: String): List<String> = project.getPublishedURLs(host)
+}
+
+public enum class BuildResult {
+    FAILURE,
+    UNSTABLE,
+    REBUILDING,
+    BUILDING,
+
+    /**
+     * This means a job was already running and has been aborted.
+     */
+    ABORTED,
+
+    /**
+     *
+     */
+    SUCCESS,
+
+    /**
+     * ?
+     */
+    UNKNOWN,
+
+    /**
+     * This is returned if a job has never been built.
+     */
+    NOT_BUILT,
+
+    /**
+     * This will be the result of a job in cases where it has been cancelled
+     * during the time in the queue.
+     */
+    CANCELLED
 }

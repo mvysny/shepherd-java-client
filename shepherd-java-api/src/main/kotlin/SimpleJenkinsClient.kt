@@ -1,13 +1,18 @@
 package com.github.mvysny.shepherd.api
 
 import com.offbytwo.jenkins.JenkinsServer
+import com.offbytwo.jenkins.client.JenkinsHttpClient
+import com.offbytwo.jenkins.client.JenkinsHttpConnection
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
 import java.io.Closeable
 import java.net.URI
 
 public class SimpleJenkinsClient @JvmOverloads constructor(
-    private val jenkins: JenkinsServer = JenkinsServer(URI("http://localhost:8080"), "admin", "admin")
+    private val jenkinsClient: JenkinsHttpConnection = JenkinsHttpClient(URI("http://localhost:8080"), "admin", "admin")
 ) : Closeable {
+    private val jenkins: JenkinsServer = JenkinsServer(jenkinsClient)
     private val ProjectId.jenkinsJobName: String get() = id
     private val Project.jenkinsJobName: String get() = id.jenkinsJobName
 
@@ -152,4 +157,26 @@ public class SimpleJenkinsClient @JvmOverloads constructor(
     override fun close() {
         jenkins.close()
     }
+
+    public fun getJobsOverview(): List<JenkinsJob> {
+        val result = jenkinsClient.get("?tree=jobs[name,lastBuild[result,timestamp]]")
+        return Json { ignoreUnknownKeys = true }.decodeFromString<JenkinsJobs>(result).jobs
+    }
 }
+
+@Serializable
+internal data class JenkinsJobs(
+    val jobs: List<JenkinsJob>
+)
+
+@Serializable
+public data class JenkinsJob(
+    val name: String,
+    val lastBuild: JenkinsBuild?
+)
+
+@Serializable
+public data class JenkinsBuild(
+    val result: BuildResult,
+    val timestamp: Long
+)

@@ -9,7 +9,15 @@ class FakeShepherdClientTest : DynaTest({
             FakeShepherdClient.getAllProjects()
         }
         test("initially contains one fake project") {
-            expectList(ProjectId("vaadin-boot-example-gradle")) { FakeShepherdClient.getAllProjects() }
+            expectList(ProjectId("vaadin-boot-example-gradle")) { FakeShepherdClient.getAllProjects().map { it.project.id } }
+        }
+    }
+    group("getAllProjectIDs()") {
+        test("smoke") {
+            FakeShepherdClient.getAllProjectIDs()
+        }
+        test("initially contains one fake project") {
+            expectList(ProjectId("vaadin-boot-example-gradle")) { FakeShepherdClient.getAllProjectIDs() }
         }
     }
     group("getProjectInfo()") {
