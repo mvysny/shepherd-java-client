@@ -103,3 +103,33 @@ A more complex example:
   ]
 }
 ```
+
+# Adding Your Project To Shepherd
+
+That's easy:
+
+1. Create the project JSON as above
+2. Create a Dockerfile as explained below.
+3. Run `./shepherd-cli create -f file.json` to create the project.
+4. Done - the project is now being built in Jenkins; when the build succeeds, it will be
+   deployed in Kubernetes.
+
+## Dockerfile
+
+Shepherd expects the following from your project:
+
+1. It must have `Dockerfile` at the root of its git repo.
+2. The Docker image can be built via the `docker build --no-cache -t test/xyz:latest .` command;
+   The image can be run via `docker run --rm -ti -p8080:8080 test/xyz` command.
+
+Generally, all you need is to place an appropriate `Dockerfile` to the root of your project's git repository.
+See the following projects for examples:
+
+1. Gradle+Embedded Jetty packaged as zip: [vaadin-boot-example-gradle](https://github.com/mvysny/vaadin-boot-example-gradle),
+   [vaadin14-boot-example-gradle](https://github.com/mvysny/vaadin14-boot-example-gradle),
+   [karibu-helloworld-application](https://github.com/mvysny/karibu-helloworld-application),
+   [beverage-buddy-vok](https://github.com/mvysny/beverage-buddy-vok),
+   [vok-security-demo](https://github.com/mvysny/vok-security-demo)
+2. Maven+Embedded Jetty packaged as zip: [vaadin-boot-example-maven](https://github.com/mvysny/vaadin-boot-example-maven)
+3. Maven+Spring Boot packaged as executable jar: [Liukuri](https://github.com/vesanieminen/ElectricityCostDashboard),
+   [my-hilla-app](https://github.com/mvysny/my-hilla-app).
