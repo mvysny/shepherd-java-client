@@ -71,6 +71,17 @@ enum class Command(val argName: String) {
             val project = Project.loadFromFile(Path(args.createSubcommand.jsonFile))
             client.createProject(project)
         }
+    },
+
+    /**
+     * The `metrics` command, shows basic metrics of the main app pod.
+     */
+    Metrics("metrics") {
+        override fun run(args: Args, client: ShepherdClient) {
+            val pid = requireProjectId(args)
+            val metrics = client.getRunMetrics(pid)
+            println("${pid.id} usage: ${metrics.cpu * 100}% CPU, ${metrics.memoryMb}Mi RAM")
+        }
     }
     ;
 

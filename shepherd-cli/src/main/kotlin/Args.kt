@@ -32,7 +32,7 @@ data class Args(
 
             val deleteSubcommand = DeleteSubcommand()
             val createSubcommand = CreateSubcommand()
-            parser.subcommands(ListProjectSubcommand(), ShowProjectSubcommand(), LogsSubcommand(), createSubcommand, deleteSubcommand)
+            parser.subcommands(ListProjectSubcommand(), ShowProjectSubcommand(), LogsSubcommand(), createSubcommand, deleteSubcommand, MetricsSubcommand())
             val parserResult = parser.parse(args)
             val commandName = parserResult.commandName.takeUnless { it == parser.programName }
             val cmd = Command.values().firstOrNull { it.argName == commandName }
@@ -64,5 +64,8 @@ class DeleteSubcommand: Subcommand(Command.Delete.argName, "Deletes a project. D
 }
 class CreateSubcommand: Subcommand(Command.Create.argName, "Creates a new project. Fails if the project already exists.") {
     val jsonFile by option(ArgType.String, "file", "f", "The JSON file describing the project").required()
+    override fun execute() {}
+}
+class MetricsSubcommand: Subcommand(Command.Metrics.argName, "Shows basic metrics of the main app pod.") {
     override fun execute() {}
 }
