@@ -323,7 +323,7 @@ spec:$tls
          * ```
          */
         internal fun parseTopPod(line: String): Resources {
-            val values = line.splitByWhitespaces()
+            val values = line.trim().splitByWhitespaces()
             require(values.size == 3) { "Invalid top line: '$line', parsed: $values" }
             return Resources(
                 memoryMb = values[2].removeSuffix("Mi").toInt(),
