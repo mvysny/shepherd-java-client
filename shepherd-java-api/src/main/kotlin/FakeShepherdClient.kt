@@ -3,6 +3,7 @@ package com.github.mvysny.shepherd.api
 import java.nio.file.Files
 import java.time.Instant
 import kotlin.io.path.*
+import kotlin.random.Random
 
 private val fakeProject = Project(
     id = ProjectId("vaadin-boot-example-gradle"),
@@ -69,6 +70,11 @@ public object FakeShepherdClient : ShepherdClient {
     2023-05-22 21:04:15.328 [qtp473581465-15] INFO com.vaadin.flow.server.DefaultDeploymentConfiguration - Vaadin is running in production mode.
         """.trim()
     }
+
+    override fun getRunMetrics(id: ProjectId): Resources = Resources(
+        Random.nextInt(64, 256),
+        Random.nextFloat()
+    )
 
     override fun close() {}
 }

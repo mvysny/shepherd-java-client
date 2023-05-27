@@ -39,10 +39,15 @@ public interface ShepherdClient : Closeable {
     public fun deleteProject(id: ProjectId)
 
     /**
-     * Retrieves the run logs of the main Kubernetes pod (=the app itself). There may be additional pods (e.g. PostgreSQL)
+     * Retrieves the run logs of the main app pod (=the app itself). There may be additional pods (e.g. PostgreSQL)
      * but their logs are not returned.
      */
     public fun getRunLogs(id: ProjectId): String
+
+    /**
+     * Returns the current CPU/memory usage of the main app pod.
+     */
+    public fun getRunMetrics(id: ProjectId): Resources
 }
 
 /**

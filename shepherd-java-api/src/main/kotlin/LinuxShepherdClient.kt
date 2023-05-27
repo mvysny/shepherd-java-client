@@ -58,6 +58,7 @@ public class LinuxShepherdClient @JvmOverloads constructor(
     }
 
     override fun getRunLogs(id: ProjectId): String = kubernetes.getRunLogs(id)
+    override fun getRunMetrics(id: ProjectId): Resources = kubernetes.getMetrics(id)
 
     override fun close() {
         jenkins.close()

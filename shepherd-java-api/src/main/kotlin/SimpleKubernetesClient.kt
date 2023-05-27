@@ -38,12 +38,16 @@ public class SimpleKubernetesClient @JvmOverloads constructor(
     private fun kubeCtlGetLogs(podName: String, namespace: String): String =
         exec(*kubectl, "logs", podName, "--namespace", namespace)
 
-    public fun getRunLogs(id: ProjectId): String {
+    private fun getMainPodName(id: ProjectId): String {
         // main deployment is always called "deployment"
         val podNames = kubeCtlGetPods(id.kubernetesNamespace)
         val podName = podNames.firstOrNull { it.startsWith("deployment-") }
         requireNotNull(podName) { "No deployment pod for ${id.id}: $podNames" }
+        return podName
+    }
 
+    public fun getRunLogs(id: ProjectId): String {
+        val podName = getMainPodName(id)
         return kubeCtlGetLogs(podName, id.kubernetesNamespace)
     }
 
@@ -56,6 +60,24 @@ public class SimpleKubernetesClient @JvmOverloads constructor(
         } else {
             log.warn("$f doesn't exist, not deleting project objects from Kubernetes")
         }
+    }
+
+    private fun kubeCtlTopPod(podName: String, namespace: String): Resources {
+        // mkctl top pod returns this:
+        //POD                           CPU(cores)   MEMORY(bytes)
+        //deployment-59b67fd4c5-2sdmw   2m           126Mi
+        // parse and return the second line
+        val stdout = exec(*kubectl, "top", "pod", podName, "--namespace", namespace)
+        val lastLine = stdout.lines().last()
+        return parseTopPod(lastLine)
+    }
+
+    /**
+     * Returns the current project CPU/memory usage.
+     */
+    public fun getMetrics(id: ProjectId): Resources {
+        val podName = getMainPodName(id)
+        return kubeCtlTopPod(podName, id.kubernetesNamespace)
     }
 
     /**
@@ -292,6 +314,20 @@ spec:$tls
         internal fun dnsToValidKubernetesIngressId(dns: String): String {
             val result = dns.lowercase().replace(notAllowedIdChars, "-")
             return "ingress-${result.trimEnd('-')}"
+        }
+
+        /**
+         * Parses the line produced by the `mkctl top pod` command. Example:
+         * ```
+         * deployment-59b67fd4c5-2sdmw   2m           126Mi
+         * ```
+         */
+        internal fun parseTopPod(line: String): Resources {
+            val values = line.splitByWhitespaces()
+            return Resources(
+                memoryMb = values[2].removeSuffix("Mi").toInt(),
+                cpu = values[1].removeSuffix("m").toFloat() / 1000
+            )
         }
     }
 }

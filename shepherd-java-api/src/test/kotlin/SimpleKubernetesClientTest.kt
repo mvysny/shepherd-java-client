@@ -454,4 +454,10 @@ spec:
         expect("ingress-v-herd-eu") { SimpleKubernetesClient.dnsToValidKubernetesIngressId("v-herd.eu") }
         expect("ingress-yourdomain-com") { SimpleKubernetesClient.dnsToValidKubernetesIngressId("yourdomain.com") }
     }
+
+    test("parseTopPod()") {
+        expect(Resources(126, 0.002f)) {
+            SimpleKubernetesClient.parseTopPod("deployment-59b67fd4c5-2sdmw   2m           126Mi")
+        }
+    }
 })

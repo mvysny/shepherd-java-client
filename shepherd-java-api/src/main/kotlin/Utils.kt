@@ -15,3 +15,8 @@ internal fun exec(vararg command: String): String {
     require(result.exitValue == 0) { "${command.joinToString(" ")} failed with exit code ${result.exitValue}: ${result.outputString()}" }
     return result.outputString()
 }
+
+private val whitespaces = "\\s+".toRegex()
+
+internal fun String.splitByWhitespaces(): List<String> =
+    split(whitespaces)
