@@ -23,6 +23,7 @@ enum class Command(val argName: String) {
             val projects = client.getAllProjects()
             projects.forEach { v ->
                 println("${v.project.id.id}: ${v.project.description}; ${v.project.gitRepo} (${v.project.owner})")
+                println("   Published at: ${v.getPublishedURLs(host)}")
                 println("   Last Build: ${v.lastBuildOutcome} at ${LocalDateTime.ofInstant(v.lastBuildTimestamp, ZoneId.systemDefault())}")
             }
             if (projects.isEmpty()) {
