@@ -21,8 +21,8 @@ public class LinuxShepherdClient @JvmOverloads constructor(
     override fun getAllProjectIDs(): List<ProjectId> = projectConfigFolder.getAllProjects()
 
     override fun getAllProjects(ownerEmail: String?): List<ProjectView> {
-        var projects = FakeShepherdClient.getAllProjectIDs()
-            .map { FakeShepherdClient.getProjectInfo(it) }
+        var projects = getAllProjectIDs()
+            .map { getProjectInfo(it) }
         if (ownerEmail != null) {
             projects = projects.filter { it.owner.email == ownerEmail }
         }
