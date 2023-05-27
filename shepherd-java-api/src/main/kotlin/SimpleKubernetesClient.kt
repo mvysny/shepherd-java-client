@@ -68,7 +68,7 @@ public class SimpleKubernetesClient @JvmOverloads constructor(
         //deployment-59b67fd4c5-2sdmw   2m           126Mi
         // parse and return the second line
         val stdout = exec(*kubectl, "top", "pod", podName, "--namespace", namespace)
-        val lastLine = stdout.lines().last()
+        val lastLine = stdout.lines().filter { it.isNotBlank() } .last()
         return parseTopPod(lastLine)
     }
 
@@ -324,6 +324,7 @@ spec:$tls
          */
         internal fun parseTopPod(line: String): Resources {
             val values = line.splitByWhitespaces()
+            require(values.size == 3) { "Invalid top line: '$line'" }
             return Resources(
                 memoryMb = values[2].removeSuffix("Mi").toInt(),
                 cpu = values[1].removeSuffix("m").toFloat() / 1000
