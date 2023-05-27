@@ -127,7 +127,7 @@ public data class Project(
      * on the `v-herd.eu` [host], this returns `https://v-herd.eu/vaadin-boot-example-gradle`.
      */
     public fun getPublishedURLs(host: String): List<String> =
-        listOf("https://$host/${id.id}")
+        listOf("https://$host/${id.id}") + publication.additionalDomains.map { "https://$it" }
 
     public companion object {
         @JvmStatic
@@ -175,11 +175,15 @@ public data class Service(
  * The project publication.
  * @property publishOnMainDomain if true (the default), the project will be published on the main domain as well.
  * Say the main domain is `v-herd.eu`, then the project will be accessible at `v-herd.eu/PROJECT_ID`.
+ * @property https only affects [additionalDomains]; if the project is published on the main domain then it always uses https.
+ * Defaults to true. If false, the project is published on [additionalDomains] via plain http.
+ * Useful e.g. when CloudFlare unwraps https for us.
  * @property additionalDomains additional domains to publish to project at. Must not contain the main domain.
  * E.g. `yourproject.com`.
  */
 @Serializable
 public data class Publication(
     val publishOnMainDomain: Boolean = true,
+    val https: Boolean = true,
     val additionalDomains: Set<String> = setOf()
 )

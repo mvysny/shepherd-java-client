@@ -166,7 +166,7 @@ spec:
         }
 
         for (additionalDomain in project.publication.additionalDomains) {
-            yaml += "\n" + getCustomDomainIngressYaml(additionalDomain, project.id)
+            yaml += "\n" + getCustomDomainIngressYaml(additionalDomain, project.publication.https, project.id)
         }
 
         return yaml
@@ -240,9 +240,16 @@ spec:
     /**
      * @param dns e.g. `v-herd.eu` or `yourdomain.com`
      */
-    private fun getCustomDomainIngressYaml(dns: String, pid: ProjectId): String {
+    internal fun getCustomDomainIngressYaml(dns: String, https: Boolean, pid: ProjectId): String {
         val name = dnsToValidKubernetesIngressId(dns)
         val namespace = pid.kubernetesNamespace
+        val tls = if (https) {
+            """
+  tls:
+    - hosts:
+      - $dns
+      secretName: $name-tls"""
+        } else ""
 
         return """
 ---
@@ -253,11 +260,7 @@ metadata:
   namespace: $namespace
   annotations:
     cert-manager.io/cluster-issuer: lets-encrypt
-spec:
-  tls:
-    - hosts:
-      - $dns
-      secretName: $name-tls
+spec:$tls
   rules:
     - host: "$dns"
       http:
