@@ -152,6 +152,13 @@ public class SimpleJenkinsClient @JvmOverloads constructor(
             .replace("<", "&lt;")
             .replace(">", "&gt;")
             .replace("'", "&apos;")
+
+        /**
+         * Checks whether a full Jenkins project rebuild is necessary after changes in the project config file.
+         */
+        public fun needsProjectRebuild(newProject: Project, oldProject: Project): Boolean =
+            newProject.build.buildArgs != oldProject.build.buildArgs ||
+                    newProject.build.dockerFile != oldProject.build.dockerFile
     }
 
     override fun close() {

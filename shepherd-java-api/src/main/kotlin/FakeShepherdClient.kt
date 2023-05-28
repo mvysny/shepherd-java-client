@@ -47,6 +47,12 @@ public object FakeShepherdClient : ShepherdClient {
         projectConfigFolder.writeProjectJson(project)
     }
 
+    override fun updateProject(project: Project) {
+        val oldProject = projectConfigFolder.getProjectInfo(project.id)
+        require(oldProject.gitRepo == project.gitRepo) { "gitRepo is not allowed to be changed: new ${project.gitRepo} old ${project.gitRepo}" }
+        projectConfigFolder.writeProjectJson(project)
+    }
+
     override fun deleteProject(id: ProjectId) {
         projectConfigFolder.deleteIfExists(id)
     }
@@ -71,7 +77,7 @@ public object FakeShepherdClient : ShepherdClient {
         """.trim()
     }
 
-    override fun getRunMetrics(id: ProjectId): Resources = Resources(
+    override fun getRunMetrics(id: ProjectId): ResourcesUsage = ResourcesUsage(
         Random.nextInt(64, 256),
         Random.nextFloat()
     )

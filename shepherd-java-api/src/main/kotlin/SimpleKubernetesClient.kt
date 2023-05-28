@@ -2,10 +2,7 @@ package com.github.mvysny.shepherd.api
 
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
-import kotlin.io.path.Path
-import kotlin.io.path.div
-import kotlin.io.path.exists
-import kotlin.io.path.writeText
+import kotlin.io.path.*
 
 /**
  * A very simple Kubernetes client, retrieves stuff by running the kubectl binary.
@@ -20,13 +17,18 @@ public class SimpleKubernetesClient @JvmOverloads constructor(
     private val defaultDNS: String = "v-herd.eu"
 ) {
     /**
-     * Runs `kubectl get pods` and returns all names.
+     * Runs `kubectl get pods` and returns all names. May return an empty list
+     * if no resources are registered for given [namespace] yet.
      */
     private fun kubeCtlGetPods(namespace: String): List<String> {
         val stdout = exec(*kubectl, "get", "pods", "--namespace", namespace)
-        return stdout.lines()
+        val stdoutLines = stdout.lines().filter { it.isNotBlank() }
+        if (stdoutLines.size == 1 && stdoutLines[0].startsWith("No resources found")) {
+            return listOf()
+        }
+        return stdoutLines
             .drop(1)
-            .map { it.split(' ').first() }
+            .map { it.splitByWhitespaces().first() }
     }
 
     private val ProjectId.kubernetesNamespace: String get() = "shepherd-${id}"
@@ -38,16 +40,21 @@ public class SimpleKubernetesClient @JvmOverloads constructor(
     private fun kubeCtlGetLogs(podName: String, namespace: String): String =
         exec(*kubectl, "logs", podName, "--namespace", namespace)
 
-    private fun getMainPodName(id: ProjectId): String {
+    /**
+     * Returns null if no main pod is registered yet. That can happen when the first Jenkins
+     * build haven't finished successfullly yet.
+     */
+    private fun getMainPodName(id: ProjectId): String? {
         // main deployment is always called "deployment"
         val podNames = kubeCtlGetPods(id.kubernetesNamespace)
-        val podName = podNames.firstOrNull { it.startsWith("deployment-") }
-        requireNotNull(podName) { "No deployment pod for ${id.id}: $podNames" }
-        return podName
+        return podNames.firstOrNull { it.startsWith("deployment-") }
     }
 
+    /**
+     * Returns run logs for given project. Returns an empty string if the pod haven't been running yet.
+     */
     public fun getRunLogs(id: ProjectId): String {
-        val podName = getMainPodName(id)
+        val podName = getMainPodName(id) ?: return ""
         return kubeCtlGetLogs(podName, id.kubernetesNamespace)
     }
 
@@ -62,7 +69,7 @@ public class SimpleKubernetesClient @JvmOverloads constructor(
         }
     }
 
-    private fun kubeCtlTopPod(podName: String, namespace: String): Resources {
+    private fun kubeCtlTopPod(podName: String, namespace: String): ResourcesUsage {
         // mkctl top pod returns this:
         //POD                           CPU(cores)   MEMORY(bytes)
         //deployment-59b67fd4c5-2sdmw   2m           126Mi
@@ -73,10 +80,11 @@ public class SimpleKubernetesClient @JvmOverloads constructor(
     }
 
     /**
-     * Returns the current project CPU/memory usage.
+     * Returns the current project CPU/memory usage. Returns zero metrics
+     * if the pod haven't been running yet.
      */
-    public fun getMetrics(id: ProjectId): Resources {
-        val podName = getMainPodName(id)
+    public fun getMetrics(id: ProjectId): ResourcesUsage {
+        val podName = getMainPodName(id) ?: return ResourcesUsage.zero
         return kubeCtlTopPod(podName, id.kubernetesNamespace)
     }
 
@@ -300,10 +308,25 @@ spec:$tls
     /**
      * Writes the file `/etc/shepherd/k8s/PROJECT_ID.yaml`, overwriting anything
      * that was there before.
+     * @return true if a change was detected: either there was no kubernetes file before,
+     * or the old contents differ from the new contents.
      */
-    public fun writeConfigYamlFile(project: Project) {
+    public fun writeConfigYamlFile(project: Project): Boolean {
         val yaml = getKubernetesYamlConfigFile(project)
-        getConfigYamlFile(project.id).writeText(yaml)
+        val configYamlFile = getConfigYamlFile(project.id)
+        val oldContents = if (configYamlFile.exists()) configYamlFile.readText() else ""
+        configYamlFile.writeText(yaml)
+        return oldContents != yaml
+    }
+
+    /**
+     * Returns the current docker image from which the main app pod is running, e.g.
+     * `localhost:32000/shepherd/vaadin-boot-example-gradle@sha256:39ae60d59434a3acb8b6c559ec40efb14ee62177996965418aa9b1f946d514ab`.
+     * Returns null if the main app pod has not been deployed yet.
+     */
+    public fun getCurrentDockerImage(projectId: ProjectId): String? {
+        val podName = getMainPodName(projectId) ?: return null
+
     }
 
     public companion object {
@@ -322,10 +345,10 @@ spec:$tls
          * deployment-59b67fd4c5-2sdmw   2m           126Mi
          * ```
          */
-        internal fun parseTopPod(line: String): Resources {
+        internal fun parseTopPod(line: String): ResourcesUsage {
             val values = line.trim().splitByWhitespaces()
             require(values.size == 3) { "Invalid top line: '$line', parsed: $values" }
-            return Resources(
+            return ResourcesUsage(
                 memoryMb = values[2].removeSuffix("Mi").toInt(),
                 cpu = values[1].removeSuffix("m").toFloat() / 1000
             )

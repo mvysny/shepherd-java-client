@@ -58,11 +58,12 @@ public data class Resources(
 ) {
     init {
         require(memoryMb >= 32) { "Give the process at least 32mb: $memoryMb" }
-        require(cpu > 0) { "$cpu" }
+        require(cpu > 0) { "cpu: must be greater than 0 but got $cpu" }
     }
     public companion object {
         @JvmStatic
         public val defaultRuntimeResources: Resources = Resources(memoryMb = 256, cpu = 1f)
+        @JvmStatic
         public val defaultBuildResources: Resources = Resources(memoryMb = 2048, cpu = 2f)
     }
 }

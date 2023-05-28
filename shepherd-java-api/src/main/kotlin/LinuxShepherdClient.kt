@@ -1,5 +1,6 @@
 package com.github.mvysny.shepherd.api
 
+import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import java.time.Instant
 import kotlin.io.path.*
@@ -51,6 +52,37 @@ public class LinuxShepherdClient @JvmOverloads constructor(
         jenkins.build(project.id)
     }
 
+    override fun updateProject(project: Project) {
+        val oldProject = projectConfigFolder.getProjectInfo(project.id)
+        require(oldProject.gitRepo == project.gitRepo) { "gitRepo is not allowed to be changed: new ${project.gitRepo} old ${project.gitRepo}" }
+
+        // 1. Overwrite the project JSON file
+        projectConfigFolder.writeProjectJson(project)
+
+        // 2. Overwrite Kubernetes config file at /etc/shepherd/k8s/PROJECT_ID.yaml
+        val kubernetesConfigYamlChanged = kubernetes.writeConfigYamlFile(project)
+
+        // 3. Update Jenkins job
+        jenkins.updateJob(project)
+
+        // 4. Detect what kind of update is needed.
+        if (SimpleJenkinsClient.needsProjectRebuild(project, oldProject)) {
+            log.info("${project.id.id}: needs full rebuild on Jenkins")
+            jenkins.build(project.id)
+            // TODO how to prune&remove old kubernetes objects no longer present in the new config file?
+        } else if (kubernetesConfigYamlChanged) {
+            log.info("${project.id.id}: performing quick kubernetes apply")
+            // TODO apply the new yaml file. Two things need to be resolved:
+            // 1. Figure out the hash of the latest docker image of the project, present in kubernetes registry
+            // 2. how to prune&remove old kubernetes objects no longer present in the new config file?
+
+            // workaround: do a full jenkins build for now
+            jenkins.build(project.id)
+        } else {
+            log.info("${project.id.id}: no kubernetes-level/jenkins-level changes detected, not reloading the project")
+        }
+    }
+
     override fun deleteProject(id: ProjectId) {
         jenkins.deleteJobIfExists(id)
         kubernetes.deleteIfExists(id)
@@ -58,9 +90,14 @@ public class LinuxShepherdClient @JvmOverloads constructor(
     }
 
     override fun getRunLogs(id: ProjectId): String = kubernetes.getRunLogs(id)
-    override fun getRunMetrics(id: ProjectId): Resources = kubernetes.getMetrics(id)
+    override fun getRunMetrics(id: ProjectId): ResourcesUsage = kubernetes.getMetrics(id)
 
     override fun close() {
         jenkins.close()
+    }
+
+    public companion object {
+        @JvmStatic
+        private val log = LoggerFactory.getLogger(LinuxShepherdClient::class.java)
     }
 }

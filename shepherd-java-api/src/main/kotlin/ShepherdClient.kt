@@ -22,7 +22,7 @@ public interface ShepherdClient : Closeable {
 
     /**
      * Creates new [project]:
-     * * creates a config file for it on the filesystem;
+     * * creates a config file for it on the filesystem (`/etc/shepherd/projects`);
      * * creates a Kubernetes config file for the project
      * * registers the project to Jenkins and starts first Jenkins build. The build is configured to call the `shepherd-build` script.
      * Fails if the project json config file already exists.
@@ -30,8 +30,25 @@ public interface ShepherdClient : Closeable {
     public fun createProject(project: Project)
 
     /**
+     * Updates the project:
+     * * updates the project config file on the filesystem (`/etc/shepherd/projects`);
+     * * update a Kubernetes config file for the project, dropping all Kubernetes objects that are no longer necessary.
+     * * updates the project registration in Jenkins.
+     * Fails if the project json config file already exists.
+     *
+     * Restarts the project automatically:
+     * * either starts a new build in Jenkins if there were any changes in [Build.buildArgs] or [Build.dockerFile].
+     * * otherwise only re-applies the Kubernetes yaml file (if it has been changed).
+     *
+     * Note that some properties can not be changed (an exception is thrown by this function if such a change is detected):
+     * * [Project.id]
+     * * [Project.gitRepo]
+     */
+    public fun updateProject(project: Project)
+
+    /**
      * Deletes given project: stops and removes all builds, stops and removes all Kubernetes rules,
-     * and removes the project json config.
+     * and removes the project json config (from `/etc/shepherd/projects`).
      *
      * This function will still try to unregister the project from Jenkins and Kubernetes
      * even if the project json config is already nonexistent.
@@ -47,7 +64,7 @@ public interface ShepherdClient : Closeable {
     /**
      * Returns the current CPU/memory usage of the main app pod.
      */
-    public fun getRunMetrics(id: ProjectId): Resources
+    public fun getRunMetrics(id: ProjectId): ResourcesUsage
 }
 
 /**
@@ -96,4 +113,24 @@ public enum class BuildResult {
      * during the time in the queue.
      */
     CANCELLED
+}
+
+/**
+ * Resources the app uses.
+ * @property memoryMb current memory usage, in megabytes.
+ * @property cpu CPU usage, relative to one core. 1 means 1 CPU core is fully used; 0.5 means that
+ * half of one CPU core is used; 2 means that two CPU cores are fully utilized.
+ */
+public data class ResourcesUsage(
+    val memoryMb: Int,
+    val cpu: Float
+) {
+    init {
+        require(memoryMb >= 0) { "memoryMb: must be 0 or higher but got $memoryMb" }
+        require(cpu >= 0) { "cpu: must be 0 or higher but was $cpu" }
+    }
+    public companion object {
+        @JvmStatic
+        public val zero: ResourcesUsage = ResourcesUsage(0, 0f)
+    }
 }
