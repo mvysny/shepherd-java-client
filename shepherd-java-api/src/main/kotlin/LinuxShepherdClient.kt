@@ -66,18 +66,17 @@ public class LinuxShepherdClient @JvmOverloads constructor(
         jenkins.updateJob(project)
 
         // 4. Detect what kind of update is needed.
-        if (SimpleJenkinsClient.needsProjectRebuild(project, oldProject)) {
+        val mainPodDockerImage = kubernetes.getCurrentDockerImage(project.id)
+        val isMainPodRunning = mainPodDockerImage != null
+        if (!isMainPodRunning) {
+            log.info("${project.id.id}: isn't running yet, there is probably no Jenkins job which completed successfully yet")
+            jenkins.build(project.id)
+        } else if (SimpleJenkinsClient.needsProjectRebuild(project, oldProject)) {
             log.info("${project.id.id}: needs full rebuild on Jenkins")
             jenkins.build(project.id)
-            // TODO how to prune&remove old kubernetes objects no longer present in the new config file?
         } else if (kubernetesConfigYamlChanged) {
             log.info("${project.id.id}: performing quick kubernetes apply")
-            // TODO apply the new yaml file. Two things need to be resolved:
-            // 1. Figure out the hash of the latest docker image of the project, present in kubernetes registry
-            // 2. how to prune&remove old kubernetes objects no longer present in the new config file?
-
-            // workaround: do a full jenkins build for now
-            jenkins.build(project.id)
+            exec("/opt/shepherd/shepherd-apply", project.id.id, mainPodDockerImage!!)
         } else {
             log.info("${project.id.id}: no kubernetes-level/jenkins-level changes detected, not reloading the project")
         }
