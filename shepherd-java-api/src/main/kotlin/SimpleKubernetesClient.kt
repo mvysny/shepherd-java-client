@@ -328,7 +328,7 @@ spec:$tls
         val podName = getMainPodName(projectId) ?: return null
         val image = exec(*kubectl, "get", "pod", podName, "--namespace", projectId.kubernetesNamespace,
             "-o", "jsonpath='{.spec.containers[*].image}'")
-        return image
+        return image.takeIf { it.isNotBlank() }
     }
 
     public companion object {

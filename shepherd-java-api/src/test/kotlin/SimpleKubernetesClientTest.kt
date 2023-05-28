@@ -456,7 +456,7 @@ spec:
     }
 
     test("parseTopPod()") {
-        expect(Resources(126, 0.002f)) {
+        expect(ResourcesUsage(126, 0.002f)) {
             SimpleKubernetesClient.parseTopPod("deployment-59b67fd4c5-2sdmw   2m           126Mi     ")
         }
     }
