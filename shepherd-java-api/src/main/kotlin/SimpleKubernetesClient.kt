@@ -326,7 +326,9 @@ spec:$tls
      */
     public fun getCurrentDockerImage(projectId: ProjectId): String? {
         val podName = getMainPodName(projectId) ?: return null
-
+        val image = exec(*kubectl, "get", "pod", podName, "--namespace", projectId.kubernetesNamespace,
+            "-o", "jsonpath='{.spec.containers[*].image}'")
+        return image
     }
 
     public companion object {
