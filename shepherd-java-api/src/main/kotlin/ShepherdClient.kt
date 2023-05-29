@@ -2,6 +2,8 @@ package com.github.mvysny.shepherd.api
 
 import java.io.Closeable
 import java.time.Instant
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 public interface ShepherdClient : Closeable {
     /**
@@ -68,7 +70,7 @@ public interface ShepherdClient : Closeable {
 }
 
 /**
- * @property lastBuildTimestamp may be null if there is no build yet
+ * @property lastBuildTimestamp may be null if there is no build for the project yet.
  */
 public data class ProjectView(
     val project: Project,
@@ -80,6 +82,12 @@ public data class ProjectView(
      * on the `v-herd.eu` [host], this returns `https://v-herd.eu/vaadin-boot-example-gradle`.
      */
     public fun getPublishedURLs(host: String): List<String> = project.getPublishedURLs(host)
+
+    /**
+     * The start of the last build or null if there was no build yet.
+     */
+    val buildStarted: ZonedDateTime?
+        get() = lastBuildTimestamp?.atZone(ZoneId.systemDefault())
 }
 
 public enum class BuildResult {

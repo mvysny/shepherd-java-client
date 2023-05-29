@@ -8,6 +8,9 @@ import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
 import java.io.Closeable
 import java.net.URI
+import java.time.Instant
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 public class SimpleJenkinsClient @JvmOverloads constructor(
     private val jenkinsClient: JenkinsHttpConnection = JenkinsHttpClient(URI("http://localhost:8080"), "admin", "admin")
@@ -182,8 +185,20 @@ public data class JenkinsJob(
     val lastBuild: JenkinsBuild?
 )
 
+/**
+ * @property result the build result. jenkins passes in null when the project is still building.
+ * @property timestamp when the project started to build.
+ */
 @Serializable
 public data class JenkinsBuild(
-    val result: BuildResult = BuildResult.UNKNOWN,
+    val result: BuildResult = BuildResult.BUILDING,
     val timestamp: Long
-)
+) {
+    /**
+     * true if the build is still ongoing, false if the build has finished building.
+     */
+    val ongoing: Boolean get() = result == BuildResult.BUILDING
+
+    val buildStarted: ZonedDateTime get() = Instant.ofEpochMilli(timestamp).atZone(
+        ZoneId.systemDefault())
+}

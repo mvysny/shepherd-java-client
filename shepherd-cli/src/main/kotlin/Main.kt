@@ -24,7 +24,7 @@ enum class Command(val argName: String) {
             projects.forEach { v ->
                 println("${v.project.id.id}: ${v.project.description}; ${v.project.gitRepo} (${v.project.owner})")
                 println("   Published at: ${v.getPublishedURLs(host)}")
-                println("   Last Build: ${v.lastBuildOutcome} at ${LocalDateTime.ofInstant(v.lastBuildTimestamp, ZoneId.systemDefault())}")
+                println("   Last Build: ${v.lastBuildOutcome}; started at ${v.buildStarted}")
             }
             if (projects.isEmpty()) {
                 println("No projects registered.")
