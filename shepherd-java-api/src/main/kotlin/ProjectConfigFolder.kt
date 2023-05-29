@@ -9,11 +9,15 @@ import kotlin.io.path.*
  * Manages the project config [folder].
  */
 internal class ProjectConfigFolder(val folder: Path) {
+    /**
+     * Returns all registered projects, sorted ascending by their IDs.
+     */
     fun getAllProjects(): List<ProjectId> {
         val files = Files.list(folder)
             .map { it.name }
             .toList()
         return files.map { ProjectId(it.removeSuffix(".json")) }
+            .sorted()
     }
 
     private fun getConfigFile(id: ProjectId): Path = folder.resolve(id.id + ".json")

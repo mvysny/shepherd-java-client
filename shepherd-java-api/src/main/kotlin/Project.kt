@@ -23,13 +23,15 @@ import kotlin.io.path.outputStream
  */
 @JvmInline
 @Serializable
-public value class ProjectId(public val id: String) {
+public value class ProjectId(public val id: String) : Comparable<ProjectId> {
     init {
         require(idValidator.matches(id)) { "The ID must contain at most 54 characters, it must contain only lowercase alphanumeric characters or '-', it must start and end with an alphanumeric character" }
     }
     private companion object {
         private val idValidator = "[a-z0-9][a-z0-9\\-]{0,52}[a-z0-9]".toRegex()
     }
+
+    override fun compareTo(other: ProjectId): Int = id.compareTo(other.id)
 }
 
 /**
