@@ -92,6 +92,7 @@ A more complex example:
   },
   "publication": {
     "publishOnMainDomain": false,
+    "https": true,
     "additionalDomains": [
       "demo.jdbiorm.eu"
     ]

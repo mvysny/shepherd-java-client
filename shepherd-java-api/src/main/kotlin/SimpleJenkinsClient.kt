@@ -167,7 +167,7 @@ public class SimpleJenkinsClient @JvmOverloads constructor(
 
     public fun getJobsOverview(): List<JenkinsJob> {
         val result = jenkinsClient.get("?tree=jobs[name,lastBuild[result,timestamp]]")
-        return Json { ignoreUnknownKeys = true }.decodeFromString<JenkinsJobs>(result).jobs
+        return Json { ignoreUnknownKeys = true; coerceInputValues = true }.decodeFromString<JenkinsJobs>(result).jobs
     }
 }
 
@@ -184,6 +184,6 @@ public data class JenkinsJob(
 
 @Serializable
 public data class JenkinsBuild(
-    val result: BuildResult,
+    val result: BuildResult = BuildResult.UNKNOWN,
     val timestamp: Long
 )
