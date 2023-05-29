@@ -34,7 +34,7 @@ public interface ShepherdClient : Closeable {
      * * updates the project config file on the filesystem (`/etc/shepherd/projects`);
      * * update a Kubernetes config file for the project, dropping all Kubernetes objects that are no longer necessary.
      * * updates the project registration in Jenkins.
-     * Fails if the project json config file already exists.
+     * Fails if the project json config file doesn't exist yet.
      *
      * Restarts the project automatically:
      * * either starts a new build in Jenkins if there were any changes in [Build.buildArgs] or [Build.dockerFile].

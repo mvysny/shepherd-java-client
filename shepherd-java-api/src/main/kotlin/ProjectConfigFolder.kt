@@ -29,8 +29,11 @@ internal class ProjectConfigFolder(val folder: Path) {
         require(!configFile.exists()) { "Project $id already exists: the file $configFile exists" }
     }
 
+    /**
+     * Loads config file for given project. Fails if the project json file doesn't exist.
+     */
     fun getProjectInfo(id: ProjectId): Project =
-        Project.loadFromFile(getConfigFile(id))
+        Project.loadFromFile(requireProjectExists(id))
 
     fun writeProjectJson(project: Project) {
         project.saveToFile(getConfigFile(project.id))

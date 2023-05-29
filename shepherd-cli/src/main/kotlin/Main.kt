@@ -82,6 +82,16 @@ enum class Command(val argName: String) {
             val metrics = client.getRunMetrics(pid)
             println("${pid.id} usage: ${metrics.cpu * 100}% CPU, ${metrics.memoryMb}Mi RAM")
         }
+    },
+
+    /**
+     * The `update` command, updates a project with the new configuration. Fails if the project doesn't exist yet.
+     */
+    Update("update") {
+        override fun run(args: Args, client: ShepherdClient) {
+            val project = Project.loadFromFile(Path(args.updateSubcommand.jsonFile))
+            client.updateProject(project)
+        }
     }
     ;
 

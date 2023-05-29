@@ -19,7 +19,8 @@ data class Args(
     val command: Command,
     val project: ProjectId?,
     val deleteSubcommand: DeleteSubcommand,
-    val createSubcommand: CreateSubcommand
+    val createSubcommand: CreateSubcommand,
+    val updateSubcommand: UpdateSubcommand
 ) {
 
     fun createClient(): ShepherdClient = if (fake) FakeShepherdClient else LinuxShepherdClient()
@@ -32,7 +33,8 @@ data class Args(
 
             val deleteSubcommand = DeleteSubcommand()
             val createSubcommand = CreateSubcommand()
-            parser.subcommands(ListProjectSubcommand(), ShowProjectSubcommand(), LogsSubcommand(), createSubcommand, deleteSubcommand, MetricsSubcommand())
+            val updateSubcommand = UpdateSubcommand()
+            parser.subcommands(ListProjectSubcommand(), ShowProjectSubcommand(), LogsSubcommand(), createSubcommand, deleteSubcommand, MetricsSubcommand(), updateSubcommand)
             val parserResult = parser.parse(args)
             val commandName = parserResult.commandName.takeUnless { it == parser.programName }
             val cmd = Command.values().firstOrNull { it.argName == commandName }
@@ -43,7 +45,8 @@ data class Args(
                 cmd,
                 project?.let { ProjectId(it) },
                 deleteSubcommand,
-                createSubcommand
+                createSubcommand,
+                updateSubcommand
             )
         }
     }
@@ -67,5 +70,9 @@ class CreateSubcommand: Subcommand(Command.Create.argName, "Creates a new projec
     override fun execute() {}
 }
 class MetricsSubcommand: Subcommand(Command.Metrics.argName, "Shows basic metrics of the main app pod.") {
+    override fun execute() {}
+}
+class UpdateSubcommand: Subcommand(Command.Update.argName, "Updates a project with the new configuration. Fails if the project doesn't exist yet.") {
+    val jsonFile by option(ArgType.String, "file", "f", "The JSON file describing the project").required()
     override fun execute() {}
 }

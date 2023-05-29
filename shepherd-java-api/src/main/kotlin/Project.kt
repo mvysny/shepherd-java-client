@@ -131,6 +131,9 @@ public data class Project(
         listOf("https://$host/${id.id}") + publication.additionalDomains.map { "https://$it" }
 
     public companion object {
+        /**
+         * Loads [Project] from given JSON [file]. Fails if the file doesn't exist.
+         */
         @JvmStatic
         public fun loadFromFile(file: Path): Project =
             file.inputStream().buffered().use { stream -> Json.decodeFromStream(stream) }
