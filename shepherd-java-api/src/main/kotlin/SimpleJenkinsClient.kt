@@ -180,7 +180,7 @@ public class SimpleJenkinsClient @JvmOverloads constructor(
         // get all jobs: http://localhost:8080/api/json?pretty=true
         // very detailed info, NOT RECOMMENDED for production use: http://localhost:8080/api/json?pretty=true&depth=2
         // full URL: http://localhost:8080/api/json?tree=jobs[name,lastBuild[number,result,timestamp,duration,estimatedDuration]]
-        val result = jenkinsClient.get("?tree=jobs[name,lastBuild[result,timestamp]]")
+        val result = jenkinsClient.get("?tree=jobs[name,lastBuild[number,result,timestamp,duration,estimatedDuration]]")
         return json.decodeFromString<JenkinsJobs>(result).jobs
     }
 
