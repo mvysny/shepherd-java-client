@@ -192,7 +192,10 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
      * a warning log instead.
      */
     fun deleteJobIfExists(id: ProjectId) {
-        if (!hasJob(id)) return
+        if (!hasJob(id)) {
+            log.warn("Jenkins job ${id.jenkinsJobName} doesn't exist, not deleting Jenkins job")
+            return
+        }
 
         val crumb = getCrumb()
         val url = "$jenkinsUrl/job/${id.jenkinsJobName}/doDelete/api/json".buildUrl()
