@@ -25,7 +25,7 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
     private val Project.jenkinsJobName: String get() = id.jenkinsJobName
 
     private val okHttpClient: OkHttpClient = OkHttpClient.Builder().apply {
-        cookieJar(BasicCookieJar())
+        cookieJar(BasicCookieJar()) // Jenkins Crumbs require that the session cookie is preserved between requests
         addInterceptor(BasicAuthInterceptor(jenkinsUsername, jenkinsPassword))
     } .build()
 
@@ -43,6 +43,9 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
         okHttpClient.exec(request) {}
     }
 
+    /**
+     * Retrieves a new crumb from Jenkins. This prevents CSRF.
+     */
     private fun getCrumb(): JenkinsCrumb {
         val url = "$jenkinsUrl/crumbIssuer/api/json".buildUrl()
         return okHttpClient.exec(url.buildRequest()) {
@@ -138,7 +141,15 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
         return xml
     }
 
-    private fun hasJob(id: ProjectId) = jenkins.jobs.keys.contains(id.jenkinsJobName)
+    private fun getJobNames(): Set<String> {
+        val url = "$jenkinsUrl/api/json?tree=jobs[name]".buildUrl()
+        return okHttpClient.exec(url.buildRequest()) { response ->
+            val jobs: JenkinsJobNames = response.json<JenkinsJobNames>(json)
+            jobs.jobs.map { it.name } .toSet()
+        }
+    }
+
+    private fun hasJob(id: ProjectId) = getJobNames().contains(id.jenkinsJobName)
 
     /**
      * Creates a new Jenkins job for given project, or updates existing job if it already exists.
@@ -240,6 +251,19 @@ internal data class JenkinsJobs(
 internal data class JenkinsJob(
     val name: String,
     val lastBuild: JenkinsBuild?
+)
+
+@Serializable
+internal data class JenkinsJobNames(
+    val jobs: List<JenkinsJobName>
+)
+
+/**
+ * A Jenkins job (=project); [name] equals to [ProjectId.id].
+ */
+@Serializable
+internal data class JenkinsJobName(
+    val name: String
 )
 
 @Serializable
