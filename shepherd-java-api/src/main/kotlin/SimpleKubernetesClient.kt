@@ -315,8 +315,9 @@ spec:$tls
      * or the old contents differ from the new contents.
      */
     public fun writeConfigYamlFile(project: Project): Boolean {
-        val yaml = getKubernetesYamlConfigFile(project)
         val configYamlFile = getConfigYamlFile(project.id)
+        log.info("Writing Kubernetes yaml config file to $configYamlFile")
+        val yaml = getKubernetesYamlConfigFile(project)
         val oldContents = if (configYamlFile.exists()) configYamlFile.readText() else ""
         configYamlFile.writeText(yaml)
         return oldContents != yaml

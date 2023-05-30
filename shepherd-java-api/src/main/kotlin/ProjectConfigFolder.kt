@@ -40,7 +40,9 @@ internal class ProjectConfigFolder(val folder: Path) {
         Project.loadFromFile(requireProjectExists(id))
 
     fun writeProjectJson(project: Project) {
-        project.saveToFile(getConfigFile(project.id))
+        val file = getConfigFile(project.id)
+        log.info("Writing project json file to $file")
+        project.saveToFile(file)
     }
 
     /**

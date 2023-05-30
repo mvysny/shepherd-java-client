@@ -31,6 +31,7 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
      * Starts a build manually.
      */
     fun build(id: ProjectId) {
+        log.info("Running Jenkins build of ${id.jenkinsJobName}")
         val crumb = getCrumb()
 
         val url = "$jenkinsUrl/job/${id.jenkinsJobName}/build/api/json".buildUrl()
@@ -155,6 +156,7 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
     fun createJob(project: Project) {
         val xml = getJobXml(project)
         if (!hasJob(project.id)) {
+            log.info("Creating Jenkins job ${project.jenkinsJobName}")
             // crumbFlag=true is necessary: https://serverfault.com/questions/990224/jenkins-server-throws-403-while-accessing-rest-api-or-using-jenkins-java-client/1131973
 //            jenkins.createJob(project.jenkinsJobName, xml, true)
             val crumb = getCrumb()
