@@ -112,3 +112,12 @@ internal class BasicAuthInterceptor(user: String, password: String) : Intercepto
         return chain.proceed(authenticatedRequest)
     }
 }
+
+internal class BasicCookieJar : CookieJar {
+    private val cookies = mutableMapOf<String, Cookie>()
+    override fun loadForRequest(url: HttpUrl): List<Cookie> = cookies.values.toList()
+
+    override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
+        cookies.forEach { this.cookies[it.name] = it }
+    }
+}
