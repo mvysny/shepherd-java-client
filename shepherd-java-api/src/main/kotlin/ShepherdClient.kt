@@ -160,7 +160,7 @@ public data class ResourcesUsage(
 /**
  * Contains information about a particular build of an app.
  * @property number the build number, starts with 1, second build has the number of 2 etc.
- * @property duration how long the build took (or how long the build is taking if it hasn't finished yet)
+ * @property duration how long the build took. 0 if the build is not yet complete.
  * @property estimatedDuration estimated duration based on previous builds
  * @property buildStarted when the build started
  * @property outcome the outcome or [BuildResult.BUILDING] if not yet completed.
