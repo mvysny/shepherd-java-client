@@ -64,6 +64,8 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-cookie-path: / /${'$'}1
     nginx.ingress.kubernetes.io/configuration-snippet: |
       rewrite ^(/vaadin-boot-example-gradle)${'$'} ${'$'}1/ permanent;
+    nginx.ingress.kubernetes.io/proxy-redirect-from: https://v-herd.eu/  # Spring Security redirects to /login
+    nginx.ingress.kubernetes.io/proxy-redirect-to: https://v-herd.eu/${'$'}1/
 spec:
   tls:
   - hosts:
@@ -151,6 +153,8 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-cookie-path: / /${'$'}1
     nginx.ingress.kubernetes.io/configuration-snippet: |
       rewrite ^(/vaadin-boot-example-gradle)${'$'} ${'$'}1/ permanent;
+    nginx.ingress.kubernetes.io/proxy-redirect-from: https://v-herd.eu/  # Spring Security redirects to /login
+    nginx.ingress.kubernetes.io/proxy-redirect-to: https://v-herd.eu/${'$'}1/
 spec:
   tls:
   - hosts:
@@ -233,6 +237,8 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-cookie-path: / /${'$'}1
     nginx.ingress.kubernetes.io/configuration-snippet: |
       rewrite ^(/vaadin-boot-example-gradle)${'$'} ${'$'}1/ permanent;
+    nginx.ingress.kubernetes.io/proxy-redirect-from: https://v-herd.eu/  # Spring Security redirects to /login
+    nginx.ingress.kubernetes.io/proxy-redirect-to: https://v-herd.eu/${'$'}1/
 spec:
   tls:
   - hosts:
@@ -372,6 +378,8 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-cookie-path: / /${'$'}1
     nginx.ingress.kubernetes.io/configuration-snippet: |
       rewrite ^(/vaadin-boot-example-gradle)${'$'} ${'$'}1/ permanent;
+    nginx.ingress.kubernetes.io/proxy-redirect-from: https://v-herd.eu/  # Spring Security redirects to /login
+    nginx.ingress.kubernetes.io/proxy-redirect-to: https://v-herd.eu/${'$'}1/
 spec:
   tls:
   - hosts:
