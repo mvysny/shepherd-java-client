@@ -17,8 +17,6 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
     private val jenkinsUsername: String = "admin",
     private val jenkinsPassword: String = "admin"
 ) : Closeable {
-//    private val jenkinsClient: JenkinsHttpConnection = JenkinsHttpClient(URI(jenkinsUrl), jenkinsUsername, jenkinsPassword)
-//    private val jenkins: JenkinsServer = JenkinsServer(jenkinsClient)
     private val ProjectId.jenkinsJobName: String get() = id
     private val Project.jenkinsJobName: String get() = id.jenkinsJobName
 
@@ -158,7 +156,6 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
         if (!hasJob(project.id)) {
             log.info("Creating Jenkins job ${project.jenkinsJobName}")
             // crumbFlag=true is necessary: https://serverfault.com/questions/990224/jenkins-server-throws-403-while-accessing-rest-api-or-using-jenkins-java-client/1131973
-//            jenkins.createJob(project.jenkinsJobName, xml, true)
             val crumb = getCrumb()
             val url = "$jenkinsUrl/createItem/api/json".buildUrl {
                 addEncodedQueryParameter("name", project.jenkinsJobName)
@@ -181,7 +178,6 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
         log.info("Updating Jenkins job ${project.jenkinsJobName}")
 
         val xml = getJobXml(project)
-//        jenkins.updateJob(project.jenkinsJobName, xml, true)
         val crumb = getCrumb()
         val url = "$jenkinsUrl/job/${project.jenkinsJobName}/config.xml/api/json".buildUrl()
         val request = url.buildRequest {
@@ -209,7 +205,6 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
             crumb.applyTo(this)
         }
         okHttpClient.exec(request) {}
-//        jenkins.deleteJob(id.jenkinsJobName, true)
     }
 
     companion object {
@@ -233,7 +228,6 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
     }
 
     override fun close() {
-//        jenkins.close()
         okHttpClient.destroy()
     }
 
