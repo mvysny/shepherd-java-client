@@ -177,6 +177,8 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-cookie-path: / /${'$'}1
     nginx.ingress.kubernetes.io/configuration-snippet: |
       rewrite ^(/$projectId)${'$'} ${'$'}1/ permanent;
+    nginx.ingress.kubernetes.io/proxy-redirect-from: https://$defaultDNS/  # Spring Security redirects to /login
+    nginx.ingress.kubernetes.io/proxy-redirect-to: https://$defaultDNS/${'$'}1/
 spec:
   tls:
   - hosts:
