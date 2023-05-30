@@ -1,6 +1,7 @@
 package com.github.mvysny.shepherd.api
 
 import java.nio.file.Files
+import java.time.Duration
 import java.time.Instant
 import kotlin.io.path.*
 import kotlin.random.Random
@@ -81,6 +82,12 @@ public object FakeShepherdClient : ShepherdClient {
         Random.nextInt(64, 256),
         Random.nextFloat()
     )
+
+    override fun getLastBuilds(id: ProjectId): List<Build> = listOf(Build(1, Duration.ofMinutes(3), Duration.ofMinutes(5), Instant.now(), BuildResult.BUILDING))
+
+    override fun getBuildLog(id: ProjectId, build: Build): String = """
+Dummy build log
+    """.trim()
 
     override fun close() {}
 }

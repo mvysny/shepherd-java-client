@@ -3,6 +3,7 @@ package com.github.mvysny.shepherd.api
 import com.offbytwo.jenkins.JenkinsServer
 import com.offbytwo.jenkins.client.JenkinsHttpClient
 import com.offbytwo.jenkins.client.JenkinsHttpConnection
+import com.offbytwo.jenkins.model.BuildWithDetails
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
@@ -168,9 +169,20 @@ public class SimpleJenkinsClient @JvmOverloads constructor(
         jenkins.close()
     }
 
+    /**
+     * Returns all jenkins jobs (=projects).
+     */
     public fun getJobsOverview(): List<JenkinsJob> {
         val result = jenkinsClient.get("?tree=jobs[name,lastBuild[result,timestamp]]")
         return Json { ignoreUnknownKeys = true; coerceInputValues = true }.decodeFromString<JenkinsJobs>(result).jobs
+    }
+
+    /**
+     * Returns the last 10 builds for given project [id].
+     */
+    public fun getLastBuilds(id: ProjectId): List<BuildWithDetails> {
+        val builds = jenkins.getJob(id.id).builds.sortedBy { it.number } .takeLast(10)
+        return builds.map { it.details() }
     }
 }
 
@@ -179,6 +191,9 @@ internal data class JenkinsJobs(
     val jobs: List<JenkinsJob>
 )
 
+/**
+ * A Jenkins job (=project); [name] equals to [ProjectId.id].
+ */
 @Serializable
 public data class JenkinsJob(
     val name: String,

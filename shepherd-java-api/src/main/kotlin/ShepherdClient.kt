@@ -1,6 +1,7 @@
 package com.github.mvysny.shepherd.api
 
 import java.io.Closeable
+import java.time.Duration
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -67,27 +68,34 @@ public interface ShepherdClient : Closeable {
      * Returns the current CPU/memory usage of the main app pod.
      */
     public fun getRunMetrics(id: ProjectId): ResourcesUsage
+
+    /**
+     * Retrieve the last 10 builds for given project [id].
+     * @return the list of builds, sorted by [Build.buildStarted] ascending.
+     */
+    public fun getLastBuilds(id: ProjectId): List<Build>
+
+    /**
+     * Retrieves the full build log (stdout).
+     */
+    public fun getBuildLog(id: ProjectId, build: Build): String
 }
 
 /**
- * @property lastBuildTimestamp may be null if there is no build for the project yet.
+ * @property lastBuildOutcome the outcome of the last build, or [BuildResult.BUILDING] if the build is still ongoing.
+ * @property lastBuildStarted The start of the last build. May be null if there is no build for the project yet.
  */
 public data class ProjectView(
     val project: Project,
     val lastBuildOutcome: BuildResult,
-    val lastBuildTimestamp: Instant?
+    val lastBuildStarted: Instant?
 ) {
+    val lastBuildOngoing: Boolean get() = lastBuildOutcome == BuildResult.BUILDING
     /**
      * Returns URLs on which this project runs (can be browsed to). E.g. for `vaadin-boot-example-gradle`
      * on the `v-herd.eu` [host], this returns `https://v-herd.eu/vaadin-boot-example-gradle`.
      */
     public fun getPublishedURLs(host: String): List<String> = project.getPublishedURLs(host)
-
-    /**
-     * The start of the last build or null if there was no build yet.
-     */
-    val buildStarted: ZonedDateTime?
-        get() = lastBuildTimestamp?.atZone(ZoneId.systemDefault())
 }
 
 public enum class BuildResult {
@@ -140,5 +148,32 @@ public data class ResourcesUsage(
     public companion object {
         @JvmStatic
         public val zero: ResourcesUsage = ResourcesUsage(0, 0f)
+    }
+}
+
+/**
+ * Contains information about a particular build of an app.
+ * @property number the build number, starts with 1, second build has the number of 2 etc.
+ * @property duration how long the build took (or how long the build is taking if it hasn't finished yet)
+ * @property estimatedDuration estimated duration based on previous builds
+ * @property buildStarted when the build started
+ * @property outcome the outcome or [BuildResult.BUILDING] if not yet completed.
+ */
+public data class Build(
+    val number: Int,
+    val duration: Duration,
+    val estimatedDuration: Duration,
+    val buildStarted: Instant,
+    val outcome: BuildResult
+) {
+    val isCompleted: Boolean get() = outcome != BuildResult.BUILDING
+
+    /**
+     * When the build ended; null if the build is not yet completed.
+     */
+    val buildEnded: Instant? get() = if (!isCompleted) {
+        null
+    } else {
+        buildStarted + duration
     }
 }

@@ -2,6 +2,7 @@ package com.github.mvysny.shepherd.api
 
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
+import java.time.Duration
 import java.time.Instant
 import kotlin.io.path.*
 
@@ -90,6 +91,20 @@ public class LinuxShepherdClient @JvmOverloads constructor(
 
     override fun getRunLogs(id: ProjectId): String = kubernetes.getRunLogs(id)
     override fun getRunMetrics(id: ProjectId): ResourcesUsage = kubernetes.getMetrics(id)
+    override fun getLastBuilds(id: ProjectId): List<Build> {
+        val lastBuilds = jenkins.getLastBuilds(id)
+        return lastBuilds.map { Build(
+            it.number,
+            Duration.ofMillis(it.duration),
+            Duration.ofMillis(it.estimatedDuration),
+            Instant.ofEpochMilli(it.timestamp),
+            BuildResult.valueOf(it.result?.name ?: "BUILDING")
+        ) }
+    }
+
+    override fun getBuildLog(id: ProjectId, build: Build): String {
+        TODO("Not yet implemented")
+    }
 
     override fun close() {
         jenkins.close()
