@@ -4,7 +4,6 @@ package com.github.mvysny.shepherd.api
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
@@ -77,7 +76,7 @@ public data class Resources(
  * @property dockerFile if not null, we build off this dockerfile instead of the default `Dockerfile`. Passed via `DOCKERFILE` env variable to `shepherd-build`.
  */
 @Serializable
-public data class Build(
+public data class BuildSpec(
     val resources: Resources,
     val buildArgs: Map<String, String> = mapOf(),
     val dockerFile: String? = null
@@ -121,7 +120,7 @@ public data class Project(
     val gitRepo: GitRepo,
     val owner: ProjectOwner,
     val runtime: ProjectRuntime,
-    val build: Build,
+    val build: BuildSpec,
     val publication: Publication = Publication(),
     val additionalServices: Set<Service> = setOf()
 ) {

@@ -39,7 +39,7 @@ public interface ShepherdClient : Closeable {
      * Fails if the project json config file doesn't exist yet.
      *
      * Restarts the project automatically:
-     * * either starts a new build in Jenkins if there were any changes in [Build.buildArgs] or [Build.dockerFile].
+     * * either starts a new build in Jenkins if there were any changes in [BuildSpec.buildArgs] or [BuildSpec.dockerFile].
      * * otherwise only re-applies the Kubernetes yaml file (if it has been changed).
      *
      * Note that some properties can not be changed (an exception is thrown by this function if such a change is detected):

@@ -10,7 +10,7 @@ val fakeProject = Project(
     gitRepo = GitRepo("https://github.com/mvysny/vaadin-boot-example-gradle", "master"),
     owner = ProjectOwner("Martin Vysny", "mavi@vaadin.com"),
     runtime = ProjectRuntime(Resources.defaultRuntimeResources),
-    build = Build(resources = Resources.defaultBuildResources)
+    build = BuildSpec(resources = Resources.defaultBuildResources)
 )
 private val serializedJson = """{"id":"vaadin-boot-example-gradle","description":"Example project for Vaadin Boot built via Gradle","gitRepo":{"url":"https://github.com/mvysny/vaadin-boot-example-gradle","branch":"master"},"owner":{"name":"Martin Vysny","email":"mavi@vaadin.com"},"runtime":{"resources":{"memoryMb":256,"cpu":1.0}},"build":{"resources":{"memoryMb":2048,"cpu":2.0}}}"""
 
@@ -27,7 +27,7 @@ val fakeProject2 = Project(
             "JDBC_PASSWORD" to "mysecretpassword"
         )
     ),
-    build = Build(
+    build = BuildSpec(
         resources = Resources.defaultBuildResources,
         buildArgs = mapOf(
             "offlinekey" to "q3984askdjalkd9823"

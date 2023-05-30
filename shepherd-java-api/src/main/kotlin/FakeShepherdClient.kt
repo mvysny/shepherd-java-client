@@ -11,7 +11,7 @@ private val fakeProject = Project(
     gitRepo = GitRepo("https://github.com/mvysny/vaadin-boot-example-gradle", "master"),
     owner = ProjectOwner("Martin Vysny", "mavi@vaadin.com"),
     runtime = ProjectRuntime(Resources.defaultRuntimeResources),
-    build = Build(resources = Resources.defaultBuildResources)
+    build = BuildSpec(resources = Resources.defaultBuildResources)
 )
 
 /**
