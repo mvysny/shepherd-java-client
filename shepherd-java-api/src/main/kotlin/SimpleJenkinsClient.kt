@@ -205,7 +205,8 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
 
     fun getBuildConsoleText(id: ProjectId, buildNumber: Int): String {
         // e.g. http://localhost:8080/job/vaadin-boot-example-gradle/27/consoleText
-        return jenkinsClient.get("/job/${id.id}/$buildNumber/logText/progressiveText")
+        val url = "$jenkinsUrl/job/${id.id}/$buildNumber/logText/progressiveText".buildUrl()
+        return okHttpClient.exec(url.buildRequest()) { it.string() }
     }
 }
 
