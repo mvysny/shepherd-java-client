@@ -5,6 +5,8 @@ import com.offbytwo.jenkins.client.JenkinsHttpClient
 import com.offbytwo.jenkins.client.JenkinsHttpConnection
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import okhttp3.Authenticator
+import okhttp3.OkHttpClient
 import org.slf4j.LoggerFactory
 import java.io.Closeable
 import java.net.URI
@@ -12,11 +14,18 @@ import java.time.Duration
 import java.time.Instant
 
 internal class SimpleJenkinsClient @JvmOverloads constructor(
-    private val jenkinsClient: JenkinsHttpConnection = JenkinsHttpClient(URI("http://localhost:8080"), "admin", "admin")
+    private val jenkinsUrl: String = "http://localhost:8080",
+    private val jenkinsUsername: String = "admin",
+    private val jenkinsPassword: String = "admin"
 ) : Closeable {
+    private val jenkinsClient: JenkinsHttpConnection = JenkinsHttpClient(URI(jenkinsUrl), jenkinsUsername, jenkinsPassword)
     private val jenkins: JenkinsServer = JenkinsServer(jenkinsClient)
     private val ProjectId.jenkinsJobName: String get() = id
     private val Project.jenkinsJobName: String get() = id.jenkinsJobName
+
+    private val okHttpClient: OkHttpClient = OkHttpClient.Builder().apply {
+        addInterceptor(BasicAuthInterceptor(jenkinsUsername, jenkinsPassword))
+    } .build()
 
     /**
      * Starts a build manually.
@@ -158,7 +167,7 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
         /**
          * Checks whether a full Jenkins project rebuild is necessary after changes in the project config file.
          */
-        public fun needsProjectRebuild(newProject: Project, oldProject: Project): Boolean =
+        fun needsProjectRebuild(newProject: Project, oldProject: Project): Boolean =
             newProject.build.buildArgs != oldProject.build.buildArgs ||
                     newProject.build.dockerFile != oldProject.build.dockerFile
 
@@ -167,6 +176,7 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
 
     override fun close() {
         jenkins.close()
+        okHttpClient.destroy()
     }
 
     /**
@@ -187,8 +197,10 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
     fun getLastBuilds(id: ProjectId): List<JenkinsBuild> {
         // general project info: http://localhost:8080/job/vaadin-boot-example-gradle/api/json?depth=2
         // http://localhost:8080/job/vaadin-boot-example-gradle/api/json?tree=builds[number,result,timestamp,duration,estimatedDuration]
-        val result = jenkinsClient.get("/job/${id.id}?tree=builds[number,result,timestamp,duration,estimatedDuration]")
-        return json.decodeFromString<JenkinsBuilds>(result).builds
+        val url = "$jenkinsUrl/job/${id.id}/api/json?tree=builds[number,result,timestamp,duration,estimatedDuration]".buildUrl()
+        return okHttpClient.exec(url.buildRequest()) {
+            it.json<JenkinsBuilds>(json).builds
+        }
     }
 
     fun getBuildConsoleText(id: ProjectId, buildNumber: Int): String {
