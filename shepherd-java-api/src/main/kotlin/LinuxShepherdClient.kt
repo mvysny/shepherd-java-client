@@ -93,7 +93,7 @@ public class LinuxShepherdClient @JvmOverloads constructor(
     override fun getRunMetrics(id: ProjectId): ResourcesUsage = kubernetes.getMetrics(id)
     override fun getLastBuilds(id: ProjectId): List<Build> {
         val lastBuilds = jenkins.getLastBuilds(id)
-        return lastBuilds.map { it.toBuild() } .sortedBy { it.number }
+        return lastBuilds.map { it.toBuild() }
     }
 
     override fun getBuildLog(id: ProjectId, buildNumber: Int): String = jenkins.getBuildConsoleText(id, buildNumber)

@@ -246,15 +246,16 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
     }
 
     /**
-     * Returns the last 10 builds for given project [id].
+     * Returns the last 30 builds for given project [id]. The builds are sorted by [JenkinsBuild.number] ascending.
      */
     fun getLastBuilds(id: ProjectId): List<JenkinsBuild> {
         // general project info: http://localhost:8080/job/vaadin-boot-example-gradle/api/json?depth=2
         // http://localhost:8080/job/vaadin-boot-example-gradle/api/json?tree=builds[number,result,timestamp,duration,estimatedDuration]
         val url = "$jenkinsUrl/job/${id.jenkinsJobName}/api/json?tree=builds[number,result,timestamp,duration,estimatedDuration]".buildUrl()
-        return okHttpClient.exec(url.buildRequest()) {
+        val builds: List<JenkinsBuild> = okHttpClient.exec(url.buildRequest()) {
             it.json<JenkinsBuilds>(json).builds
         }
+        return builds.sortedBy { it.number } .takeLast(30)
     }
 
     fun getBuildConsoleText(id: ProjectId, buildNumber: Int): String {

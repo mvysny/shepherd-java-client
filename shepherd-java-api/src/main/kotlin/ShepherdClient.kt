@@ -77,7 +77,7 @@ public interface ShepherdClient : Closeable {
     public fun getRunMetrics(id: ProjectId): ResourcesUsage
 
     /**
-     * Retrieve the last 10 builds for given project [id].
+     * Retrieve the last 30 builds for given project [id].
      * @return the list of builds, sorted by [Build.number] ascending.
      */
     public fun getLastBuilds(id: ProjectId): List<Build>
