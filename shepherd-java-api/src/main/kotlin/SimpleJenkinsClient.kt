@@ -5,6 +5,7 @@ import com.offbytwo.jenkins.client.JenkinsHttpClient
 import com.offbytwo.jenkins.client.JenkinsHttpConnection
 import com.offbytwo.jenkins.model.BuildWithDetails
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
 import java.io.Closeable
@@ -163,6 +164,8 @@ public class SimpleJenkinsClient @JvmOverloads constructor(
         public fun needsProjectRebuild(newProject: Project, oldProject: Project): Boolean =
             newProject.build.buildArgs != oldProject.build.buildArgs ||
                     newProject.build.dockerFile != oldProject.build.dockerFile
+
+        private val json = Json { ignoreUnknownKeys = true; coerceInputValues = true }
     }
 
     override fun close() {
@@ -173,16 +176,27 @@ public class SimpleJenkinsClient @JvmOverloads constructor(
      * Returns all jenkins jobs (=projects).
      */
     public fun getJobsOverview(): List<JenkinsJob> {
+        // API description: http://localhost:8080/api/
+        // get all jobs: http://localhost:8080/api/json?pretty=true
+        // very detailed info, NOT RECOMMENDED for production use: http://localhost:8080/api/json?pretty=true&depth=2
+        // full URL: http://localhost:8080/api/json?tree=jobs[name,lastBuild[number,result,timestamp,duration,estimatedDuration]]
         val result = jenkinsClient.get("?tree=jobs[name,lastBuild[result,timestamp]]")
-        return Json { ignoreUnknownKeys = true; coerceInputValues = true }.decodeFromString<JenkinsJobs>(result).jobs
+        return json.decodeFromString<JenkinsJobs>(result).jobs
     }
 
     /**
      * Returns the last 10 builds for given project [id].
      */
-    public fun getLastBuilds(id: ProjectId): List<BuildWithDetails> {
-        val builds = jenkins.getJob(id.id).builds.sortedBy { it.number } .takeLast(10)
-        return builds.map { it.details() }
+    public fun getLastBuilds(id: ProjectId): List<JenkinsBuild> {
+        // general project info: http://localhost:8080/job/vaadin-boot-example-gradle/api/json?depth=2
+        // http://localhost:8080/job/vaadin-boot-example-gradle/api/json?tree=builds[number,result,timestamp,duration,estimatedDuration]
+        val result = jenkinsClient.get("/job/${id.id}?tree=builds[number,result,timestamp,duration,estimatedDuration]")
+        return json.decodeFromString<JenkinsBuilds>(result).builds
+    }
+
+    public fun getBuildConsoleText(id: ProjectId, buildNumber: Int): String {
+        // e.g. http://localhost:8080/job/vaadin-boot-example-gradle/27/consoleText
+        return jenkinsClient.get("/job/${id.id}/$buildNumber/logText/progressiveText")
     }
 }
 
@@ -200,14 +214,25 @@ public data class JenkinsJob(
     val lastBuild: JenkinsBuild?
 )
 
+@Serializable
+internal data class JenkinsBuilds(
+    val builds: List<JenkinsBuild>
+)
+
 /**
+ * @property number the build number, starts at 1, second build is number 2, etc.
  * @property result the build result. jenkins passes in null when the project is still building.
- * @property timestamp when the project started to build.
+ * @property timestamp when the project started to build. Millis since epoch.
+ * @property duration build duration, in millis.
+ * @property estimatedDuration build estimated duration, in millis.
  */
 @Serializable
 public data class JenkinsBuild(
+    val number: Int,
     val result: BuildResult = BuildResult.BUILDING,
-    val timestamp: Long
+    val timestamp: Long,
+    val duration: Long,
+    val estimatedDuration: Long
 ) {
     /**
      * true if the build is still ongoing, false if the build has finished building.

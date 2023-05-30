@@ -98,13 +98,11 @@ public class LinuxShepherdClient @JvmOverloads constructor(
             Duration.ofMillis(it.duration),
             Duration.ofMillis(it.estimatedDuration),
             Instant.ofEpochMilli(it.timestamp),
-            BuildResult.valueOf(it.result?.name ?: "BUILDING")
+            it.result
         ) }
     }
 
-    override fun getBuildLog(id: ProjectId, build: Build): String {
-        TODO("Not yet implemented")
-    }
+    override fun getBuildLog(id: ProjectId, buildNumber: Int): String = jenkins.getBuildConsoleText(id, buildNumber)
 
     override fun close() {
         jenkins.close()

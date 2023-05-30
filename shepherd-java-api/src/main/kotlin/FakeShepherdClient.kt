@@ -85,7 +85,7 @@ public object FakeShepherdClient : ShepherdClient {
 
     override fun getLastBuilds(id: ProjectId): List<Build> = listOf(Build(1, Duration.ofMinutes(3), Duration.ofMinutes(5), Instant.now(), BuildResult.BUILDING))
 
-    override fun getBuildLog(id: ProjectId, build: Build): String = """
+    override fun getBuildLog(id: ProjectId, buildNumber: Int): String = """
 Dummy build log
     """.trim()
 

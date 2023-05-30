@@ -77,8 +77,9 @@ public interface ShepherdClient : Closeable {
 
     /**
      * Retrieves the full build log (stdout).
+     * @param buildNumber pass in [Build.number].
      */
-    public fun getBuildLog(id: ProjectId, build: Build): String
+    public fun getBuildLog(id: ProjectId, buildNumber: Int): String
 }
 
 /**
