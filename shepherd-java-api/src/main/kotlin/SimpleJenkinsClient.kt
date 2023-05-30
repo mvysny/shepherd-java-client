@@ -1,16 +1,14 @@
 package com.github.mvysny.shepherd.api
 
-import com.offbytwo.jenkins.JenkinsServer
-import com.offbytwo.jenkins.client.JenkinsHttpClient
-import com.offbytwo.jenkins.client.JenkinsHttpConnection
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.internal.EMPTY_REQUEST
 import org.slf4j.LoggerFactory
 import java.io.Closeable
-import java.net.URI
 import java.time.Duration
 import java.time.Instant
 
@@ -19,8 +17,8 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
     private val jenkinsUsername: String = "admin",
     private val jenkinsPassword: String = "admin"
 ) : Closeable {
-    private val jenkinsClient: JenkinsHttpConnection = JenkinsHttpClient(URI(jenkinsUrl), jenkinsUsername, jenkinsPassword)
-    private val jenkins: JenkinsServer = JenkinsServer(jenkinsClient)
+//    private val jenkinsClient: JenkinsHttpConnection = JenkinsHttpClient(URI(jenkinsUrl), jenkinsUsername, jenkinsPassword)
+//    private val jenkins: JenkinsServer = JenkinsServer(jenkinsClient)
     private val ProjectId.jenkinsJobName: String get() = id
     private val Project.jenkinsJobName: String get() = id.jenkinsJobName
 
@@ -158,7 +156,16 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
         val xml = getJobXml(project)
         if (!hasJob(project.id)) {
             // crumbFlag=true is necessary: https://serverfault.com/questions/990224/jenkins-server-throws-403-while-accessing-rest-api-or-using-jenkins-java-client/1131973
-            jenkins.createJob(project.jenkinsJobName, xml, true)
+//            jenkins.createJob(project.jenkinsJobName, xml, true)
+            val crumb = getCrumb()
+            val url = "$jenkinsUrl/createItem/api/json".buildUrl {
+                addEncodedQueryParameter("name", project.jenkinsJobName)
+            }
+            val request = url.buildRequest {
+                post(xml.toRequestBody("text/xml; charset=utf-8".toMediaType()))
+                crumb.applyTo(this)
+            }
+            okHttpClient.exec(request) {}
         } else {
             log.warn("Jenkins job for ${project.id.id} already exists, updating existing instead")
             updateJob(project)
@@ -170,7 +177,14 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
      */
     fun updateJob(project: Project) {
         val xml = getJobXml(project)
-        jenkins.updateJob(project.jenkinsJobName, xml, true)
+//        jenkins.updateJob(project.jenkinsJobName, xml, true)
+        val crumb = getCrumb()
+        val url = "$jenkinsUrl/job/${project.jenkinsJobName}/config.xml/api/json".buildUrl()
+        val request = url.buildRequest {
+            post(xml.toRequestBody("text/xml; charset=utf-8".toMediaType()))
+            crumb.applyTo(this)
+        }
+        okHttpClient.exec(request) {}
     }
 
     /**
@@ -178,7 +192,16 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
      * a warning log instead.
      */
     fun deleteJobIfExists(id: ProjectId) {
-        jenkins.deleteJob(id.jenkinsJobName, true)
+        if (!hasJob(id)) return
+
+        val crumb = getCrumb()
+        val url = "$jenkinsUrl/job/${id.jenkinsJobName}/doDelete/api/json".buildUrl()
+        val request = url.buildRequest {
+            post(EMPTY_REQUEST)
+            crumb.applyTo(this)
+        }
+        okHttpClient.exec(request) {}
+//        jenkins.deleteJob(id.jenkinsJobName, true)
     }
 
     companion object {
@@ -202,7 +225,7 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
     }
 
     override fun close() {
-        jenkins.close()
+//        jenkins.close()
         okHttpClient.destroy()
     }
 
