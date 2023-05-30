@@ -1,3 +1,4 @@
+import com.github.mvysny.shepherd.api.Build
 import com.github.mvysny.shepherd.api.Project
 import com.github.mvysny.shepherd.api.ProjectId
 import com.github.mvysny.shepherd.api.ShepherdClient
@@ -24,7 +25,7 @@ enum class Command(val argName: String) {
             projects.forEach { v ->
                 println("${v.project.id.id}: ${v.project.description}; ${v.project.gitRepo} (${v.project.owner})")
                 println("   Published at: ${v.getPublishedURLs(host)}")
-                println("   Last Build: ${v.lastBuildOutcome}; started at ${v.lastBuildStarted?.atZone(ZoneId.systemDefault())}")
+                println("   Last Build: ${v.lastBuild?.formatShort()}")
             }
             if (projects.isEmpty()) {
                 println("No projects registered.")
@@ -101,7 +102,7 @@ enum class Command(val argName: String) {
         override fun run(args: Args, client: ShepherdClient) {
             val pid = requireProjectId(args)
             client.getLastBuilds(pid).forEach { build ->
-                println("Build #${build.number} [${build.outcome}]: Started ${build.buildStarted.atZone(ZoneId.systemDefault())}, duration ${build.duration}")
+                println("Build ${build.formatShort()}")
             }
         }
     },
@@ -136,3 +137,5 @@ enum class Command(val argName: String) {
         return args.project
     }
 }
+
+fun Build.formatShort(): String = "#${number} [${outcome}]: Started ${buildStarted.atZone(ZoneId.systemDefault())}, duration $duration"

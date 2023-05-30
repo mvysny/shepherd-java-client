@@ -38,7 +38,7 @@ public object FakeShepherdClient : ShepherdClient {
         if (ownerEmail != null) {
             projects = projects.filter { it.owner.email == ownerEmail }
         }
-        return projects.map { ProjectView(it, BuildResult.SUCCESS, Instant.now()) }
+        return projects.map { ProjectView(it, Build(1, Duration.ofMinutes(3), Duration.ofMinutes(5), Instant.now(), BuildResult.BUILDING)) }
     }
 
     override fun getProjectInfo(id: ProjectId): Project = projectConfigFolder.getProjectInfo(id)

@@ -83,15 +83,13 @@ public interface ShepherdClient : Closeable {
 }
 
 /**
- * @property lastBuildOutcome the outcome of the last build, or [BuildResult.BUILDING] if the build is still ongoing.
- * @property lastBuildStarted The start of the last build. May be null if there is no build for the project yet.
+ * @property lastBuild project last build. May be null if there is no build for the project yet.
  */
 public data class ProjectView(
     val project: Project,
-    val lastBuildOutcome: BuildResult,
-    val lastBuildStarted: Instant?
+    val lastBuild: Build?
 ) {
-    val lastBuildOngoing: Boolean get() = lastBuildOutcome == BuildResult.BUILDING
+    val lastBuildOngoing: Boolean get() = lastBuild != null && !lastBuild.isCompleted
     /**
      * Returns URLs on which this project runs (can be browsed to). E.g. for `vaadin-boot-example-gradle`
      * on the `v-herd.eu` [host], this returns `https://v-herd.eu/vaadin-boot-example-gradle`.

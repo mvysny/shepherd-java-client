@@ -3,18 +3,15 @@ package com.github.mvysny.shepherd.api
 import com.offbytwo.jenkins.JenkinsServer
 import com.offbytwo.jenkins.client.JenkinsHttpClient
 import com.offbytwo.jenkins.client.JenkinsHttpConnection
-import com.offbytwo.jenkins.model.BuildWithDetails
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
 import java.io.Closeable
 import java.net.URI
+import java.time.Duration
 import java.time.Instant
-import java.time.ZoneId
-import java.time.ZonedDateTime
 
-public class SimpleJenkinsClient @JvmOverloads constructor(
+internal class SimpleJenkinsClient @JvmOverloads constructor(
     private val jenkinsClient: JenkinsHttpConnection = JenkinsHttpClient(URI("http://localhost:8080"), "admin", "admin")
 ) : Closeable {
     private val jenkins: JenkinsServer = JenkinsServer(jenkinsClient)
@@ -121,7 +118,7 @@ public class SimpleJenkinsClient @JvmOverloads constructor(
     /**
      * Creates a new Jenkins job for given project, or updates existing job if it already exists.
      */
-    public fun createJob(project: Project) {
+    fun createJob(project: Project) {
         val xml = getJobXml(project)
         if (!hasJob(project.id)) {
             // crumbFlag=true is necessary: https://serverfault.com/questions/990224/jenkins-server-throws-403-while-accessing-rest-api-or-using-jenkins-java-client/1131973
@@ -135,7 +132,7 @@ public class SimpleJenkinsClient @JvmOverloads constructor(
     /**
      * Updates Jenkins job. Fails if the job doesn't exist.
      */
-    public fun updateJob(project: Project) {
+    fun updateJob(project: Project) {
         val xml = getJobXml(project)
         jenkins.updateJob(project.jenkinsJobName, xml, true)
     }
@@ -144,11 +141,11 @@ public class SimpleJenkinsClient @JvmOverloads constructor(
      * Deletes Jenkins job for given project. Does nothing if the job doesn't exist - logs
      * a warning log instead.
      */
-    public fun deleteJobIfExists(id: ProjectId) {
+    fun deleteJobIfExists(id: ProjectId) {
         jenkins.deleteJob(id.jenkinsJobName, true)
     }
 
-    public companion object {
+    companion object {
         @JvmStatic
         private val log = LoggerFactory.getLogger(SimpleJenkinsClient::class.java)
 
@@ -175,7 +172,7 @@ public class SimpleJenkinsClient @JvmOverloads constructor(
     /**
      * Returns all jenkins jobs (=projects).
      */
-    public fun getJobsOverview(): List<JenkinsJob> {
+    fun getJobsOverview(): List<JenkinsJob> {
         // API description: http://localhost:8080/api/
         // get all jobs: http://localhost:8080/api/json?pretty=true
         // very detailed info, NOT RECOMMENDED for production use: http://localhost:8080/api/json?pretty=true&depth=2
@@ -187,14 +184,14 @@ public class SimpleJenkinsClient @JvmOverloads constructor(
     /**
      * Returns the last 10 builds for given project [id].
      */
-    public fun getLastBuilds(id: ProjectId): List<JenkinsBuild> {
+    fun getLastBuilds(id: ProjectId): List<JenkinsBuild> {
         // general project info: http://localhost:8080/job/vaadin-boot-example-gradle/api/json?depth=2
         // http://localhost:8080/job/vaadin-boot-example-gradle/api/json?tree=builds[number,result,timestamp,duration,estimatedDuration]
         val result = jenkinsClient.get("/job/${id.id}?tree=builds[number,result,timestamp,duration,estimatedDuration]")
         return json.decodeFromString<JenkinsBuilds>(result).builds
     }
 
-    public fun getBuildConsoleText(id: ProjectId, buildNumber: Int): String {
+    fun getBuildConsoleText(id: ProjectId, buildNumber: Int): String {
         // e.g. http://localhost:8080/job/vaadin-boot-example-gradle/27/consoleText
         return jenkinsClient.get("/job/${id.id}/$buildNumber/logText/progressiveText")
     }
@@ -209,7 +206,7 @@ internal data class JenkinsJobs(
  * A Jenkins job (=project); [name] equals to [ProjectId.id].
  */
 @Serializable
-public data class JenkinsJob(
+internal data class JenkinsJob(
     val name: String,
     val lastBuild: JenkinsBuild?
 )
@@ -227,18 +224,12 @@ internal data class JenkinsBuilds(
  * @property estimatedDuration build estimated duration, in millis.
  */
 @Serializable
-public data class JenkinsBuild(
+internal data class JenkinsBuild(
     val number: Int,
     val result: BuildResult = BuildResult.BUILDING,
     val timestamp: Long,
     val duration: Long,
     val estimatedDuration: Long
 ) {
-    /**
-     * true if the build is still ongoing, false if the build has finished building.
-     */
-    val ongoing: Boolean get() = result == BuildResult.BUILDING
-
-    val buildStarted: ZonedDateTime get() = Instant.ofEpochMilli(timestamp).atZone(
-        ZoneId.systemDefault())
+    fun toBuild(): Build = Build(number, Duration.ofMillis(duration), Duration.ofMillis(estimatedDuration), Instant.ofEpochMilli(timestamp), result)
 }

@@ -12,9 +12,9 @@ import kotlin.io.path.*
  */
 public class LinuxShepherdClient @JvmOverloads constructor(
     private val kubernetes: SimpleKubernetesClient = SimpleKubernetesClient(),
-    private val etcShepherdPath: Path = Path("/etc/shepherd"),
-    private val jenkins: SimpleJenkinsClient = SimpleJenkinsClient()
+    private val etcShepherdPath: Path = Path("/etc/shepherd")
 ) : ShepherdClient {
+    private val jenkins: SimpleJenkinsClient = SimpleJenkinsClient()
     /**
      * Project config JSONs are stored here. Defaults to `/etc/shepherd/projects`.
      */
@@ -31,8 +31,8 @@ public class LinuxShepherdClient @JvmOverloads constructor(
         val jobs: Map<ProjectId, JenkinsJob> = jenkins.getJobsOverview().associateBy { ProjectId(it.name) }
         return projects.map { project ->
             val job = jobs[project.id]
-            val timestamp = job?.lastBuild?.timestamp
-            ProjectView(project, job?.lastBuild?.result ?: BuildResult.NOT_BUILT, timestamp?.let { Instant.ofEpochMilli(it) })
+            val lastBuild = job?.lastBuild?.toBuild()
+            ProjectView(project, lastBuild)
         }
     }
 
@@ -93,13 +93,7 @@ public class LinuxShepherdClient @JvmOverloads constructor(
     override fun getRunMetrics(id: ProjectId): ResourcesUsage = kubernetes.getMetrics(id)
     override fun getLastBuilds(id: ProjectId): List<Build> {
         val lastBuilds = jenkins.getLastBuilds(id)
-        return lastBuilds.map { Build(
-            it.number,
-            Duration.ofMillis(it.duration),
-            Duration.ofMillis(it.estimatedDuration),
-            Instant.ofEpochMilli(it.timestamp),
-            it.result
-        ) } .sortedBy { it.number }
+        return lastBuilds.map { it.toBuild() } .sortedBy { it.number }
     }
 
     override fun getBuildLog(id: ProjectId, buildNumber: Int): String = jenkins.getBuildConsoleText(id, buildNumber)
