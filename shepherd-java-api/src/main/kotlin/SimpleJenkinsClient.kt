@@ -21,7 +21,7 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
     /**
      * Starts a build manually.
      */
-    public fun build(id: ProjectId) {
+    fun build(id: ProjectId) {
         jenkins.getJob(id.jenkinsJobName).build(true)
     }
 
