@@ -99,7 +99,7 @@ public class LinuxShepherdClient @JvmOverloads constructor(
             Duration.ofMillis(it.estimatedDuration),
             Instant.ofEpochMilli(it.timestamp),
             it.result
-        ) }
+        ) } .sortedBy { it.number }
     }
 
     override fun getBuildLog(id: ProjectId, buildNumber: Int): String = jenkins.getBuildConsoleText(id, buildNumber)

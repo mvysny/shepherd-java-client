@@ -20,7 +20,8 @@ data class Args(
     val project: ProjectId?,
     val deleteSubcommand: DeleteSubcommand,
     val createSubcommand: CreateSubcommand,
-    val updateSubcommand: UpdateSubcommand
+    val updateSubcommand: UpdateSubcommand,
+    val buildLogSubcommand: BuildLogSubcommand
 ) {
 
     fun createClient(): ShepherdClient = if (fake) FakeShepherdClient else LinuxShepherdClient()
@@ -34,7 +35,8 @@ data class Args(
             val deleteSubcommand = DeleteSubcommand()
             val createSubcommand = CreateSubcommand()
             val updateSubcommand = UpdateSubcommand()
-            parser.subcommands(ListProjectSubcommand(), ShowProjectSubcommand(), LogsSubcommand(), createSubcommand, deleteSubcommand, MetricsSubcommand(), updateSubcommand)
+            val buildLogSubcommand = BuildLogSubcommand()
+            parser.subcommands(ListProjectSubcommand(), ShowProjectSubcommand(), LogsSubcommand(), createSubcommand, deleteSubcommand, MetricsSubcommand(), updateSubcommand, BuildsSubcommand(), buildLogSubcommand)
             val parserResult = parser.parse(args)
             val commandName = parserResult.commandName.takeUnless { it == parser.programName }
             val cmd = Command.values().firstOrNull { it.argName == commandName }
@@ -46,7 +48,8 @@ data class Args(
                 project?.let { ProjectId(it) },
                 deleteSubcommand,
                 createSubcommand,
-                updateSubcommand
+                updateSubcommand,
+                buildLogSubcommand
             )
         }
     }
@@ -74,5 +77,12 @@ class MetricsSubcommand: Subcommand(Command.Metrics.argName, "Shows basic metric
 }
 class UpdateSubcommand: Subcommand(Command.Update.argName, "Updates a project with the new configuration. Fails if the project doesn't exist yet.") {
     val jsonFile by option(ArgType.String, "file", "f", "The JSON file describing the project").required()
+    override fun execute() {}
+}
+class BuildsSubcommand: Subcommand(Command.Builds.argName, "Lists last 10 builds of given project.") {
+    override fun execute() {}
+}
+class BuildLogSubcommand: Subcommand(Command.BuildLog.argName, "Prints the build console log of given project.") {
+    val buildNumber by option(ArgType.Int, "buildNumber", "n", "The build number. If missing, the number of last build is used.")
     override fun execute() {}
 }

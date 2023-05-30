@@ -92,6 +92,34 @@ enum class Command(val argName: String) {
             val project = Project.loadFromFile(Path(args.updateSubcommand.jsonFile))
             client.updateProject(project)
         }
+    },
+
+    /**
+     * The `builds` command, lists last 10 builds of given project.
+     */
+    Builds("builds") {
+        override fun run(args: Args, client: ShepherdClient) {
+            val pid = requireProjectId(args)
+            client.getLastBuilds(pid).forEach { build ->
+                println("Build #${build.number} [${build.outcome}]: Started ${build.buildStarted.atZone(ZoneId.systemDefault())}, duration ${build.duration}")
+            }
+        }
+    },
+
+    /**
+     * The `buildlog` command, prints the build console log of given project.
+     */
+    BuildLog("buildlog") {
+        override fun run(args: Args, client: ShepherdClient) {
+            val pid = requireProjectId(args)
+            var buildNumber = args.buildLogSubcommand.buildNumber
+            if (buildNumber == null) {
+                buildNumber = client.getLastBuilds(pid).maxOfOrNull { it.number }
+            }
+            require(buildNumber != null) { "Project ${pid.id} has no builds yet" }
+
+            println(client.getBuildLog(pid, buildNumber))
+        }
     }
     ;
 

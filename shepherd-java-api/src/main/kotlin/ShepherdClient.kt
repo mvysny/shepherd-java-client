@@ -71,7 +71,7 @@ public interface ShepherdClient : Closeable {
 
     /**
      * Retrieve the last 10 builds for given project [id].
-     * @return the list of builds, sorted by [Build.buildStarted] ascending.
+     * @return the list of builds, sorted by [Build.number] ascending.
      */
     public fun getLastBuilds(id: ProjectId): List<Build>
 
