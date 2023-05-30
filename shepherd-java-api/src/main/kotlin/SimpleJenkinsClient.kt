@@ -321,7 +321,3 @@ internal data class JenkinsCrumb(
         r.addHeader(crumbRequestField, crumb)
     }
 }
-
-public fun main() {
-    SimpleJenkinsClient().build(ProjectId("vaadin-boot-example-gradle"))
-}
