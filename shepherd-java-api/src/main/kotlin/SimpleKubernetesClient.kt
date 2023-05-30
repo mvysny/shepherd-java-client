@@ -63,7 +63,10 @@ public class SimpleKubernetesClient @JvmOverloads constructor(
     public fun deleteIfExists(id: ProjectId) {
         val f = getConfigYamlFile(id)
         if (f.exists()) {
+            log.info("Deleting kubernetes objects for $f, please wait. May take up to 1 minute.")
             exec(*kubectl, "delete", "-f", f.toString())
+            log.info("Deleting Kubernetes config yaml file $f")
+            f.deleteExisting()
         } else {
             log.warn("$f doesn't exist, not deleting project objects from Kubernetes")
         }

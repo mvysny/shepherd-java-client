@@ -176,6 +176,8 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
      * Updates Jenkins job. Fails if the job doesn't exist.
      */
     fun updateJob(project: Project) {
+        log.info("Updating Jenkins job ${project.jenkinsJobName}")
+
         val xml = getJobXml(project)
 //        jenkins.updateJob(project.jenkinsJobName, xml, true)
         val crumb = getCrumb()
@@ -197,6 +199,7 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
             return
         }
 
+        log.info("Deleting Jenkins job ${id.jenkinsJobName}")
         val crumb = getCrumb()
         val url = "$jenkinsUrl/job/${id.jenkinsJobName}/doDelete/api/json".buildUrl()
         val request = url.buildRequest {
