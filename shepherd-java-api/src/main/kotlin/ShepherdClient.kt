@@ -25,10 +25,12 @@ public interface ShepherdClient : Closeable {
 
     /**
      * Creates new [project]:
+     *
      * * creates a config file for it on the filesystem (`/etc/shepherd/projects`);
      * * creates a Kubernetes config file for the project
      * * registers the project to Jenkins and starts first Jenkins build. The build is configured to call the `shepherd-build` script.
-     * Fails if the project json config file already exists.
+     *
+     * Fails if the project json config file already exists. Blocks until the project is created.
      */
     public fun createProject(project: Project)
 
@@ -46,6 +48,8 @@ public interface ShepherdClient : Closeable {
      * Note that some properties can not be changed (an exception is thrown by this function if such a change is detected):
      * * [Project.id]
      * * [Project.gitRepo]
+     *
+     * Blocks until the update is fully completed.
      */
     public fun updateProject(project: Project)
 
@@ -55,6 +59,9 @@ public interface ShepherdClient : Closeable {
      *
      * This function will still try to unregister the project from Jenkins and Kubernetes
      * even if the project json config is already nonexistent.
+     *
+     * Blocks until the project is fully deleted. This may take up to 1 minute since
+     * cleanup of Kubernetes objects is a lengthy operation.
      */
     public fun deleteProject(id: ProjectId)
 
