@@ -19,7 +19,14 @@ private val fakeProject = Project(
  * A fake implementation of [ShepherdClient], doesn't require any Kubernetes running. Initially
  * populated with one fake project.
  */
-public object FakeShepherdClient : ShepherdClient {
+public class FakeShepherdClient @JvmOverloads constructor(
+    private val cfg: Config = Config(
+        10240,
+        2,
+        maxProjectRuntimeResources = Resources(512, 1f),
+        maxProjectBuildResources = Resources(2500, 2f)
+    )
+) : ShepherdClient {
     private val rootFolder = createTempDirectory("shepherd-fake-client")
 
     /**
@@ -28,6 +35,9 @@ public object FakeShepherdClient : ShepherdClient {
     private val projectConfigFolder = ProjectConfigFolder(rootFolder / "java" / "projects")
     init {
         Files.createDirectories(projectConfigFolder.folder)
+    }
+
+    public fun withFakeProject(): FakeShepherdClient = apply {
         createProject(fakeProject)
     }
 
@@ -45,12 +55,15 @@ public object FakeShepherdClient : ShepherdClient {
 
     override fun createProject(project: Project) {
         projectConfigFolder.requireProjectDoesntExist(project.id)
+        checkMemoryUsage(project)
         projectConfigFolder.writeProjectJson(project)
     }
 
     override fun updateProject(project: Project) {
         val oldProject = projectConfigFolder.getProjectInfo(project.id)
         require(oldProject.gitRepo == project.gitRepo) { "gitRepo is not allowed to be changed: new ${project.gitRepo} old ${project.gitRepo}" }
+        checkMemoryUsage(project)
+
         projectConfigFolder.writeProjectJson(project)
     }
 
@@ -89,12 +102,7 @@ public object FakeShepherdClient : ShepherdClient {
 Dummy build log
     """.trim()
 
-    override fun getConfig(): Config = Config(
-        10240,
-        2,
-        maxProjectRuntimeResources = Resources(512, 1f),
-        maxProjectBuildResources = Resources(2500, 2f)
-    )
+    override fun getConfig(): Config = cfg
 
     override fun close() {}
 }
