@@ -89,5 +89,7 @@ public object FakeShepherdClient : ShepherdClient {
 Dummy build log
     """.trim()
 
+    override fun getConfig(): Config = Config(10240, 2)
+
     override fun close() {}
 }

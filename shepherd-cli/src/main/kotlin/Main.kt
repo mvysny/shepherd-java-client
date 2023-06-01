@@ -123,7 +123,20 @@ enum class Command(val argName: String) {
 
             println(client.getBuildLog(pid, buildNumber))
         }
-    }
+    },
+
+    /**
+     * The `stats` command, prints Shepherd runtime statistics.
+     */
+    Stats("stats") {
+        override fun run(args: Args, client: ShepherdClient) {
+            val stats = client.getStats()
+            println("Memory: available to Shepherd: ${stats.maxAvailableMemoryMb}")
+            println("   Currently used by running VMs: ${stats.currentMemoryUsageMb} (${stats.currentMemoryUsageMb * 100 / stats.maxAvailableMemoryMb}%)")
+            println("   Max currently used by running VMs and builds: ${stats.currentMaxMemoryUsageMb} (${stats.currentMaxMemoryUsageMb * 100 / stats.maxAvailableMemoryMb}%)")
+            println("Builder: max concurrent build jobs: ${stats.concurrentJenkinsBuilders}")
+        }
+    },
     ;
 
     /**

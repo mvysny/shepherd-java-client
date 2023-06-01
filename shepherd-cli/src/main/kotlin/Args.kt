@@ -36,7 +36,7 @@ data class Args(
             val createSubcommand = CreateSubcommand()
             val updateSubcommand = UpdateSubcommand()
             val buildLogSubcommand = BuildLogSubcommand()
-            parser.subcommands(ListProjectSubcommand(), ShowProjectSubcommand(), LogsSubcommand(), createSubcommand, deleteSubcommand, MetricsSubcommand(), updateSubcommand, BuildsSubcommand(), buildLogSubcommand)
+            parser.subcommands(ListProjectSubcommand(), ShowProjectSubcommand(), LogsSubcommand(), createSubcommand, deleteSubcommand, MetricsSubcommand(), updateSubcommand, BuildsSubcommand(), buildLogSubcommand, StatsSubcommand())
             val parserResult = parser.parse(args)
             val commandName = parserResult.commandName.takeUnless { it == parser.programName }
             val cmd = Command.values().firstOrNull { it.argName == commandName }
@@ -84,5 +84,8 @@ class BuildsSubcommand: Subcommand(Command.Builds.argName, "Lists last 10 builds
 }
 class BuildLogSubcommand: Subcommand(Command.BuildLog.argName, "Prints the build console log of given project.") {
     val buildNumber by option(ArgType.Int, "buildNumber", "n", "The build number. If missing, the number of last build is used.")
+    override fun execute() {}
+}
+class StatsSubcommand: Subcommand(Command.Stats.argName, "Prints Shepherd runtime statistics.") {
     override fun execute() {}
 }

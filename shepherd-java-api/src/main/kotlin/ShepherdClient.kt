@@ -89,10 +89,16 @@ public interface ShepherdClient : Closeable {
     public fun getBuildLog(id: ProjectId, buildNumber: Int): String
 
     /**
+     * INTERNAL, DON'T EXPOSE, may contain sensitive settings, private keys etc. Not
+     * supposed to be shown/leaked to users.
+     */
+    public fun getConfig(): Config
+
+    /**
      * Returns Shepherd runtime statistics.
      */
     public fun getStats(): Stats {
-        val config = Config.load()
+        val config = getConfig()
         val projects = getAllProjectIDs().map { getProjectInfo(it) }
         return Stats.calculate(config, projects)
     }
