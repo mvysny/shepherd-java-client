@@ -16,6 +16,29 @@ for development purposes, it's better to use `FakeShepherdClient` which doesn't
 require anything to be installed on the dev machine, while providing reasonable
 fake data.
 
+Requires a configuration file to be placed in `/etc/shepherd/java/config.json`, example contents:
+
+```json
+{
+        "memoryQuotaMb": 14102,
+        "concurrentJenkinsBuilders": 2,
+        "maxProjectRuntimeResources": {
+                "memoryMb": 512,
+                "cpu": 1
+        },
+        "maxProjectBuildResources": {
+                "memoryMb": 2500,
+                "cpu": 2
+        }
+}
+```
+
+The `memoryQuotaMb` is the memory available both for project runtime and for project builds.
+Every project's runtime memory + the build memory is guaranteed by Shepherd; if a project would be created
+that overflows this quota, the project creation is prohibited. Calculate the quota value
+as follows: Take the total host machine memory, subtract memory for Jenkins usage (by default 512mb), for Kubernetes itself (say 1000mb),
+possibly 500mb for the future shepherd-ui project, and finally subtract memory for OS usage (say 200mb).
+
 ## shepherd-cli
 
 The [shepherd-cli](shepherd-cli) project provides a command-line client for Shepherd.
