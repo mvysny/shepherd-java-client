@@ -4,7 +4,6 @@ import com.github.mvysny.shepherd.api.ProjectId
 import com.github.mvysny.shepherd.api.ShepherdClient
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import java.time.LocalDateTime
 import java.time.ZoneId
 import kotlin.io.path.Path
 
@@ -126,16 +125,18 @@ enum class Command(val argName: String) {
     },
 
     /**
-     * The `stats` command, prints Shepherd runtime statistics.
+     * The `stats` command, prints Shepherd+host machine runtime statistics.
      */
     Stats("stats") {
         override fun run(args: Args, client: ShepherdClient) {
             val stats = client.getStats()
             println("Registered projects: ${stats.projectCount}")
-            println("Memory: available to Shepherd: ${stats.maxAvailableMemoryMb} Mb")
-            println("   Currently used by running VMs: ${stats.currentMemoryUsageMb} Mb (${stats.currentMemoryUsageMb * 100 / stats.maxAvailableMemoryMb}%)")
-            println("   Max currently used by running VMs and builds: ${stats.currentMaxMemoryUsageMb} Mb (${stats.currentMaxMemoryUsageMb * 100 / stats.maxAvailableMemoryMb}%)")
+            println("Project Memory Quotas: available for projects: ${stats.projectMemoryStats.totalQuota.limitMb} Mb")
+            println("   Quota allocated by the project runtime: ${stats.projectMemoryStats.projectRuntimeQuota}")
+            println("   Total project quota (runtime+builds): ${stats.projectMemoryStats.totalQuota}")
             println("Builder: max concurrent build jobs: ${stats.concurrentJenkinsBuilders}")
+            println("Host Memory: Mem: ${stats.hostMemoryStats.memory}; Swap: ${stats.hostMemoryStats.swap}")
+            println("Disk Usage: ${stats.diskUsage}")
         }
     },
     ;

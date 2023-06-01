@@ -11,7 +11,7 @@ import kotlin.io.path.Path
 import kotlin.io.path.inputStream
 
 /**
- * @property maxAvailableMemoryMb The max memory for Shepherd Kubernetes to run VM stuff - projects and their builds.
+ * @property memoryQuotaMb The max memory for Shepherd Kubernetes to run VM stuff - projects and their builds.
  * That's the machine memory minus Jenkins usage (by default 512mb) minus Kubernetes itself (say 1000mb),
  * possibly minus 500mb for the future shepherd-ui project, minus OS usage (say 200mb)
  * @property concurrentJenkinsBuilders Number of concurrent job runners in Jenkins. Defaults to 2,
@@ -20,7 +20,7 @@ import kotlin.io.path.inputStream
  */
 @Serializable
 public data class Config(
-    val maxAvailableMemoryMb: Int,
+    val memoryQuotaMb: Int,
     val concurrentJenkinsBuilders: Int,
 ) {
     public companion object {

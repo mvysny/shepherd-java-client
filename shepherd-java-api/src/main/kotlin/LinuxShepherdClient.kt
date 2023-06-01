@@ -2,8 +2,6 @@ package com.github.mvysny.shepherd.api
 
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
-import java.time.Duration
-import java.time.Instant
 import kotlin.io.path.*
 
 /**
@@ -97,9 +95,9 @@ public class LinuxShepherdClient @JvmOverloads constructor(
     private fun checkMemoryUsage(updatedOrCreatedProject: Project) {
         val projectMap: MutableMap<ProjectId, Project> = getAllProjectIDs().associateWith { getProjectInfo(it) } .toMutableMap()
         projectMap[updatedOrCreatedProject.id] = updatedOrCreatedProject
-        val stats: Stats = Stats.calculate(getConfig(), projectMap.values.toList())
-        require(stats.currentMaxMemoryUsageMb <= stats.maxAvailableMemoryMb) {
-            "Can not add project ${updatedOrCreatedProject.id.id}: there is no available memory to run it/build it"
+        val stats = ProjectMemoryStats.calculateQuota(getConfig(), projectMap.values.toList())
+        require(stats.totalQuota.usageMb <= stats.totalQuota.limitMb) {
+            "Can not add project ${updatedOrCreatedProject.id.id}: there is no available memory to run it+build it"
         }
     }
 

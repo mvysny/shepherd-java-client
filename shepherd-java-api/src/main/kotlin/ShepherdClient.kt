@@ -1,10 +1,9 @@
 package com.github.mvysny.shepherd.api
 
 import java.io.Closeable
+import java.io.File
 import java.time.Duration
 import java.time.Instant
-import java.time.ZoneId
-import java.time.ZonedDateTime
 
 public interface ShepherdClient : Closeable {
     /**
@@ -200,29 +199,90 @@ public data class Build(
 }
 
 /**
- * Shepherd runtime statistics.
- * @property maxAvailableMemoryMb [Config.maxAvailableMemoryMb]
+ * Runtime statistics, both of Shepherd and of the host machine.
  * @property concurrentJenkinsBuilders [Config.concurrentJenkinsBuilders]
- * @property currentMemoryUsageMb current memory usage: assume all VMs are running and no builds are running
- * @property currentMaxMemoryUsageMb current max memory usage: assume all VMs are running and the most memory-intensive builds are running.
- * Calculated as a sum of all project runtime memory usage + top x build memory usage, where x is [Config.concurrentJenkinsBuilders].
  * @property projectCount number of projects registered to Shepherd
+ * @property projectMemoryStats the project quota
+ * @property hostMemoryStats the memory stats of the host machine
+ * @property diskUsage the hard disk usage stats
  */
 public data class Stats(
-    val maxAvailableMemoryMb: Int,
     val concurrentJenkinsBuilders: Int,
-    val currentMemoryUsageMb: Int,
-    val currentMaxMemoryUsageMb: Int,
-    val projectCount: Int
+    val projectCount: Int,
+    val projectMemoryStats: ProjectMemoryStats,
+    val hostMemoryStats: HostMemoryUsageStats,
+    val diskUsage: MemoryUsageStats
 ) {
     public companion object {
         public fun calculate(config: Config, projects: List<Project>): Stats {
-            val currentMemoryUsageMb = projects.sumOf { it.runtime.resources.memoryMb }
+            val projectQuota: ProjectMemoryStats = ProjectMemoryStats.calculateQuota(config, projects)
+            val diskFreeSpaceMb = (File("/").freeSpace / 1000 / 1000).toInt()
+            val diskTotalSpaceMb = (File("/").totalSpace / 1000 / 1000).toInt()
+            val diskUsage = MemoryUsageStats(diskTotalSpaceMb - diskFreeSpaceMb, diskTotalSpaceMb)
+            return Stats(
+                config.concurrentJenkinsBuilders,
+                projects.size,
+                projectQuota,
+                HostMemoryUsageStats.getHostStats(),
+                diskUsage
+            )
+        }
+    }
+}
+
+/**
+ * @property projectRuntimeQuota project runtime memory: sum of project runtime [Resources.memoryMb] vs how much memory is available for the project runtime.
+ * @property totalQuota all memory available both for project runtime and for project builds.
+ * Calculated as a sum of all project runtime memory usage + top x build memory usage, where x is [Config.concurrentJenkinsBuilders].
+ * [MemoryUsageStats.limitMb] equals to [Config.memoryQuotaMb]
+ */
+public data class ProjectMemoryStats(
+    val projectRuntimeQuota: MemoryUsageStats,
+    val totalQuota: MemoryUsageStats
+) {
+    public companion object {
+        public fun calculateQuota(config: Config, projects: List<Project>): ProjectMemoryStats {
+            val projectRuntimeMemoryMb = projects.sumOf { it.runtime.resources.memoryMb }
             val mostBuildMemIntensiveProjects = projects
                 .sortedBy { it.build.resources.memoryMb }
                 .takeLast(config.concurrentJenkinsBuilders)
-            val currentMaxMemoryUsageMb = currentMemoryUsageMb + mostBuildMemIntensiveProjects.sumOf { it.build.resources.memoryMb }
-            return Stats(config.maxAvailableMemoryMb, config.concurrentJenkinsBuilders, currentMemoryUsageMb, currentMaxMemoryUsageMb, projects.size)
+            val projectBuildMemoryUsageMb =
+                mostBuildMemIntensiveProjects.sumOf { it.build.resources.memoryMb }
+            val totalUsageMb = projectRuntimeMemoryMb + projectBuildMemoryUsageMb
+            val totalQuota = config.memoryQuotaMb
+            val totalRuntimeQuota = totalQuota - projectBuildMemoryUsageMb
+            return ProjectMemoryStats(MemoryUsageStats(projectRuntimeMemoryMb, totalRuntimeQuota), MemoryUsageStats(totalUsageMb, totalQuota))
         }
     }
+}
+
+/**
+ * Host machine memory stats.
+ * @property memory the physical memory stats
+ * @property swap the swap file stats
+ */
+public data class HostMemoryUsageStats(
+    val memory: MemoryUsageStats,
+    val swap: MemoryUsageStats
+) {
+    public companion object {
+        internal fun getHostStats(): HostMemoryUsageStats {
+            //               total        used        free      shared  buff/cache   available
+            //Mem:     32287645696  9973731328  7534346240   204955648 15446163456 22313914368
+            //Swap:     2147479552   107233280  2040246272
+            val result = exec("free", "-b").lines()
+            val memline = result[1].splitByWhitespaces()
+            val memory = MemoryUsageStats((memline[2].toLong() / 1000 / 1000).toInt(), (memline[1].toLong() / 1000 / 1000).toInt())
+            val swapline = result[2].splitByWhitespaces()
+            val swap = MemoryUsageStats((swapline[2].toLong() / 1000 / 1000).toInt(), (swapline[1].toLong() / 1000 / 1000).toInt())
+            return HostMemoryUsageStats(memory, swap)
+        }
+    }
+}
+
+public data class MemoryUsageStats(
+    val usageMb: Int,
+    val limitMb: Int
+) {
+    override fun toString(): String = "$usageMb Mb of $limitMb Mb (${usageMb * 100 / limitMb}%)"
 }
