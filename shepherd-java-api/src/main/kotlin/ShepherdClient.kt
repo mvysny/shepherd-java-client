@@ -205,12 +205,14 @@ public data class Build(
  * @property concurrentJenkinsBuilders [Config.concurrentJenkinsBuilders]
  * @property currentMemoryUsageMb current memory usage: assume all VMs are running and no builds are running
  * @property currentMaxMemoryUsageMb current max memory usage: assume all VMs are running and the most memory-intensive builds are running
+ * @property projectCount number of projects registered to Shepherd
  */
 public data class Stats(
     val maxAvailableMemoryMb: Int,
     val concurrentJenkinsBuilders: Int,
     val currentMemoryUsageMb: Int,
-    val currentMaxMemoryUsageMb: Int
+    val currentMaxMemoryUsageMb: Int,
+    val projectCount: Int
 ) {
     public companion object {
         public fun calculate(config: Config, projects: List<Project>): Stats {
@@ -219,7 +221,7 @@ public data class Stats(
                 .sortedBy { it.build.resources.memoryMb }
                 .takeLast(config.concurrentJenkinsBuilders)
             val currentMaxMemoryUsageMb = currentMemoryUsageMb + mostBuildMemIntensiveProjects.sumOf { it.build.resources.memoryMb }
-            return Stats(config.maxAvailableMemoryMb, config.concurrentJenkinsBuilders, currentMemoryUsageMb, currentMaxMemoryUsageMb)
+            return Stats(config.maxAvailableMemoryMb, config.concurrentJenkinsBuilders, currentMemoryUsageMb, currentMaxMemoryUsageMb, projects.size)
         }
     }
 }
