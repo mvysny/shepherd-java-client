@@ -93,9 +93,25 @@ public class LinuxShepherdClient @JvmOverloads constructor(
      * would overlap memory available to shepherd, then such a change will be rejected with an informative exception.
      */
     private fun checkMemoryUsage(updatedOrCreatedProject: Project) {
+        val config = getConfig()
+        // 1. check the max runtime+build memory+cpu usage
+        require(updatedOrCreatedProject.runtime.resources.memoryMb <= config.maxProjectRuntimeResources.memoryMb) {
+            "A project can ask for max ${config.maxProjectRuntimeResources.memoryMb} Mb of runtime memory but it asked for ${updatedOrCreatedProject.runtime.resources.memoryMb} Mb"
+        }
+        require(updatedOrCreatedProject.runtime.resources.cpu <= config.maxProjectRuntimeResources.cpu) {
+            "A project can ask for max ${config.maxProjectRuntimeResources.cpu} runtime CPUs but it asked for ${updatedOrCreatedProject.runtime.resources.cpu} CPUs"
+        }
+        require(updatedOrCreatedProject.build.resources.memoryMb <= config.maxProjectBuildResources.memoryMb) {
+            "A project can ask for max ${config.maxProjectBuildResources.memoryMb} Mb of build memory but it asked for ${updatedOrCreatedProject.build.resources.memoryMb} Mb"
+        }
+        require(updatedOrCreatedProject.build.resources.cpu <= config.maxProjectBuildResources.cpu) {
+            "A project can ask for max ${config.maxProjectBuildResources.cpu} runtime CPUs but it asked for ${updatedOrCreatedProject.build.resources.cpu} CPUs"
+        }
+
+        // 2. Check memory quota
         val projectMap: MutableMap<ProjectId, Project> = getAllProjectIDs().associateWith { getProjectInfo(it) } .toMutableMap()
         projectMap[updatedOrCreatedProject.id] = updatedOrCreatedProject
-        val stats = ProjectMemoryStats.calculateQuota(getConfig(), projectMap.values.toList())
+        val stats = ProjectMemoryStats.calculateQuota(config, projectMap.values.toList())
         require(stats.totalQuota.usageMb <= stats.totalQuota.limitMb) {
             "Can not add project ${updatedOrCreatedProject.id.id}: there is no available memory to run it+build it"
         }

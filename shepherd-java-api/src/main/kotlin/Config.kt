@@ -16,12 +16,15 @@ import kotlin.io.path.inputStream
  * possibly minus 500mb for the future shepherd-ui project, minus OS usage (say 200mb)
  * @property concurrentJenkinsBuilders Number of concurrent job runners in Jenkins. Defaults to 2,
  * can be configured in Jenkins as `# of executors` at `http://localhost:8080/manage/configure`.
- *
+ * @property maxProjectRuntimeResources how much memory+cpu a project can ask for its runtime.
+ * @property maxProjectBuildResources how much memory+cpu a project can ask for its build.
  */
 @Serializable
 public data class Config(
     val memoryQuotaMb: Int,
     val concurrentJenkinsBuilders: Int,
+    val maxProjectRuntimeResources: Resources,
+    val maxProjectBuildResources: Resources
 ) {
     public companion object {
         /**
