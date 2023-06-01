@@ -24,7 +24,7 @@ data class Args(
     val buildLogSubcommand: BuildLogSubcommand
 ) {
 
-    fun createClient(): ShepherdClient = if (fake) FakeShepherdClient else LinuxShepherdClient()
+    fun createClient(): ShepherdClient = if (fake) FakeShepherdClient() else LinuxShepherdClient()
 
     companion object {
         fun parse(args: Array<String>): Args {
