@@ -5,6 +5,13 @@ for [Vaadin Shepherd](https://github.com/mvysny/shepherd).
 
 Requires Java 17+.
 
+The library is available in Maven Central. To use, add this to your `build.gradle`:
+```groovy
+dependencies {
+    implementation("com.github.mvysny.shepherd:shepherd-java-api:0.1")
+}
+```
+
 To use, simply instantiate an implementation of `ShepherdClient`:
 
 ```kotlin
