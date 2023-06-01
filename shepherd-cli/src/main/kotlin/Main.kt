@@ -131,7 +131,7 @@ enum class Command(val argName: String) {
         override fun run(args: Args, client: ShepherdClient) {
             val stats = client.getStats()
             println("Registered projects: ${stats.projectCount}")
-            println("Project Memory Quotas: available for projects: ${stats.projectMemoryStats.totalQuota.limitMb} Mb")
+            println("Project Memory Quotas:")
             println("   Quota allocated by the project runtime: ${stats.projectMemoryStats.projectRuntimeQuota}")
             println("   Total project quota (runtime+builds): ${stats.projectMemoryStats.totalQuota}")
             println("Builder: max concurrent build jobs: ${stats.concurrentJenkinsBuilders}")
