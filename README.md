@@ -63,7 +63,8 @@ A more complex example:
   "description": "JDBI-ORM example project",
   "gitRepo": {
     "url": "https://github.com/mvysny/jdbi-orm-vaadin-crud-demo",
-    "branch": "master"
+    "branch": "master",
+    "credentialsID": "c4d257ce-0048-11ee-a0b5-ffedf9ffccf4"
   },
   "owner": {
     "name": "Martin Vysny",
@@ -134,3 +135,17 @@ See the following projects for examples:
 2. Maven+Embedded Jetty packaged as zip: [vaadin-boot-example-maven](https://github.com/mvysny/vaadin-boot-example-maven)
 3. Maven+Spring Boot packaged as executable jar: [Liukuri](https://github.com/vesanieminen/ElectricityCostDashboard),
    [my-hilla-app](https://github.com/mvysny/my-hilla-app).
+
+## Private Repositories & Credentials
+
+Private repositories may need private SSH key to access them. For example:
+
+* A private GitHub repository `foo-repo`. A GitHub user `foo-user` is created and a private SSH key is generated for him.
+  The `foo-user` then needs to be invited to the private repository, in order to gain read-only access.
+  Shepherd will have knowledge of the private SSH key. That way, Shepherd can impersonate the `foo-user` and can access `foo-repo`.
+
+Every credential has a unique identifier which needs to be passed in via the `credentialsID` in the config json file.
+Before that, the credential needs to be registered:
+
+* Either the Shepherd admin can do that directly, by creating the credential in Jenkins directly,
+* or the users can create their own credentials, via the Java functions offered by the `ShepherdClient` Java class (TBD)

@@ -86,11 +86,13 @@ public data class BuildSpec(
  * A git repository.
  * @property url the git repository from where the project comes from, e.g. `https://github.com/mvysny/vaadin-boot-example-gradle`
  * @property branch usually `master` or `main`
+ * @property credentialsID a Jenkins credentials UUID to be used when accessing remote private repository. See the README for more details.
  */
 @Serializable
 public data class GitRepo(
     val url: String,
-    val branch: String
+    val branch: String,
+    val credentialsID: String? = null
 )
 
 /**

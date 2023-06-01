@@ -50,7 +50,7 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
         }
     }
 
-    private fun getJobXml(project: Project): String {
+    internal fun getJobXml(project: Project): String {
         val emailNotificationSendTo = setOf("mavi@vaadin.com", project.owner.email).joinToString(" ")
         val envVars = mutableListOf(
             "export BUILD_MEMORY=${project.build.resources.memoryMb}m",
@@ -64,6 +64,11 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
         }
         if (project.build.dockerFile != null) {
             envVars.add("export DOCKERFILE=${project.build.dockerFile}")
+        }
+        val credentials = if (project.gitRepo.credentialsID == null) {
+            ""
+        } else {
+            "\n        <credentialsId>${project.gitRepo.credentialsID.escapeXml()}</credentialsId>"
         }
 
         // you can get the job XML from e.g. http://localhost:8080/job/beverage-buddy-vok/config.xml
@@ -87,7 +92,7 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
     <configVersion>2</configVersion>
     <userRemoteConfigs>
       <hudson.plugins.git.UserRemoteConfig>
-        <url>${project.gitRepo.url.escapeXml()}</url>
+        <url>${project.gitRepo.url.escapeXml()}</url>$credentials
       </hudson.plugins.git.UserRemoteConfig>
     </userRemoteConfigs>
     <branches>
