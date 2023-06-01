@@ -89,7 +89,12 @@ public object FakeShepherdClient : ShepherdClient {
 Dummy build log
     """.trim()
 
-    override fun getConfig(): Config = Config(10240, 2)
+    override fun getConfig(): Config = Config(
+        10240,
+        2,
+        maxProjectRuntimeResources = Resources(512, 1f),
+        maxProjectBuildResources = Resources(2500, 2f)
+    )
 
     override fun close() {}
 }
