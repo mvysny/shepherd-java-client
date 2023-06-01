@@ -6,7 +6,7 @@ import java.nio.file.Path
 import kotlin.io.path.*
 
 /**
- * Manages the project config [folder].
+ * Manages the project config [folder]. Defaults to `/etc/shepherd/java/projects`.
  */
 internal class ProjectConfigFolder(val folder: Path) {
     /**

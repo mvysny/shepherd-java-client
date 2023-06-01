@@ -16,9 +16,9 @@ public class LinuxShepherdClient @JvmOverloads constructor(
 ) : ShepherdClient {
     private val jenkins: SimpleJenkinsClient = SimpleJenkinsClient()
     /**
-     * Project config JSONs are stored here. Defaults to `/etc/shepherd/projects`.
+     * Project config JSONs are stored here. Defaults to `/etc/shepherd/java/projects`.
      */
-    private val projectConfigFolder = ProjectConfigFolder(etcShepherdPath / "projects")
+    private val projectConfigFolder = ProjectConfigFolder(etcShepherdPath / "java" / "projects")
 
     override fun getAllProjectIDs(): List<ProjectId> = projectConfigFolder.getAllProjects()
 

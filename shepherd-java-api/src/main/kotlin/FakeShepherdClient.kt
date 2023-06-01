@@ -25,7 +25,7 @@ public object FakeShepherdClient : ShepherdClient {
     /**
      * Stores projects as json files named `projectid.json`.
      */
-    private val projectConfigFolder = ProjectConfigFolder(rootFolder / "projects")
+    private val projectConfigFolder = ProjectConfigFolder(rootFolder / "java" / "projects")
     init {
         Files.createDirectories(projectConfigFolder.folder)
         createProject(fakeProject)

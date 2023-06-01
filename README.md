@@ -106,6 +106,12 @@ A more complex example:
 }
 ```
 
+### Updating a project
+
+The project config json files are located at `/etc/shepherd/java/projects/PROJECT_ID.json`.
+Do not edit the file in-place: copy it to `/root/`, edit it there, then run `./shepherd-cli update -f /root/file.json` then delete it from /root/.
+That way, Shepherd can track what has been changed, and can restart the project VM quickly if need be.
+
 # Adding Your Project To Shepherd
 
 That's easy:
