@@ -23,9 +23,11 @@ enum class Command(val argName: String) {
         override fun run(args: Args, client: ShepherdClient) {
             val projects = client.getAllProjects()
             projects.forEach { v ->
-                println("${v.project.id.id}: ${v.project.description}; ${v.project.gitRepo} (${v.project.owner})")
+                println("${v.project.id.id}: ${v.project.description} (${v.project.owner})")
+                println("   Sources: ${v.project.gitRepo.url} branch '${v.project.gitRepo.branch}'")
                 println("   Published at: ${v.getPublishedURLs(host)}")
                 println("   Last Build: ${v.lastBuild?.formatShort()}")
+                println()
             }
             if (projects.isEmpty()) {
                 println("No projects registered.")
