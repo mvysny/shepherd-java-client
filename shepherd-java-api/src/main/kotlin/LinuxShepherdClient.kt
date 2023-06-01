@@ -39,8 +39,11 @@ public class LinuxShepherdClient @JvmOverloads constructor(
     override fun getProjectInfo(id: ProjectId): Project = projectConfigFolder.getProjectInfo(id)
 
     override fun createProject(project: Project) {
-        // 1. Create project JSON file
+        // check prerequisites
         projectConfigFolder.requireProjectDoesntExist(project.id)
+        checkMemoryUsage(project)
+
+        // 1. Create project JSON file
         projectConfigFolder.writeProjectJson(project)
 
         // 2. Create Kubernetes config file at /etc/shepherd/k8s/PROJECT_ID.yaml
@@ -56,6 +59,8 @@ public class LinuxShepherdClient @JvmOverloads constructor(
     override fun updateProject(project: Project) {
         val oldProject = projectConfigFolder.getProjectInfo(project.id)
         require(oldProject.gitRepo == project.gitRepo) { "gitRepo is not allowed to be changed: new ${project.gitRepo} old ${project.gitRepo}" }
+
+        checkMemoryUsage(project)
 
         // 1. Overwrite the project JSON file
         projectConfigFolder.writeProjectJson(project)
@@ -80,6 +85,21 @@ public class LinuxShepherdClient @JvmOverloads constructor(
             exec("/opt/shepherd/shepherd-apply", project.id.id, mainPodDockerImage!!)
         } else {
             log.info("${project.id.id}: no kubernetes-level/jenkins-level changes detected, not reloading the project")
+        }
+    }
+
+    /**
+     * We must take care not to bring the Shepherd VM down by OOMs or excessive swapping.
+     *
+     * If a project creation/update would create a situation where [Stats.currentMaxMemoryUsageMb]
+     * would overlap memory available to shepherd, then such a change will be rejected with an informative exception.
+     */
+    private fun checkMemoryUsage(updatedOrCreatedProject: Project) {
+        val projectMap: MutableMap<ProjectId, Project> = getAllProjectIDs().associateWith { getProjectInfo(it) } .toMutableMap()
+        projectMap[updatedOrCreatedProject.id] = updatedOrCreatedProject
+        val stats: Stats = Stats.calculate(getConfig(), projectMap.values.toList())
+        require(stats.currentMaxMemoryUsageMb <= stats.maxAvailableMemoryMb) {
+            "Can not add project ${updatedOrCreatedProject.id.id}: there is no available memory to run it/build it"
         }
     }
 

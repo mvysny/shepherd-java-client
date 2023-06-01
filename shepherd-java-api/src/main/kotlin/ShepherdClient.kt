@@ -204,7 +204,8 @@ public data class Build(
  * @property maxAvailableMemoryMb [Config.maxAvailableMemoryMb]
  * @property concurrentJenkinsBuilders [Config.concurrentJenkinsBuilders]
  * @property currentMemoryUsageMb current memory usage: assume all VMs are running and no builds are running
- * @property currentMaxMemoryUsageMb current max memory usage: assume all VMs are running and the most memory-intensive builds are running
+ * @property currentMaxMemoryUsageMb current max memory usage: assume all VMs are running and the most memory-intensive builds are running.
+ * Calculated as a sum of all project runtime memory usage + top x build memory usage, where x is [Config.concurrentJenkinsBuilders].
  * @property projectCount number of projects registered to Shepherd
  */
 public data class Stats(

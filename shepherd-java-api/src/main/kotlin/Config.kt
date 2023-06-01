@@ -15,7 +15,7 @@ import kotlin.io.path.inputStream
  * That's the machine memory minus Jenkins usage (by default 512mb) minus Kubernetes itself (say 1000mb),
  * possibly minus 500mb for the future shepherd-ui project, minus OS usage (say 200mb)
  * @property concurrentJenkinsBuilders Number of concurrent job runners in Jenkins. Defaults to 2,
- * can be seen as `# of executors` at `http://localhost:8080/manage/configure`.
+ * can be configured in Jenkins as `# of executors` at `http://localhost:8080/manage/configure`.
  *
  */
 @Serializable
