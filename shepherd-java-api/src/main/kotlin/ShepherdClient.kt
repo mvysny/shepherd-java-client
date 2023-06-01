@@ -87,6 +87,15 @@ public interface ShepherdClient : Closeable {
      * @param buildNumber pass in [Build.number].
      */
     public fun getBuildLog(id: ProjectId, buildNumber: Int): String
+
+    /**
+     * Returns Shepherd runtime statistics.
+     */
+    public fun getStats(): Stats {
+        val config = Config.load()
+        val projects = getAllProjectIDs().map { getProjectInfo(it) }
+        return Stats.calculate(config, projects)
+    }
 }
 
 /**
@@ -181,5 +190,30 @@ public data class Build(
         null
     } else {
         buildStarted + duration
+    }
+}
+
+/**
+ * Shepherd runtime statistics.
+ * @property maxAvailableMemoryMb [Config.maxAvailableMemoryMb]
+ * @property concurrentJenkinsBuilders [Config.concurrentJenkinsBuilders]
+ * @property currentMemoryUsageMb current memory usage: assume all VMs are running and no builds are running
+ * @property currentMaxMemoryUsageMb current max memory usage: assume all VMs are running and the most memory-intensive builds are running
+ */
+public data class Stats(
+    val maxAvailableMemoryMb: Int,
+    val concurrentJenkinsBuilders: Int,
+    val currentMemoryUsageMb: Int,
+    val currentMaxMemoryUsageMb: Int
+) {
+    public companion object {
+        public fun calculate(config: Config, projects: List<Project>): Stats {
+            val currentMemoryUsageMb = projects.sumOf { it.runtime.resources.memoryMb }
+            val mostBuildMemIntensiveProjects = projects
+                .sortedBy { it.build.resources.memoryMb }
+                .takeLast(config.concurrentJenkinsBuilders)
+            val currentMaxMemoryUsageMb = currentMemoryUsageMb + mostBuildMemIntensiveProjects.sumOf { it.build.resources.memoryMb }
+            return Stats(config.maxAvailableMemoryMb, config.concurrentJenkinsBuilders, currentMemoryUsageMb, currentMaxMemoryUsageMb)
+        }
     }
 }
