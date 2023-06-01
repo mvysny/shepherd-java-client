@@ -231,8 +231,10 @@ public data class Stats(
 }
 
 /**
+ * The project quotas. Every project specifies how much memory it needs for building and for runtime;
+ * Shepherd must make sure that this doesn't exceed the memory available on the host machine.
  * @property projectRuntimeQuota project runtime memory: sum of project runtime [Resources.memoryMb] vs how much memory is available for the project runtime.
- * @property totalQuota all memory available both for project runtime and for project builds.
+ * @property totalQuota memory available both for project runtime and for project builds.
  * Calculated as a sum of all project runtime memory usage + top x build memory usage, where x is [Config.concurrentJenkinsBuilders].
  * [MemoryUsageStats.limitMb] equals to [Config.memoryQuotaMb]
  */
