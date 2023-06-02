@@ -23,7 +23,8 @@ enum class Command(val argName: String) {
             val projects = client.getAllProjects()
             projects.forEach { v ->
                 println("${v.project.id.id}: ${v.project.description} (${v.project.owner})")
-                println("   Sources: ${v.project.gitRepo.url} branch '${v.project.gitRepo.branch}'")
+                println("   Home Page: ${v.project.resolveWebpage()}")
+                println("   Sources: ${v.project.gitRepo.url} , Branch: '${v.project.gitRepo.branch}'")
                 println("   Published at: ${v.getPublishedURLs(host)}")
                 println("   Last Build: ${v.lastBuild?.formatShort()}")
                 println()
