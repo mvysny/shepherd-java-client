@@ -133,7 +133,7 @@ enum class Command(val argName: String) {
             val stats = client.getStats()
             println("Registered projects: ${stats.projectCount}")
             println("Project Memory Quotas:")
-            println("   Quota allocated by the project runtime: ${stats.projectMemoryStats.projectRuntimeQuota}")
+            println("   Quota allocated for project runtimes: ${stats.projectMemoryStats.projectRuntimeQuota}")
             println("   Total project quota (runtime+builds): ${stats.projectMemoryStats.totalQuota}")
             println("Builder: max concurrent build jobs: ${stats.concurrentJenkinsBuilders}")
             println("Host Memory: Mem: ${stats.hostMemoryStats.memory}; Swap: ${stats.hostMemoryStats.swap}")
