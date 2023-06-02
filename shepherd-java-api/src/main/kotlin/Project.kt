@@ -112,6 +112,7 @@ public data class ProjectRuntime(
  * @property id the project ID, must be unique.
  * @property description any additional vital information about the project
  * @property webpage the project home page. If null, use [GitRepo.url]. Call [Project.resolveWebpage] to do this automatically.
+ * Useful to have if [GitRepo.url] points to a private Git repo which is not browseable by the browser.
  * @property gitRepo the git repository from where the project comes from
  * @property owner the project owner: a contact person responsible for the project.
  * @property runtime what resources the project needs for running
