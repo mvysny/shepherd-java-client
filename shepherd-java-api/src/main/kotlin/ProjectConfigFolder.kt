@@ -52,6 +52,8 @@ internal class ProjectConfigFolder(val folder: Path) {
         val f = getConfigFile(id)
         if (!f.deleteIfExists()) {
             log.warn("File $f doesn't exist, not deleted")
+        } else {
+            log.info("Deleted project file $f")
         }
     }
 
