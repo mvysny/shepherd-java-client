@@ -60,13 +60,22 @@ public class SimpleKubernetesClient @JvmOverloads constructor(
 
     private fun getConfigYamlFile(id: ProjectId): Path = yamlConfigFolder / "${id.id}.yaml"
 
+    /**
+     * Removes all kubernetes resources for given project and deletes the kubernetes config yaml file for the project.
+     * Doesn't throw exception if `mkctl delete -f` fails; in such case the project kubernetes config yaml file is
+     * kept on the filesystem so that it can be deleted manually.
+     */
     public fun deleteIfExists(id: ProjectId) {
         val f = getConfigYamlFile(id)
         if (f.exists()) {
             log.info("Deleting kubernetes objects for $f, please wait. May take up to 1 minute.")
-            exec(*kubectl, "delete", "-f", f.toString())
-            log.info("Deleting Kubernetes config yaml file $f")
-            f.deleteExisting()
+            try {
+                exec(*kubectl, "delete", "-f", f.toString())
+                log.info("Deleting Kubernetes config yaml file $f")
+                f.deleteExisting()
+            } catch (e: Exception) {
+                log.error("Failed to mkctl delete: $e", e)
+            }
         } else {
             log.warn("$f doesn't exist, not deleting project objects from Kubernetes")
         }
