@@ -426,7 +426,7 @@ spec:
     }
 
     group("getCustomDomainIngressYaml()") {
-        test("http") {
+        test("https") {
             expect("""---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -435,6 +435,36 @@ metadata:
   namespace: shepherd-foo-bar
   annotations:
     cert-manager.io/cluster-issuer: lets-encrypt
+spec:
+  tls:
+    - hosts:
+      - foo.com
+      secretName: ingress-foo-com-tls
+  rules:
+    - host: "foo.com"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: service
+                port:
+                  number: 8080""") {
+                SimpleKubernetesClient().getCustomDomainIngressYaml(
+                    "foo.com",
+                    true,
+                    ProjectId("foo-bar")
+                )
+            }
+        }
+        test("http") {
+            expect("""---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-foo-com
+  namespace: shepherd-foo-bar
 spec:
   rules:
     - host: "foo.com"

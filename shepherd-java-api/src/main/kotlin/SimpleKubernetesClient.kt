@@ -287,6 +287,11 @@ spec:
     internal fun getCustomDomainIngressYaml(dns: String, https: Boolean, pid: ProjectId): String {
         val name = dnsToValidKubernetesIngressId(dns)
         val namespace = pid.kubernetesNamespace
+        val clusterIssuer = if (https) {
+            """
+  annotations:
+    cert-manager.io/cluster-issuer: lets-encrypt"""
+        } else ""
         val tls = if (https) {
             """
   tls:
@@ -301,9 +306,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: $name
-  namespace: $namespace
-  annotations:
-    cert-manager.io/cluster-issuer: lets-encrypt
+  namespace: $namespace$clusterIssuer
 spec:$tls
   rules:
     - host: "$dns"
