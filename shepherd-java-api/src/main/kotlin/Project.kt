@@ -111,6 +111,7 @@ public data class ProjectRuntime(
 /**
  * @property id the project ID, must be unique.
  * @property description any additional vital information about the project
+ * @property webpage the project home page. If null, use [GitRepo.url]. Call [Project.resolveWebpage] to do this automatically.
  * @property gitRepo the git repository from where the project comes from
  * @property owner the project owner: a contact person responsible for the project.
  * @property runtime what resources the project needs for running
@@ -121,6 +122,7 @@ public data class ProjectRuntime(
 public data class Project(
     val id: ProjectId,
     val description: String,
+    val webpage: String? = null,
     val gitRepo: GitRepo,
     val owner: ProjectOwner,
     val runtime: ProjectRuntime,
@@ -134,6 +136,8 @@ public data class Project(
      */
     public fun getPublishedURLs(host: String): List<String> =
         listOf("https://$host/${id.id}") + publication.additionalDomains.map { "https://$it" }
+
+    public fun resolveWebpage(): String = webpage ?: gitRepo.url
 
     public companion object {
         /**

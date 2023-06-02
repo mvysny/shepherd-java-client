@@ -76,7 +76,7 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
 <?xml version='1.1' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>${project.description.escapeXml()}. Web page: ${project.gitRepo.url.escapeXml()}. Owner: ${project.owner.toString().escapeXml()}</description>
+  <description>${project.description.escapeXml()}. Web page: ${project.resolveWebpage().escapeXml()}. Owner: ${project.owner.toString().escapeXml()}</description>
   <keepDependencies>false</keepDependencies>
   <properties>
     <jenkins.model.BuildDiscarderProperty>
