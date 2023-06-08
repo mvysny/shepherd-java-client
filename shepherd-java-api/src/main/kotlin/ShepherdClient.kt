@@ -5,6 +5,9 @@ import java.io.File
 import java.time.Duration
 import java.time.Instant
 
+/**
+ * Accesses the Shepherd backend. Allows you to create/modify/delete/list apps, get the build/runtime logs, statistics.
+ */
 public interface ShepherdClient : Closeable {
     /**
      * Lists all registered projects.
@@ -30,6 +33,8 @@ public interface ShepherdClient : Closeable {
      * * registers the project to Jenkins and starts first Jenkins build. The build is configured to call the `shepherd-build` script.
      *
      * Fails if the project json config file already exists. Blocks until the project is created.
+     * @throws IllegalArgumentException if the updated project memory or CPU requirements would overflow the
+     * available memory or configured max values (see [getConfig] and [Config.maxProjectRuntimeResources]/[Config.maxProjectBuildResources]).
      */
     public fun createProject(project: Project)
 
@@ -49,6 +54,8 @@ public interface ShepherdClient : Closeable {
      * * [Project.gitRepo]
      *
      * Blocks until the update is fully completed.
+     * @throws IllegalArgumentException if the updated project memory or CPU requirements would overflow the
+     * available memory or configured max values (see [getConfig] and [Config.maxProjectRuntimeResources]/[Config.maxProjectBuildResources]).
      */
     public fun updateProject(project: Project)
 
