@@ -8,7 +8,7 @@ Requires Java 17+.
 The library is available in Maven Central. To use, add this to your `build.gradle`:
 ```groovy
 dependencies {
-    implementation("com.github.mvysny.shepherd:shepherd-java-api:0.2")
+    implementation("com.github.mvysny.shepherd:shepherd-java-api:0.3")
 }
 ```
 
