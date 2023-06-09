@@ -3,8 +3,14 @@
 package com.github.mvysny.shepherd.api
 
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encodeToString
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import kotlinx.serialization.json.encodeToStream
@@ -20,9 +26,8 @@ import kotlin.io.path.outputStream
  * * start with an alphanumeric character
  * * end with an alphanumeric character
  */
-@JvmInline
-@Serializable
-public value class ProjectId(public val id: String) : Comparable<ProjectId> {
+@Serializable(with = ProjectIdAsStringSerializer::class)
+public data class ProjectId(public val id: String) : Comparable<ProjectId> {
     init {
         require(idValidator.matches(id)) { "The ID must contain at most 54 characters, it must contain only lowercase alphanumeric characters or '-', it must start and end with an alphanumeric character" }
     }
@@ -31,6 +36,18 @@ public value class ProjectId(public val id: String) : Comparable<ProjectId> {
     }
 
     override fun compareTo(other: ProjectId): Int = id.compareTo(other.id)
+}
+
+private object ProjectIdAsStringSerializer : KSerializer<ProjectId> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("ProjectId", PrimitiveKind.STRING)
+
+    override fun serialize(encoder: Encoder, value: ProjectId) {
+        encoder.encodeString(value.id)
+    }
+
+    override fun deserialize(decoder: Decoder): ProjectId {
+        return ProjectId(decoder.decodeString())
+    }
 }
 
 /**
@@ -78,7 +95,7 @@ public data class Resources(
  * @property dockerFile if not null, we build off this dockerfile instead of the default `Dockerfile`. Passed via `DOCKERFILE` env variable to `shepherd-build`.
  */
 @Serializable
-public data class BuildSpec(
+public data class BuildSpec @JvmOverloads constructor(
     val resources: Resources,
     val buildArgs: Map<String, String> = mapOf(),
     val dockerFile: String? = null
@@ -103,7 +120,7 @@ public data class GitRepo(
  * @property envVars environment variables, e.g. `SPRING_DATASOURCE_URL` to `jdbc:postgresql://liukuri-postgres:5432/postgres`
  */
 @Serializable
-public data class ProjectRuntime(
+public data class ProjectRuntime @JvmOverloads constructor(
     val resources: Resources,
     val envVars: Map<String, String> = mapOf()
 )
@@ -131,14 +148,6 @@ public data class Project(
     val publication: Publication = Publication(),
     val additionalServices: Set<Service> = setOf()
 ) {
-
-    /**
-     * To make it accessible from java
-     */
-    public fun getId() : String {
-        return id.id
-    }
-
     /**
      * Returns URLs on which this project runs (can be browsed to). E.g. for `vaadin-boot-example-gradle`
      * on the `v-herd.eu` [host], this returns `https://v-herd.eu/vaadin-boot-example-gradle`.
