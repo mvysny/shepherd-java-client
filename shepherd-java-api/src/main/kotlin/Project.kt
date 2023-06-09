@@ -131,6 +131,14 @@ public data class Project(
     val publication: Publication = Publication(),
     val additionalServices: Set<Service> = setOf()
 ) {
+
+    /**
+     * To make it accessible from java
+     */
+    public fun getId() : String {
+        return id.id
+    }
+
     /**
      * Returns URLs on which this project runs (can be browsed to). E.g. for `vaadin-boot-example-gradle`
      * on the `v-herd.eu` [host], this returns `https://v-herd.eu/vaadin-boot-example-gradle`.
