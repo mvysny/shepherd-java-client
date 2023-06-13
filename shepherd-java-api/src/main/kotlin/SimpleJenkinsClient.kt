@@ -3,6 +3,7 @@ package com.github.mvysny.shepherd.api
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
+import java.net.CookieManager
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -21,6 +22,7 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
 
     private val httpClient: HttpClient = HttpClient.newBuilder().apply {
         followRedirects(HttpClient.Redirect.NORMAL)
+        cookieHandler(CookieManager())  // Jenkins Crumbs require that the session cookie is preserved between requests
     } .build()
 
     /**
