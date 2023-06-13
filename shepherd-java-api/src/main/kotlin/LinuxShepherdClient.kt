@@ -102,9 +102,7 @@ public class LinuxShepherdClient @JvmOverloads constructor(
     override fun getBuildLog(id: ProjectId, buildNumber: Int): String = jenkins.getBuildConsoleText(id, buildNumber)
     override fun getConfig(): Config = Config.load()
 
-    override fun close() {
-        jenkins.close()
-    }
+    override fun close() {}
 
     public companion object {
         @JvmStatic

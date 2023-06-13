@@ -2,13 +2,12 @@ package com.github.mvysny.shepherd.api
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.internal.EMPTY_REQUEST
 import org.slf4j.LoggerFactory
-import java.io.Closeable
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpRequest.BodyPublishers
+import java.net.http.HttpResponse.BodyHandlers
 import java.time.Duration
 import java.time.Instant
 
@@ -16,13 +15,12 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
     private val jenkinsUrl: String = "http://localhost:8080",
     private val jenkinsUsername: String = "admin",
     private val jenkinsPassword: String = "admin"
-) : Closeable {
+) {
     private val ProjectId.jenkinsJobName: String get() = id
     private val Project.jenkinsJobName: String get() = id.jenkinsJobName
 
-    private val okHttpClient: OkHttpClient = OkHttpClient.Builder().apply {
-        cookieJar(BasicCookieJar()) // Jenkins Crumbs require that the session cookie is preserved between requests
-        addInterceptor(BasicAuthInterceptor(jenkinsUsername, jenkinsPassword))
+    private val httpClient: HttpClient = HttpClient.newBuilder().apply {
+        followRedirects(HttpClient.Redirect.NORMAL)
     } .build()
 
     /**
@@ -32,20 +30,24 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
         log.info("Running Jenkins build of ${id.jenkinsJobName}")
         val crumb = getCrumb()
 
-        val url = "$jenkinsUrl/job/${id.jenkinsJobName}/build/api/json".buildUrl()
+        val url = URI("$jenkinsUrl/job/${id.jenkinsJobName}/build/api/json")
         val request = url.buildRequest {
-            post(EMPTY_REQUEST)
+            POST(BodyPublishers.noBody())
+            basicAuth(jenkinsUsername, jenkinsPassword)
             crumb.applyTo(this)
         }
-        okHttpClient.exec(request) {}
+        httpClient.exec(request) {}
     }
 
     /**
      * Retrieves a new crumb from Jenkins. This prevents CSRF.
      */
     private fun getCrumb(): JenkinsCrumb {
-        val url = "$jenkinsUrl/crumbIssuer/api/json".buildUrl()
-        return okHttpClient.exec(url.buildRequest()) {
+        val url = URI("$jenkinsUrl/crumbIssuer/api/json")
+        val request = url.buildRequest {
+            basicAuth(jenkinsUsername, jenkinsPassword)
+        }
+        return httpClient.exec(request) {
             it.json<JenkinsCrumb>(json)
         }
     }
@@ -144,8 +146,11 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
     }
 
     private fun getJobNames(): Set<String> {
-        val url = "$jenkinsUrl/api/json?tree=jobs[name]".buildUrl()
-        return okHttpClient.exec(url.buildRequest()) { response ->
+        val url = URI("$jenkinsUrl/api/json?tree=jobs[name]")
+        val request = url.buildRequest {
+            basicAuth(jenkinsUsername, jenkinsPassword)
+        }
+        return httpClient.exec(request) { response ->
             val jobs: JenkinsJobNames = response.json<JenkinsJobNames>(json)
             jobs.jobs.map { it.name } .toSet()
         }
@@ -162,14 +167,14 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
             log.info("Creating Jenkins job ${project.jenkinsJobName}")
             // crumbFlag=true is necessary: https://serverfault.com/questions/990224/jenkins-server-throws-403-while-accessing-rest-api-or-using-jenkins-java-client/1131973
             val crumb = getCrumb()
-            val url = "$jenkinsUrl/createItem/api/json".buildUrl {
-                addEncodedQueryParameter("name", project.jenkinsJobName)
-            }
+            val url = URI("$jenkinsUrl/createItem/api/json?name=${project.jenkinsJobName}")
             val request = url.buildRequest {
-                post(xml.toRequestBody("text/xml; charset=utf-8".toMediaType()))
+                POST(BodyPublishers.ofString(xml))
+                header("Content-type", "text/xml; charset=utf-8");
+                basicAuth(jenkinsUsername, jenkinsPassword)
                 crumb.applyTo(this)
             }
-            okHttpClient.exec(request) {}
+            httpClient.exec(request) {}
         } else {
             log.warn("Jenkins job for ${project.id.id} already exists, updating existing instead")
             updateJob(project)
@@ -184,12 +189,14 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
 
         val xml = getJobXml(project)
         val crumb = getCrumb()
-        val url = "$jenkinsUrl/job/${project.jenkinsJobName}/config.xml/api/json".buildUrl()
+        val url = URI("$jenkinsUrl/job/${project.jenkinsJobName}/config.xml/api/json")
         val request = url.buildRequest {
-            post(xml.toRequestBody("text/xml; charset=utf-8".toMediaType()))
+            POST(BodyPublishers.ofString(xml))
+            header("Content-type", "text/xml; charset=utf-8");
+            basicAuth(jenkinsUsername, jenkinsPassword)
             crumb.applyTo(this)
         }
-        okHttpClient.exec(request) {}
+        httpClient.exec(request) {}
     }
 
     /**
@@ -204,12 +211,13 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
 
         log.info("Deleting Jenkins job ${id.jenkinsJobName}")
         val crumb = getCrumb()
-        val url = "$jenkinsUrl/job/${id.jenkinsJobName}/doDelete/api/json".buildUrl()
+        val url = URI("$jenkinsUrl/job/${id.jenkinsJobName}/doDelete/api/json")
         val request = url.buildRequest {
-            post(EMPTY_REQUEST)
+            POST(BodyPublishers.noBody())
+            basicAuth(jenkinsUsername, jenkinsPassword)
             crumb.applyTo(this)
         }
-        okHttpClient.exec(request) {}
+        httpClient.exec(request) {}
     }
 
     companion object {
@@ -232,10 +240,6 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
         private val json = Json { ignoreUnknownKeys = true; coerceInputValues = true }
     }
 
-    override fun close() {
-        okHttpClient.destroy()
-    }
-
     /**
      * Returns all jenkins jobs (=projects).
      */
@@ -244,8 +248,11 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
         // get all jobs: http://localhost:8080/api/json?pretty=true
         // very detailed info, NOT RECOMMENDED for production use: http://localhost:8080/api/json?pretty=true&depth=2
         // full URL: http://localhost:8080/api/json?tree=jobs[name,lastBuild[number,result,timestamp,duration,estimatedDuration]]
-        val url = "$jenkinsUrl/api/json?tree=jobs[name,lastBuild[number,result,timestamp,duration,estimatedDuration]]".buildUrl()
-        return okHttpClient.exec(url.buildRequest()) {
+        val url = URI("$jenkinsUrl/api/json?tree=jobs[name,lastBuild[number,result,timestamp,duration,estimatedDuration]]")
+        val request = url.buildRequest {
+            basicAuth(jenkinsUsername, jenkinsPassword)
+        }
+        return httpClient.exec(request) {
             it.json<JenkinsJobs>(json).jobs
         }
     }
@@ -256,8 +263,11 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
     fun getLastBuilds(id: ProjectId): List<JenkinsBuild> {
         // general project info: http://localhost:8080/job/vaadin-boot-example-gradle/api/json?depth=2
         // http://localhost:8080/job/vaadin-boot-example-gradle/api/json?tree=builds[number,result,timestamp,duration,estimatedDuration]
-        val url = "$jenkinsUrl/job/${id.jenkinsJobName}/api/json?tree=builds[number,result,timestamp,duration,estimatedDuration]".buildUrl()
-        val builds: List<JenkinsBuild> = okHttpClient.exec(url.buildRequest()) {
+        val url = URI("$jenkinsUrl/job/${id.jenkinsJobName}/api/json?tree=builds[number,result,timestamp,duration,estimatedDuration]")
+        val request = url.buildRequest {
+            basicAuth(jenkinsUsername, jenkinsPassword)
+        }
+        val builds: List<JenkinsBuild> = httpClient.exec(request) {
             it.json<JenkinsBuilds>(json).builds
         }
         return builds.sortedBy { it.number } .takeLast(30)
@@ -265,8 +275,13 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
 
     fun getBuildConsoleText(id: ProjectId, buildNumber: Int): String {
         // e.g. http://localhost:8080/job/vaadin-boot-example-gradle/27/consoleText
-        val url = "$jenkinsUrl/job/${id.jenkinsJobName}/$buildNumber/logText/progressiveText".buildUrl()
-        return okHttpClient.exec(url.buildRequest()) { it.string() }
+        val url = URI("$jenkinsUrl/job/${id.jenkinsJobName}/$buildNumber/logText/progressiveText")
+        val request = url.buildRequest {
+            basicAuth(jenkinsUsername, jenkinsPassword)
+        }
+        return httpClient.send(request, BodyHandlers.ofString())
+            .checkOk()
+            .body()
     }
 }
 
@@ -325,7 +340,7 @@ internal data class JenkinsCrumb(
     val crumb: String,
     val crumbRequestField: String
 ) {
-    fun applyTo(r: Request.Builder) {
-        r.addHeader(crumbRequestField, crumb)
+    fun applyTo(r: HttpRequest.Builder) {
+        r.header(crumbRequestField, crumb)
     }
 }
