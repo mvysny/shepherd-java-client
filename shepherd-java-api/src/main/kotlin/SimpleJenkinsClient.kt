@@ -30,13 +30,12 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
      */
     fun build(id: ProjectId) {
         log.info("Running Jenkins build of ${id.jenkinsJobName}")
-        val crumb = getCrumb()
 
         val url = URI("$jenkinsUrl/job/${id.jenkinsJobName}/build/api/json")
         val request = url.buildRequest {
             POST(BodyPublishers.noBody())
             basicAuth(jenkinsUsername, jenkinsPassword)
-            crumb.applyTo(this)
+            crumb()
         }
         httpClient.exec(request) {}
     }
@@ -52,6 +51,10 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
         return httpClient.exec(request) {
             it.json<JenkinsCrumb>(json)
         }
+    }
+
+    private fun HttpRequest.Builder.crumb() {
+        getCrumb().applyTo(this)
     }
 
     internal fun getJobXml(project: Project): String {
@@ -167,14 +170,13 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
         val xml = getJobXml(project)
         if (!hasJob(project.id)) {
             log.info("Creating Jenkins job ${project.jenkinsJobName}")
-            // crumbFlag=true is necessary: https://serverfault.com/questions/990224/jenkins-server-throws-403-while-accessing-rest-api-or-using-jenkins-java-client/1131973
-            val crumb = getCrumb()
             val url = URI("$jenkinsUrl/createItem/api/json?name=${project.jenkinsJobName}")
             val request = url.buildRequest {
                 POST(BodyPublishers.ofString(xml))
                 header("Content-type", "text/xml; charset=utf-8");
                 basicAuth(jenkinsUsername, jenkinsPassword)
-                crumb.applyTo(this)
+                // crumbFlag=true is necessary: https://serverfault.com/questions/990224/jenkins-server-throws-403-while-accessing-rest-api-or-using-jenkins-java-client/1131973
+                crumb()
             }
             httpClient.exec(request) {}
         } else {
@@ -190,13 +192,12 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
         log.info("Updating Jenkins job ${project.jenkinsJobName}")
 
         val xml = getJobXml(project)
-        val crumb = getCrumb()
         val url = URI("$jenkinsUrl/job/${project.jenkinsJobName}/config.xml/api/json")
         val request = url.buildRequest {
             POST(BodyPublishers.ofString(xml))
             header("Content-type", "text/xml; charset=utf-8");
             basicAuth(jenkinsUsername, jenkinsPassword)
-            crumb.applyTo(this)
+            crumb()
         }
         httpClient.exec(request) {}
     }
@@ -212,12 +213,11 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
         }
 
         log.info("Deleting Jenkins job ${id.jenkinsJobName}")
-        val crumb = getCrumb()
         val url = URI("$jenkinsUrl/job/${id.jenkinsJobName}/doDelete/api/json")
         val request = url.buildRequest {
             POST(BodyPublishers.noBody())
             basicAuth(jenkinsUsername, jenkinsPassword)
-            crumb.applyTo(this)
+            crumb()
         }
         httpClient.exec(request) {}
     }
