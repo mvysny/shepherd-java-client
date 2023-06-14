@@ -9,8 +9,6 @@ import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
 import java.io.Reader
-import java.net.Authenticator
-import java.net.PasswordAuthentication
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
