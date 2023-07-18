@@ -185,3 +185,12 @@ Before that, the credential needs to be registered:
 
 * Either the Shepherd admin can do that directly, by creating the credential in Jenkins directly,
 * or the users can create their own credentials, via the Java functions offered by the `ShepherdClient` Java class (TBD)
+
+## Enabling Additional Services
+
+### PostgreSQL database
+
+Adding a persistent postgresql database is easy:
+
+1. Add the `Postgres` additional service to the project descriptor JSON: `"additionalServices": [{"type": "Postgres"}]`
+2. Configure your app to connect to the `jdbc:postgresql://postgres:5432/postgres` URL, with the `postgres` username and `mysecretpassword` password.
