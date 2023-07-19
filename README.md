@@ -186,6 +186,10 @@ Before that, the credential needs to be registered:
 * Either the Shepherd admin can do that directly, by creating the credential in Jenkins directly,
 * or the users can create their own credentials, via the Java functions offered by the `ShepherdClient` Java class (TBD)
 
+The credentials are all ultimately stored in Jenkins, at *Dashboard / Manage Jenkins / Credentials / System / Global credentials*.
+Every credential should contain information on which files it contains (e.g. `/root/.ssh/id_rsa`) and where it is used
+(e.g. GitHub user `foo-user`).
+
 ## Enabling Additional Services
 
 ### PostgreSQL database
