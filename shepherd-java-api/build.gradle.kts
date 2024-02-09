@@ -1,12 +1,12 @@
 plugins {
-    kotlin("plugin.serialization") version "1.9.22"
+    kotlin("plugin.serialization") version libs.versions.kotlin
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
-    implementation("org.zeroturnaround:zt-exec:1.12")
-    implementation("org.slf4j:slf4j-api:2.0.11")
-    testImplementation("com.github.mvysny.dynatest:dynatest:0.24")
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.ztexec)
+    implementation(libs.slf4j.api)
+    testImplementation(libs.dynatest)
 }
 
 kotlin {
