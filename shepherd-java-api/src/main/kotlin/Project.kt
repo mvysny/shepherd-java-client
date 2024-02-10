@@ -65,7 +65,7 @@ public data class ProjectOwner(
 }
 
 /**
- * Resources the app needs.
+ * Resources the app needs, memory and CPU.
  * @property memoryMb max memory in megabytes
  * @property cpu max CPU cores to use. 1 means 1 CPU core to be used.
  */
@@ -116,7 +116,7 @@ public data class GitRepo(
 
 /**
  * Runtime project config.
- * @property resources what resources the project needs for running
+ * @property resources what resources the project needs for running, memory and CPU.
  * @property envVars environment variables, e.g. `SPRING_DATASOURCE_URL` to `jdbc:postgresql://liukuri-postgres:5432/postgres`
  */
 @Serializable
@@ -134,6 +134,7 @@ public data class ProjectRuntime @JvmOverloads constructor(
  * @property owner the project owner: a contact person responsible for the project.
  * @property runtime what resources the project needs for running
  * @property build build info
+ * @property publication how to publish project over http/https
  * @property additionalServices any additional services the project needs, e.g. additional databases and such.
  */
 @Serializable
@@ -203,7 +204,7 @@ public data class Service(
 )
 
 /**
- * The project publication.
+ * The project publication over http/https.
  * @property publishOnMainDomain if true (the default), the project will be published on the main domain as well.
  * Say the main domain is `v-herd.eu`, then the project will be accessible at `v-herd.eu/PROJECT_ID`.
  * @property https only affects [additionalDomains]; if the project is published on the main domain then it always uses https.
