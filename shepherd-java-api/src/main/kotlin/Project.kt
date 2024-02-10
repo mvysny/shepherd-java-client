@@ -212,10 +212,31 @@ public data class Service(
  * Useful e.g. when CloudFlare unwraps https for us.
  * @property additionalDomains additional domains to publish to project at. Must not contain the main domain.
  * E.g. `yourproject.com`.
+ * @property ingressConfig additional NGINX Ingress configuration.
  */
 @Serializable
 public data class Publication(
     val publishOnMainDomain: Boolean = true,
     val https: Boolean = true,
-    val additionalDomains: Set<String> = setOf()
+    val additionalDomains: Set<String> = setOf(),
+    val ingressConfig: IngressConfig = IngressConfig()
 )
+
+/**
+ * NGINX Ingress additional configuration.
+ * @property maxBodySizeMb in megabytes, defaults to 1m. [client_max_body_size](http://nginx.org/en/docs/http/ngx_http_core_module.html#client_max_body_size).
+ * Max request body size, increase if you intend to upload large files.
+ * @property proxyReadTimeoutSeconds in seconds, defaults to 60s. [proxy_read_timeout](http://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_read_timeout).
+ * Increase to 6 minutes or more if you use Vaadin Push, otherwise the connection will be dropped out. Alternatively, set this to 3 minutes and set
+ * Vaadin heartbeat frequency to 2 minutes.
+ */
+@Serializable
+public data class IngressConfig(
+    val maxBodySizeMb: Int = 1,
+    val proxyReadTimeoutSeconds: Int = 60,
+) {
+    init {
+        require(maxBodySizeMb >= 1) { "maxBodySize: must be 1 or greater but was $maxBodySizeMb" }
+        require(proxyReadTimeoutSeconds >= 1) { "proxyReadTimeout: must be 1 or greater but was $proxyReadTimeoutSeconds" }
+    }
+}

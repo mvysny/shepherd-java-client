@@ -126,7 +126,11 @@ A more complex example:
     "https": true,
     "additionalDomains": [
       "demo.jdbiorm.eu"
-    ]
+    ],
+    "ingressConfig": {
+      "maxBodySizeMb": 2,
+      "proxyReadTimeoutSeconds": 360
+    }
   },
   "additionalServices": [
     {

@@ -188,6 +188,8 @@ metadata:
       rewrite ^(/$projectId)${'$'} ${'$'}1/ permanent;
     nginx.ingress.kubernetes.io/proxy-redirect-from: https://$defaultDNS/  # Spring Security redirects to /login
     nginx.ingress.kubernetes.io/proxy-redirect-to: https://$defaultDNS/${'$'}1/
+    nginx.ingress.kubernetes.io/proxy-read-timeout: ${project.publication.ingressConfig.proxyReadTimeoutSeconds}s
+    nginx.ingress.kubernetes.io/client-max-body-size: ${project.publication.ingressConfig.maxBodySizeMb}m
 spec:
   tls:
   - hosts:
