@@ -6,17 +6,13 @@ import kotlin.io.path.*
 
 /**
  * Interacts with the actual shepherd system.
- * @property etcShepherdPath the root shepherd path, `/etc/shepherd`
+ * @property projectConfigFolder Project config JSONs are stored here.
  */
-public class LinuxShepherdClient @JvmOverloads constructor(
+public class KubernetesShepherdClient @JvmOverloads constructor(
     private val kubernetes: SimpleKubernetesClient = SimpleKubernetesClient(),
-    private val etcShepherdPath: Path = Path("/etc/shepherd")
+    private val projectConfigFolder: ProjectConfigFolder = ProjectConfigFolder.defaultLinux()
 ) : ShepherdClient {
     private val jenkins: SimpleJenkinsClient = SimpleJenkinsClient()
-    /**
-     * Project config JSONs are stored here. Defaults to `/etc/shepherd/java/projects`.
-     */
-    private val projectConfigFolder = ProjectConfigFolder(etcShepherdPath / "java" / "projects")
 
     override fun getAllProjectIDs(): List<ProjectId> = projectConfigFolder.getAllProjects()
 
@@ -106,7 +102,7 @@ public class LinuxShepherdClient @JvmOverloads constructor(
 
     public companion object {
         @JvmStatic
-        private val log = LoggerFactory.getLogger(LinuxShepherdClient::class.java)
+        private val log = LoggerFactory.getLogger(KubernetesShepherdClient::class.java)
     }
 }
 
