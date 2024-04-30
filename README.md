@@ -38,6 +38,7 @@ Requires a configuration file to be placed in `/etc/shepherd/java/config.json`, 
                 "cpu": 2
         },
         "jenkins": {
+          "url": "http://localhost:8080",
           "username": "admin",
           "password": "admin"
         }

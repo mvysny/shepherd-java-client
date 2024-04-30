@@ -25,7 +25,7 @@ public data class Config(
     val concurrentJenkinsBuilders: Int,
     val maxProjectRuntimeResources: Resources,
     val maxProjectBuildResources: Resources,
-    val jenkins: Jenkins = Jenkins()
+    val jenkins: JenkinsConfig = JenkinsConfig()
 ) {
     public companion object {
         /**
@@ -41,7 +41,8 @@ public data class Config(
 }
 
 @Serializable
-public data class Jenkins(
+public data class JenkinsConfig(
+    val url: String = "http://localhost:8080",
     val username: String = "admin",
     val password: String = "admin"
 )

@@ -1,8 +1,6 @@
 package com.github.mvysny.shepherd.api
 
 import org.slf4j.LoggerFactory
-import java.nio.file.Path
-import kotlin.io.path.*
 
 /**
  * Interacts with the actual shepherd system.
@@ -12,7 +10,7 @@ public class KubernetesShepherdClient @JvmOverloads constructor(
     private val kubernetes: SimpleKubernetesClient = SimpleKubernetesClient(),
     private val projectConfigFolder: ProjectConfigFolder = ProjectConfigFolder.defaultLinux(),
 ) : ShepherdClient {
-    private val jenkins: SimpleJenkinsClient = SimpleJenkinsClient(jenkinsUsername = getConfig().jenkins.username, jenkinsPassword = getConfig().jenkins.password)
+    private val jenkins: SimpleJenkinsClient = SimpleJenkinsClient(jenkinsUrl = getConfig().jenkins.url, jenkinsUsername = getConfig().jenkins.username, jenkinsPassword = getConfig().jenkins.password)
 
     override fun getAllProjectIDs(): List<ProjectId> = projectConfigFolder.getAllProjects()
 

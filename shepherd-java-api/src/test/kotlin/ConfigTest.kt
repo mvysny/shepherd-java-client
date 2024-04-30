@@ -20,6 +20,7 @@ class ConfigTest : DynaTest({
                 "cpu": 2
         },
         "jenkins": {
+          "url": "http://localhost:8080/jenkins",
           "username": "admin",
           "password": "secretpassword"
         }
@@ -27,6 +28,9 @@ class ConfigTest : DynaTest({
 """)
         expect("secretpassword") {
             Config.load().jenkins.password
+        }
+        expect("http://localhost:8080/jenkins") {
+            Config.load().jenkins.url
         }
         temp.delete()
     }
