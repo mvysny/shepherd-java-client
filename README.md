@@ -36,6 +36,10 @@ Requires a configuration file to be placed in `/etc/shepherd/java/config.json`, 
         "maxProjectBuildResources": {
                 "memoryMb": 2500,
                 "cpu": 2
+        },
+        "jenkins": {
+          "username": "admin",
+          "password": "admin"
         }
 }
 ```

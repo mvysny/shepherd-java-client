@@ -24,13 +24,14 @@ public data class Config(
     val memoryQuotaMb: Int,
     val concurrentJenkinsBuilders: Int,
     val maxProjectRuntimeResources: Resources,
-    val maxProjectBuildResources: Resources
+    val maxProjectBuildResources: Resources,
+    val jenkins: Jenkins = Jenkins()
 ) {
     public companion object {
         /**
          * Location of the config file on the filesystem.
          */
-        public val location: Path = Path("/etc/shepherd/java/config.json")
+        public var location: Path = Path("/etc/shepherd/java/config.json")
 
         /**
          * Loads the current config file from the filesystem (from [location]).
@@ -38,3 +39,9 @@ public data class Config(
         public fun load(): Config = location.inputStream().buffered().use { Json.decodeFromStream(it) }
     }
 }
+
+@Serializable
+public data class Jenkins(
+    val username: String = "admin",
+    val password: String = "admin"
+)

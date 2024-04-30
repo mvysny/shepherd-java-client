@@ -10,9 +10,9 @@ import kotlin.io.path.*
  */
 public class KubernetesShepherdClient @JvmOverloads constructor(
     private val kubernetes: SimpleKubernetesClient = SimpleKubernetesClient(),
-    private val projectConfigFolder: ProjectConfigFolder = ProjectConfigFolder.defaultLinux()
+    private val projectConfigFolder: ProjectConfigFolder = ProjectConfigFolder.defaultLinux(),
 ) : ShepherdClient {
-    private val jenkins: SimpleJenkinsClient = SimpleJenkinsClient()
+    private val jenkins: SimpleJenkinsClient = SimpleJenkinsClient(jenkinsUsername = getConfig().jenkins.username, jenkinsPassword = getConfig().jenkins.password)
 
     override fun getAllProjectIDs(): List<ProjectId> = projectConfigFolder.getAllProjects()
 
