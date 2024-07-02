@@ -7,6 +7,7 @@ dependencies {
     implementation(libs.ztexec)
     implementation(libs.slf4j.api)
     testImplementation(libs.dynatest)
+    testRuntimeOnly(libs.junit.platform.launcher)
 }
 
 kotlin {

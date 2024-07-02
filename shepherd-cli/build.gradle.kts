@@ -8,6 +8,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.slf4j.simple)
     testImplementation(libs.dynatest)
+    testRuntimeOnly(libs.junit.platform.launcher)
 }
 
 application {
