@@ -1,9 +1,9 @@
 package com.github.mvysny.shepherd.api
 
-import com.github.mvysny.dynatest.expectList
-import com.github.mvysny.dynatest.expectThrows
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import kotlin.test.expect
 
 class FakeShepherdClientTest {
     @Nested inner class GetAllProjects {
@@ -11,7 +11,7 @@ class FakeShepherdClientTest {
             FakeShepherdClient().getAllProjects()
         }
         @Test fun `one fake project`() {
-            expectList(ProjectId("vaadin-boot-example-gradle")) { FakeShepherdClient().withFakeProject().getAllProjects().map { it.project.id } }
+            expect(listOf(ProjectId("vaadin-boot-example-gradle"))) { FakeShepherdClient().withFakeProject().getAllProjects().map { it.project.id } }
         }
     }
     @Nested inner class GetAllProjectIDs {
@@ -19,7 +19,7 @@ class FakeShepherdClientTest {
             FakeShepherdClient().getAllProjectIDs()
         }
         @Test fun `one fake project`() {
-            expectList(ProjectId("vaadin-boot-example-gradle")) { FakeShepherdClient().withFakeProject().getAllProjectIDs() }
+            expect(listOf(ProjectId("vaadin-boot-example-gradle"))) { FakeShepherdClient().withFakeProject().getAllProjectIDs() }
         }
     }
     @Nested inner class getProjectInfo {
@@ -40,7 +40,7 @@ class FakeShepherdClientTest {
             )
             val client = FakeShepherdClient(cfg)
             client.createProject(fakeProject)
-            expectThrows<IllegalArgumentException> {
+            assertThrows<IllegalArgumentException> {
                 client.createProject(fakeProject2)
             }
         }
@@ -51,7 +51,7 @@ class FakeShepherdClientTest {
                 maxProjectRuntimeResources = Resources(64, 1f),
                 maxProjectBuildResources = Resources(2500, 2f)
             )
-            expectThrows<IllegalArgumentException> {
+            assertThrows<IllegalArgumentException> {
                 FakeShepherdClient(cfg).createProject(fakeProject)
             }
         }
@@ -62,7 +62,7 @@ class FakeShepherdClientTest {
                 maxProjectRuntimeResources = Resources(512, 0.1f),
                 maxProjectBuildResources = Resources(2500, 2f)
             )
-            expectThrows<IllegalArgumentException> {
+            assertThrows<IllegalArgumentException> {
                 FakeShepherdClient(cfg).createProject(fakeProject)
             }
         }
@@ -73,7 +73,7 @@ class FakeShepherdClientTest {
                 maxProjectRuntimeResources = Resources(512, 1f),
                 maxProjectBuildResources = Resources(64, 2f)
             )
-            expectThrows<IllegalArgumentException> {
+            assertThrows<IllegalArgumentException> {
                 FakeShepherdClient(cfg).createProject(fakeProject)
             }
         }
@@ -84,7 +84,7 @@ class FakeShepherdClientTest {
                 maxProjectRuntimeResources = Resources(512, 1f),
                 maxProjectBuildResources = Resources(2500, 1f)
             )
-            expectThrows<IllegalArgumentException> {
+            assertThrows<IllegalArgumentException> {
                 FakeShepherdClient(cfg).createProject(fakeProject)
             }
         }

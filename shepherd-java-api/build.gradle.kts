@@ -6,8 +6,9 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.ztexec)
     implementation(libs.slf4j.api)
-    testImplementation(libs.dynatest)
-    testRuntimeOnly(libs.junit.platform.launcher)
+    testImplementation(libs.junit)
+    testImplementation(kotlin("test"))
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 kotlin {

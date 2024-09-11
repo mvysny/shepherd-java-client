@@ -1,7 +1,8 @@
 package com.github.mvysny.shepherd.api
 
-import com.github.mvysny.dynatest.expectThrows
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import kotlin.test.expect
 
 val fakeProject = Project(
@@ -49,18 +50,25 @@ class ProjectIdTest {
         ProjectId("manolo-26-2")
     }
     @Test fun `validation fails`() {
-        expectThrows<IllegalArgumentException>("The ID must contain") {
+        var ex = assertThrows<IllegalArgumentException> {
             ProjectId("-foo")
         }
-        expectThrows<IllegalArgumentException>("The ID must contain") {
+        assertTrue(ex.message!!.contains("The ID must contain"), ex.message)
+
+        ex = assertThrows<IllegalArgumentException> {
             ProjectId("")
         }
-        expectThrows<IllegalArgumentException>("The ID must contain") {
+        expect(true, ex.message) { ex.message!!.contains("The ID must contain") }
+
+        ex = assertThrows<IllegalArgumentException> {
             ProjectId("bar-")
         }
-        expectThrows<IllegalArgumentException>("The ID must contain") {
+        expect(true, ex.message) { ex.message!!.contains("The ID must contain") }
+
+        ex = assertThrows<IllegalArgumentException> {
             ProjectId("Bar")
         }
+        expect(true, ex.message) { ex.message!!.contains("The ID must contain") }
     }
 }
 
