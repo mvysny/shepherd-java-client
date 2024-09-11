@@ -1,1 +1,1 @@
-include("shepherd-cli", "shepherd-java-api")
+include("shepherd-cli", "shepherd-java-api", "shepherd-web")

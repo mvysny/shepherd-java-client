@@ -1,4 +1,5 @@
 [versions]
+vaadin = "24.4.11"
 kotlin = "2.0.20"
 dynatest = "0.25"
 slf4j = "2.0.13"
@@ -11,3 +12,8 @@ slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
 ztexec = "org.zeroturnaround:zt-exec:1.12"
 kotlinx-serialization-json = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2"
 kotlinx-cli = "org.jetbrains.kotlinx:kotlinx-cli:0.3.6"
+vaadin-core = { module = "com.vaadin:vaadin-core", version.ref = "vaadin" }
+vaadin-boot = "com.github.mvysny.vaadin-boot:vaadin-boot:13.0"
+
+[plugins]
+vaadin = { id = "com.vaadin", version.ref = "vaadin" }
