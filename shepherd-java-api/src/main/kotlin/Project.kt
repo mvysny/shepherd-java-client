@@ -52,7 +52,7 @@ private object ProjectIdAsStringSerializer : KSerializer<ProjectId> {
 }
 
 /**
- * Information about the project owner, how to reach him in case the project needs to be modified.
+ * Information about the project owner, how to reach him in case the project needs to be modified/misbehaves.
  * Jenkins may send notification emails about the failed builds to [email].
  * @property name e.g. `Martin Vysny`
  * @property email e.g. `mavi@vaadin.com`
@@ -117,7 +117,7 @@ public data class GitRepo(
 
 /**
  * Runtime project config.
- * @property resources what resources the project needs for running, memory and CPU.
+ * @property resources what resources the project needs for running, memory and CPU. Please try to keep the memory requirements as low as possible, so that we can host as many projects as possible.
  * @property envVars environment variables, e.g. `SPRING_DATASOURCE_URL` to `jdbc:postgresql://liukuri-postgres:5432/postgres`
  */
 @Serializable
@@ -128,7 +128,7 @@ public data class ProjectRuntime @JvmOverloads constructor(
 
 /**
  * @property id the project ID, must be unique.
- * @property description any additional vital information about the project
+ * @property description any additional vital information about the project.
  * @property webpage the project home page. If null, use [GitRepo.url]. Call [Project.resolveWebpage] to do this automatically.
  * Useful to have if [GitRepo.url] points to a private Git repo which is not browseable by the browser.
  * @property gitRepo the git repository from where the project comes from
@@ -161,7 +161,8 @@ public data class Project(
 
     public companion object {
         /**
-         * Loads [Project] from given JSON [file]. Fails if the file doesn't exist.
+         * Loads [Project] from given JSON [file].
+         * @throws java.io.FileNotFoundException Fails if the file doesn't exist.
          */
         @JvmStatic
         public fun loadFromFile(file: Path): Project =

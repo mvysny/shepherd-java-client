@@ -12,6 +12,7 @@ import com.github.mvysny.shepherd.api.Resources
 import com.github.mvysny.shepherd.api.Service
 import com.github.mvysny.shepherd.api.ServiceType
 import jakarta.validation.Validation
+import jakarta.validation.ValidationException
 import jakarta.validation.Validator
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.Max
@@ -24,6 +25,34 @@ import org.hibernate.validator.constraints.URL
 
 /**
  * An editable version of [Project].
+ * @property id The project ID, must be unique. The project will be published and running at https://$host/PROJECT_ID
+ * @property description any additional vital information about the project.
+ * @property webpage WebPage: the project home page. May be empty, in such case GitRepo URL is considered the home page
+ * @property gitRepoURL the git repository from where the project comes from, e.g. `https://github.com/mvysny/vaadin-boot-example-gradle`
+ * @property gitRepoBranch usually `master` or `main`
+ * @property gitRepoCredentialsID todo document
+ * @property projectOwnerName The project owner name.
+ * @property projectOwnerEmail How to reach the project owner in case the project needs to be modified/misbehaves.
+ * Jenkins will send notification emails about the failed builds here.
+ * @property runtimeMemoryMb how much memory the project needs for running, in MB. Please try to keep the memory requirements as low as possible, so that we can host as many projects as possible. 256MB is a good default.
+ * @property runtimeCpu max CPU cores to use. 1 means 1 CPU core to be used.
+ * @property envVars runtime environment variables, e.g. `SPRING_DATASOURCE_URL` to `jdbc:postgresql://liukuri-postgres:5432/postgres`
+ * @property buildArgs optional build args, passed as `--build-arg name="value"` to `docker build`. You can e.g. pass Vaadin Offline Key here.
+ * @property buildDockerFile if not null, we build off this dockerfile instead of the default `Dockerfile`.
+ * @property publishOnMainDomain if true (the default), the project will be published on the main domain as well.
+ * Say the main domain is `v-herd.eu`, then the project will be accessible at `v-herd.eu/PROJECT_ID`.
+ * @property publishAdditionalDomainsHttps only affects additional domains; if the project is published on the main domain then it always uses https.
+ * Defaults to true. If false, the project is published on additional domains via plain http.
+ * Useful e.g. when CloudFlare unwraps https for us. Ignored if there are no additional domains.
+ * @property publishAdditionalDomains additional domains to publish to project at. Must not contain the main domain.
+ * E.g. `yourproject.com`.
+ * @property ingressMaxBodySizeMb Max request body size, in megabytes, defaults to 1m.
+ * Increase if you intend to upload large files.
+ * @property ingressProxyReadTimeoutSeconds Proxy Read Timeout, in seconds, defaults to 60s.
+ * Increase to 6 minutes or more if you use Vaadin Push, otherwise the connection will be dropped out. Alternatively, set this to 3 minutes and set
+ * Vaadin heartbeat frequency to 2 minutes.
+ * @property additionalServices additional services, only accessible by your project. If you enable PostgreSQL, then use the following values to access the database:
+ * JDBC URI: `jdbc:postgresql://postgres-service:5432/postgres`, username: `postgres`, password: `mysecretpassword`.
  */
 data class MutableProject(
     @field:NotNull
@@ -44,7 +73,6 @@ data class MutableProject(
     var gitRepoURL: String?,
     @field:NotNull
     @field:NotBlank
-    @field:URL
     @field:Length(max = 255)
     var gitRepoBranch: String?,
     @field:Length(max = 255)
@@ -115,8 +143,22 @@ data class MutableProject(
         )
     }
 
-    fun toProject(): Project {
+    /**
+     * Validates values in this bean.
+     * @throws ValidationException if validation fails.
+     */
+    fun validate() {
         jsr303Validate(this)
+        if (publishAdditionalDomains.contains(host)) {
+            throw ValidationException("Additional domains must not contain $host")
+        }
+        if (publishAdditionalDomains.any { it.endsWith(".$host") }) {
+            throw ValidationException("Additional domains must not contain *.$host")
+        }
+    }
+
+    fun toProject(): Project {
+        validate()
         return Project(
             id = ProjectId(id!!),
             description = description!!,
@@ -181,9 +223,3 @@ fun Project.toMutable(): MutableProject = MutableProject(
     ingressProxyReadTimeoutSeconds = publication.ingressConfig.proxyReadTimeoutSeconds,
     additionalServices = additionalServices.map { it.type } .toMutableSet()
 )
-
-private val validator: Validator = Validation.buildDefaultValidatorFactory().validator
-
-fun jsr303Validate(obj: Any) {
-    validator.validate(obj)
-}

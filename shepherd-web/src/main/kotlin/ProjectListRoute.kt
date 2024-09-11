@@ -16,6 +16,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout
 import com.vaadin.flow.data.renderer.ComponentRenderer
 import com.vaadin.flow.router.PageTitle
 import com.vaadin.flow.router.Route
+import com.vaadin.flow.router.RouterLink
 
 @Route("", layout = MainLayout::class)
 @PageTitle("Projects")
@@ -29,7 +30,10 @@ class ProjectListRoute : KComposite() {
                 isExpand = true
                 setItems(projects)
 
-                column({ p -> p.project.id.id }) {
+                componentColumn({ p ->
+                    val pid = p.project.id.id
+                    RouterLink(pid, EditProjectRoute::class.java, pid)
+                }) {
                     isExpand = false; isAutoWidth = true; isResizable = true
                     setHeader("Project ID")
                 }

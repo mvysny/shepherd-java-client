@@ -5,7 +5,7 @@ import kotlin.test.Test
 import kotlin.test.expect
 
 class MutableProjectTest : AbstractAppTest() {
-    private val fakeProject: Project = Bootstrap.getClient().getAllProjects(null).get(0).project
+    private val fakeProject: Project = Bootstrap.getClient().getAllProjects(null)[0].project
 
     @Test fun smoke() {
         fakeProject.toMutable()

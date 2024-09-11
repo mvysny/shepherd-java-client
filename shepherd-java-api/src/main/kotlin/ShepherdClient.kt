@@ -22,6 +22,7 @@ public interface ShepherdClient : Closeable {
 
     /**
      * Retrieves info about given project. Fails with an exception if there is no such project.
+     * @throws java.io.FileNotFoundException if such project doesn't exist.
      */
     public fun getProjectInfo(id: ProjectId): Project
 
