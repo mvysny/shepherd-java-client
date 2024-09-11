@@ -1,4 +1,3 @@
-import org.gradle.kotlin.dsl.testing
 import org.gradle.kotlin.dsl.vaadin
 
 plugins {
@@ -25,5 +24,5 @@ dependencies {
 }
 
 application {
-    mainClass.set("MainKt")
+    mainClass.set("com.github.mvysny.shepherd.web.MainKt")
 }
