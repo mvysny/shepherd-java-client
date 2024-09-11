@@ -3,7 +3,6 @@ package com.github.mvysny.shepherd.web
 import com.github.mvysny.karibudsl.v10.KComposite
 import com.github.mvysny.karibudsl.v10.h1
 import com.github.mvysny.karibudsl.v10.verticalLayout
-import com.vaadin.flow.component.orderedlayout.VerticalLayout
 import com.vaadin.flow.router.Route
 
 @Route("")
