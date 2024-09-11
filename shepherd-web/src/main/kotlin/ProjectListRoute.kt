@@ -5,7 +5,6 @@ import com.github.mvysny.karibudsl.v10.column
 import com.github.mvysny.karibudsl.v10.componentColumn
 import com.github.mvysny.karibudsl.v10.grid
 import com.github.mvysny.karibudsl.v10.h1
-import com.github.mvysny.karibudsl.v10.horizontalLayout
 import com.github.mvysny.karibudsl.v10.isExpand
 import com.github.mvysny.karibudsl.v10.verticalLayout
 import com.github.mvysny.shepherd.api.Project
@@ -13,18 +12,17 @@ import com.github.mvysny.shepherd.api.ProjectView
 import com.vaadin.flow.component.Component
 import com.vaadin.flow.component.html.Anchor
 import com.vaadin.flow.component.html.Div
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout
 import com.vaadin.flow.component.orderedlayout.VerticalLayout
 import com.vaadin.flow.data.renderer.ComponentRenderer
+import com.vaadin.flow.router.PageTitle
 import com.vaadin.flow.router.Route
 
-@Route("")
+@Route("", layout = MainLayout::class)
+@PageTitle("Projects")
 class ProjectListRoute : KComposite() {
     private val layout = ui {
         verticalLayout {
             setSizeFull()
-
-            h1("Welcome!")
 
             val projects: List<ProjectView> = Bootstrap.getClient().getAllProjects()
             grid<ProjectView> {
