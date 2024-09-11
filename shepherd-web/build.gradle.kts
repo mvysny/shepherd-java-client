@@ -1,3 +1,4 @@
+import org.gradle.kotlin.dsl.testing
 import org.gradle.kotlin.dsl.vaadin
 
 plugins {
@@ -19,6 +20,7 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(kotlin("test"))
+    testImplementation(libs.karibu.testing)
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
