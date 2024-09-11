@@ -1,5 +1,7 @@
 package com.github.mvysny.shepherd.web
 
+import com.github.mvysny.shepherd.api.KubernetesShepherdClient
+import com.github.mvysny.shepherd.api.ShepherdClient
 import com.vaadin.flow.component.notification.Notification
 import com.vaadin.flow.component.notification.NotificationVariant
 import com.vaadin.flow.component.page.AppShellConfigurator
@@ -7,12 +9,31 @@ import com.vaadin.flow.server.PWA
 import com.vaadin.flow.server.ServiceInitEvent
 import com.vaadin.flow.server.VaadinServiceInitListener
 import com.vaadin.flow.server.VaadinSession
+import jakarta.servlet.ServletContextEvent
 import jakarta.servlet.ServletContextListener
 import jakarta.servlet.annotation.WebListener
 import org.slf4j.LoggerFactory
 
+val host = "v-herd.eu"
+
 @WebListener
-class Bootstrap : ServletContextListener
+class Bootstrap : ServletContextListener {
+    companion object {
+        @JvmField
+        var client: ShepherdClient? = null
+        fun getClient(): ShepherdClient = checkNotNull(client) { "shepherd client is not initialized" }
+    }
+    override fun contextInitialized(sce: ServletContextEvent?) {
+        if (client == null) {
+            client = KubernetesShepherdClient()
+        }
+    }
+
+    override fun contextDestroyed(sce: ServletContextEvent?) {
+        client?.close()
+        client = null
+    }
+}
 
 @PWA(name = "Project Base for Vaadin", shortName = "Project Base")
 class AppShell : AppShellConfigurator
