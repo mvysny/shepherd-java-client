@@ -14,6 +14,7 @@ kotlinx-serialization-json = "org.jetbrains.kotlinx:kotlinx-serialization-json:1
 kotlinx-cli = "org.jetbrains.kotlinx:kotlinx-cli:0.3.6"
 vaadin-core = { module = "com.vaadin:vaadin-core", version.ref = "vaadin" }
 vaadin-boot = "com.github.mvysny.vaadin-boot:vaadin-boot:13.0"
+karibu-dsl = "com.github.mvysny.karibudsl:karibu-dsl-v23:2.1.3"
 
 [plugins]
 vaadin = { id = "com.vaadin", version.ref = "vaadin" }

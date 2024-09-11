@@ -15,6 +15,7 @@ dependencies {
         }
     }
     implementation(libs.vaadin.boot)
+    implementation(libs.karibu.dsl)
 
     testImplementation(libs.junit)
     testImplementation(kotlin("test"))
