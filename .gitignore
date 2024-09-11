@@ -2,4 +2,4 @@ build
 .gradle
 .idea
 **/frontend/generated
-
+.kotlin

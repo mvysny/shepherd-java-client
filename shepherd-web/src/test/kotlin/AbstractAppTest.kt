@@ -19,7 +19,7 @@ abstract class AbstractAppTest {
         }
 
         @BeforeAll @JvmStatic fun bootstrap() {
-            Bootstrap.client = FakeShepherdClient()
+            Bootstrap.client = FakeShepherdClient().withFakeProject()
             Bootstrap().contextInitialized(null)
         }
         @AfterAll @JvmStatic fun shutdown() {
