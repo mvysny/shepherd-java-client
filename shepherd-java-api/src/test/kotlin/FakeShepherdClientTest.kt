@@ -1,36 +1,37 @@
 package com.github.mvysny.shepherd.api
 
-import com.github.mvysny.dynatest.DynaTest
 import com.github.mvysny.dynatest.expectList
 import com.github.mvysny.dynatest.expectThrows
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
 
-class FakeShepherdClientTest : DynaTest({
-    group("getAllProjects()") {
-        test("smoke") {
+class FakeShepherdClientTest {
+    @Nested inner class GetAllProjects {
+        @Test fun smoke() {
             FakeShepherdClient().getAllProjects()
         }
-        test("one fake project") {
+        @Test fun `one fake project`() {
             expectList(ProjectId("vaadin-boot-example-gradle")) { FakeShepherdClient().withFakeProject().getAllProjects().map { it.project.id } }
         }
     }
-    group("getAllProjectIDs()") {
-        test("smoke") {
+    @Nested inner class GetAllProjectIDs {
+        @Test fun smoke() {
             FakeShepherdClient().getAllProjectIDs()
         }
-        test("one fake project") {
+        @Test fun `one fake project`() {
             expectList(ProjectId("vaadin-boot-example-gradle")) { FakeShepherdClient().withFakeProject().getAllProjectIDs() }
         }
     }
-    group("getProjectInfo()") {
-        test("smoke") {
+    @Nested inner class getProjectInfo {
+        @Test fun smoke() {
             FakeShepherdClient().withFakeProject().getProjectInfo(ProjectId("vaadin-boot-example-gradle"))
         }
     }
-    group("createProject()") {
-        test("smoke") {
+    @Nested inner class createProject {
+        @Test fun smoke() {
             FakeShepherdClient().createProject(fakeProject2)
         }
-        test("fails if new project would overflow memory") {
+        @Test fun `fails if new project would overflow memory`() {
             val cfg = Config(
                 4500,
                 2,
@@ -43,7 +44,7 @@ class FakeShepherdClientTest : DynaTest({
                 client.createProject(fakeProject2)
             }
         }
-        test("runtime memory limits") {
+        @Test fun `runtime memory limits`() {
             val cfg = Config(
                 5200,
                 2,
@@ -54,7 +55,7 @@ class FakeShepherdClientTest : DynaTest({
                 FakeShepherdClient(cfg).createProject(fakeProject)
             }
         }
-        test("runtime cpu limits") {
+        @Test fun `runtime cpu limits`() {
             val cfg = Config(
                 5200,
                 2,
@@ -65,7 +66,7 @@ class FakeShepherdClientTest : DynaTest({
                 FakeShepherdClient(cfg).createProject(fakeProject)
             }
         }
-        test("build memory limits") {
+        @Test fun `build memory limits`() {
             val cfg = Config(
                 5200,
                 2,
@@ -76,7 +77,7 @@ class FakeShepherdClientTest : DynaTest({
                 FakeShepherdClient(cfg).createProject(fakeProject)
             }
         }
-        test("build cpu limits") {
+        @Test fun `build cpu limits`() {
             val cfg = Config(
                 5200,
                 2,
@@ -88,4 +89,4 @@ class FakeShepherdClientTest : DynaTest({
             }
         }
     }
-})
+}

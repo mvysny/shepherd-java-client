@@ -1,11 +1,11 @@
 package com.github.mvysny.shepherd.api
 
-import com.github.mvysny.dynatest.DynaTest
+import org.junit.jupiter.api.Test
 import java.io.File
 import kotlin.test.expect
 
-class ConfigTest : DynaTest({
-    test("load") {
+class ConfigTest {
+    @Test fun load() {
         val temp = File.createTempFile("testconfig", "json")
         Config.location = temp.toPath()
         temp.writeText("""{
@@ -34,4 +34,4 @@ class ConfigTest : DynaTest({
         }
         temp.delete()
     }
-})
+}

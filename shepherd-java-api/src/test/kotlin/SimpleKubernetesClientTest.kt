@@ -1,11 +1,12 @@
 package com.github.mvysny.shepherd.api
 
-import com.github.mvysny.dynatest.DynaTest
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
 import kotlin.test.expect
 
-class SimpleKubernetesClientTest : DynaTest({
-    group("getKubernetesYamlConfigFile") {
-        test("simple") {
+class SimpleKubernetesClientTest {
+    @Nested inner class getKubernetesYamlConfigFile {
+        @Test fun simple() {
             expect("""
 #
 # Microk8s resource config file for vaadin-boot-example-gradle
@@ -90,7 +91,7 @@ spec:
 
 // -----------------------------------------------------------------------------------------------
 
-        test("env variables") {
+        @Test fun `env variables`() {
             val p = fakeProject.copy(runtime = fakeProject.runtime.copy(envVars = mapOf("FOO" to "BAR", "SPRING_DATASOURCE_URL" to "jdbc:postgresql://liukuri-postgres:5432/postgres")))
             expect("""
 #
@@ -181,7 +182,7 @@ spec:
 
 // -----------------------------------------------------------------------------------------------
 
-        test("postgresql") {
+        @Test fun `postgresql`() {
             val p = fakeProject.copy(additionalServices = setOf(Service(type = ServiceType.Postgres)))
             expect("""
 #
@@ -324,7 +325,7 @@ spec:
 
 // -----------------------------------------------------------------------------------------------
 
-        test("additional domain") {
+        @Test fun `additional domain`() {
             val p = fakeProject.copy(publication = Publication(additionalDomains = setOf("mydomain.com")))
             expect("""
 #
@@ -433,8 +434,8 @@ spec:
         }
     }
 
-    group("getCustomDomainIngressYaml()") {
-        test("https") {
+    @Nested inner class getCustomDomainIngressYaml {
+        @Test fun https() {
             expect("""---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -466,7 +467,7 @@ spec:
                 )
             }
         }
-        test("http") {
+        @Test fun http() {
             expect("""---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -496,14 +497,14 @@ spec:
 
 // -------------------------------------------------
 
-    test("dnsToValidKubernetesIngressId()") {
+    @Test fun dnsToValidKubernetesIngressId() {
         expect("ingress-v-herd-eu") { SimpleKubernetesClient.dnsToValidKubernetesIngressId("v-herd.eu") }
         expect("ingress-yourdomain-com") { SimpleKubernetesClient.dnsToValidKubernetesIngressId("yourdomain.com") }
     }
 
-    test("parseTopPod()") {
+    @Test fun parseTopPod() {
         expect(ResourcesUsage(126, 0.002f)) {
             SimpleKubernetesClient.parseTopPod("deployment-59b67fd4c5-2sdmw   2m           126Mi     ")
         }
     }
-})
+}

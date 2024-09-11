@@ -1,34 +1,35 @@
 package com.github.mvysny.shepherd.api
 
-import com.github.mvysny.dynatest.DynaTest
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
 import kotlin.test.expect
 
-class ShepherdClientTest : DynaTest({
-    group("ProjectMemoryStats") {
-        test("empty") {
+class ShepherdClientTest {
+    @Nested inner class TestProjectMemoryStats {
+        @Test fun empty() {
             expect(ProjectMemoryStats(MemoryUsageStats(0, 2), MemoryUsageStats(0, 2))) {
                 ProjectMemoryStats.calculateQuota(Config(2, 2, Resources.defaultRuntimeResources, Resources.defaultBuildResources), listOf())
             }
         }
-        test("1 project") {
+        @Test fun `1 project`() {
             expect(ProjectMemoryStats(MemoryUsageStats(256, 1952), MemoryUsageStats(2304, 4000))) {
                 ProjectMemoryStats.calculateQuota(Config(4000, 2, Resources.defaultRuntimeResources, Resources.defaultBuildResources), listOf(fakeProject))
             }
         }
-        test("2 projects") {
+        @Test fun `2 projects`() {
             expect(ProjectMemoryStats(MemoryUsageStats(512, 1904), MemoryUsageStats(4608, 6000))) {
                 ProjectMemoryStats.calculateQuota(Config(6000, 2, Resources.defaultRuntimeResources, Resources.defaultBuildResources), listOf(fakeProject, fakeProject2))
             }
         }
-        test("2 projects 1 builder") {
+        @Test fun `2 projects 1 builder`() {
             expect(ProjectMemoryStats(MemoryUsageStats(512, 3952), MemoryUsageStats(2560, 6000))) {
                 ProjectMemoryStats.calculateQuota(Config(6000, 1, Resources.defaultRuntimeResources, Resources.defaultBuildResources), listOf(fakeProject, fakeProject2))
             }
         }
     }
-    group("HostMemoryUsageStats") {
-        test("smoke") {
+    @Nested inner class TestHostMemoryUsageStats {
+        @Test fun smoke() {
             println(HostMemoryUsageStats.getHostStats())
         }
     }
-})
+}

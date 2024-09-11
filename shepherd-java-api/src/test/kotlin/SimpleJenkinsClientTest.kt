@@ -1,11 +1,12 @@
 package com.github.mvysny.shepherd.api
 
-import com.github.mvysny.dynatest.DynaTest
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
 import kotlin.test.expect
 
-class SimpleJenkinsClientTest : DynaTest({
-    group("getJobXml()") {
-        test("simple") {
+class SimpleJenkinsClientTest {
+    @Nested inner class getJobXml {
+        @Test fun simple() {
             expect("""
 <?xml version='1.1' encoding='UTF-8'?>
 <project>
@@ -79,7 +80,7 @@ export CPU_QUOTA=200000
 
 // -------------------------------------------------------------------------------------------------------------------
 
-        test("complex") {
+        @Test fun complex() {
             expect("""
 <?xml version='1.1' encoding='UTF-8'?>
 <project>
@@ -154,4 +155,4 @@ export DOCKERFILE=vherd.Dockerfile
             """.trim()) { SimpleJenkinsClient().getJobXml(fakeProject2) }
         }
     }
-})
+}
