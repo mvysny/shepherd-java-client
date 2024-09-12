@@ -1,4 +1,4 @@
-package com.github.mvysny.shepherd.web
+package com.github.mvysny.shepherd.web.ui
 
 import com.github.mvysny.shepherd.api.BuildSpec
 import com.github.mvysny.shepherd.api.GitRepo
@@ -11,6 +11,8 @@ import com.github.mvysny.shepherd.api.Publication
 import com.github.mvysny.shepherd.api.Resources
 import com.github.mvysny.shepherd.api.Service
 import com.github.mvysny.shepherd.api.ServiceType
+import com.github.mvysny.shepherd.web.host
+import com.github.mvysny.shepherd.web.jsr303Validate
 import jakarta.validation.Validation
 import jakarta.validation.ValidationException
 import jakarta.validation.Validator

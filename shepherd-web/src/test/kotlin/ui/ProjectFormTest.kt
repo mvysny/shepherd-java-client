@@ -1,6 +1,8 @@
-package com.github.mvysny.shepherd.web
+package com.github.mvysny.shepherd.web.ui
 
 import com.github.mvysny.shepherd.api.Project
+import com.github.mvysny.shepherd.web.AbstractAppTest
+import com.github.mvysny.shepherd.web.Bootstrap
 import org.junit.jupiter.api.Test
 
 class ProjectFormTest : AbstractAppTest() {

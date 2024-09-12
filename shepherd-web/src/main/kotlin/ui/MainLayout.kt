@@ -1,4 +1,4 @@
-package com.github.mvysny.shepherd.web
+package com.github.mvysny.shepherd.web.ui
 
 import com.github.mvysny.karibudsl.v10.drawer
 import com.github.mvysny.karibudsl.v10.h3

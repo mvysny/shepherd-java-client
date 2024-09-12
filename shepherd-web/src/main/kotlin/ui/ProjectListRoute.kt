@@ -1,14 +1,15 @@
-package com.github.mvysny.shepherd.web
+package com.github.mvysny.shepherd.web.ui
 
 import com.github.mvysny.karibudsl.v10.KComposite
 import com.github.mvysny.karibudsl.v10.column
 import com.github.mvysny.karibudsl.v10.componentColumn
 import com.github.mvysny.karibudsl.v10.grid
-import com.github.mvysny.karibudsl.v10.h1
 import com.github.mvysny.karibudsl.v10.isExpand
 import com.github.mvysny.karibudsl.v10.verticalLayout
 import com.github.mvysny.shepherd.api.Project
 import com.github.mvysny.shepherd.api.ProjectView
+import com.github.mvysny.shepherd.web.Bootstrap
+import com.github.mvysny.shepherd.web.host
 import com.vaadin.flow.component.Component
 import com.vaadin.flow.component.html.Anchor
 import com.vaadin.flow.component.html.Div

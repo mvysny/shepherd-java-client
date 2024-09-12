@@ -1,4 +1,4 @@
-package com.github.mvysny.shepherd.web
+package com.github.mvysny.shepherd.web.ui
 
 import com.github.mvysny.karibudsl.v10.KComposite
 import com.github.mvysny.karibudsl.v10.KFormLayout
@@ -17,6 +17,9 @@ import com.github.mvysny.karibudsl.v23.multiSelectComboBox
 import com.github.mvysny.kaributools.navigateTo
 import com.github.mvysny.shepherd.api.ProjectId
 import com.github.mvysny.shepherd.api.ServiceType
+import com.github.mvysny.shepherd.web.Bootstrap
+import com.github.mvysny.shepherd.web.host
+import com.github.mvysny.shepherd.web.showErrorNotification
 import com.vaadin.flow.component.html.H2
 import com.vaadin.flow.component.textfield.EmailField
 import com.vaadin.flow.component.textfield.TextField
