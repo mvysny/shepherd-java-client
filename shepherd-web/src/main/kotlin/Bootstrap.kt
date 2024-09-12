@@ -9,6 +9,7 @@ import com.vaadin.flow.server.PWA
 import com.vaadin.flow.server.ServiceInitEvent
 import com.vaadin.flow.server.VaadinServiceInitListener
 import com.vaadin.flow.server.VaadinSession
+import com.vaadin.flow.theme.Theme
 import jakarta.servlet.ServletContextEvent
 import jakarta.servlet.ServletContextListener
 import jakarta.servlet.annotation.WebListener
@@ -36,6 +37,7 @@ class Bootstrap : ServletContextListener {
 }
 
 @PWA(name = "Project Base for Vaadin", shortName = "Project Base")
+@Theme("my-theme")
 class AppShell : AppShellConfigurator
 
 /**

@@ -2,6 +2,7 @@ package com.github.mvysny.shepherd.web.ui
 
 import com.github.mvysny.karibudsl.v10.KComposite
 import com.github.mvysny.karibudsl.v10.KFormLayout
+import com.github.mvysny.karibudsl.v10.VaadinDsl
 import com.github.mvysny.karibudsl.v10.beanValidationBinder
 import com.github.mvysny.karibudsl.v10.bind
 import com.github.mvysny.karibudsl.v10.button
@@ -9,6 +10,7 @@ import com.github.mvysny.karibudsl.v10.checkBox
 import com.github.mvysny.karibudsl.v10.emailField
 import com.github.mvysny.karibudsl.v10.h2
 import com.github.mvysny.karibudsl.v10.h4
+import com.github.mvysny.karibudsl.v10.init
 import com.github.mvysny.karibudsl.v10.integerField
 import com.github.mvysny.karibudsl.v10.onClick
 import com.github.mvysny.karibudsl.v10.textField
@@ -20,6 +22,9 @@ import com.github.mvysny.shepherd.api.ServiceType
 import com.github.mvysny.shepherd.web.Bootstrap
 import com.github.mvysny.shepherd.web.host
 import com.github.mvysny.shepherd.web.showErrorNotification
+import com.github.mvysny.shepherd.web.ui.components.SimpleStringSetField
+import com.github.mvysny.shepherd.web.ui.components.simpleStringSetField
+import com.vaadin.flow.component.HasComponents
 import com.vaadin.flow.component.html.H2
 import com.vaadin.flow.component.textfield.EmailField
 import com.vaadin.flow.component.textfield.TextField
@@ -36,12 +41,12 @@ import java.io.FileNotFoundException
 @PageTitle("Edit Project")
 class EditProjectRoute : KComposite(), HasUrlParameter<String> {
     private lateinit var captionComponent: H2
-    private val form: ProjectForm = ProjectForm(false)
+    private lateinit var form: ProjectForm
     private lateinit var project: MutableProject
     private val layout = ui {
         verticalLayout {
             captionComponent = h2()
-            add(form)
+            form = projectForm(false)
             button("Save & Apply") {
                 onClick { save() }
             }
@@ -143,7 +148,10 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout() {
         ) {
             bind(binder).bind(MutableProject::publishAdditionalDomainsHttps)
         }
-        // todo additional domains
+        simpleStringSetField("Additional domains to publish to project at. Must not contain the main domain. E.g. `yourproject.com`. You need to configure your domain DNS record to point to v-herd.eu IP address first!") {
+            hint = "Enter your domain and press the PLUS button"
+            bind(binder).bind(MutableProject::publishAdditionalDomains)
+        }
         integerField("Max request body size, in megabytes, defaults to 1m. Increase if you intend to upload large files.") {
             bind(binder).bind(MutableProject::ingressMaxBodySizeMb)
         }
@@ -165,3 +173,6 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout() {
         projectOwnerEmailField.isEnabled = false
     }
 }
+
+@VaadinDsl
+fun (@VaadinDsl HasComponents).projectForm(creatingNew: Boolean, block: ProjectForm.() -> Unit = {}) = init(ProjectForm(creatingNew), block)

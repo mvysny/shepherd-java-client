@@ -3,3 +3,5 @@ build
 .idea
 **/frontend/generated
 .kotlin
+shepherd-web/vite.generated.ts
+**/node_modules

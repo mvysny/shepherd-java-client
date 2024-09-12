@@ -47,7 +47,7 @@ import org.hibernate.validator.constraints.URL
  * Defaults to true. If false, the project is published on additional domains via plain http.
  * Useful e.g. when CloudFlare unwraps https for us. Ignored if there are no additional domains.
  * @property publishAdditionalDomains additional domains to publish to project at. Must not contain the main domain.
- * E.g. `yourproject.com`.
+ * E.g. `yourproject.com`. You need to configure your domain DNS record to point to v-herd.eu IP address first!
  * @property ingressMaxBodySizeMb Max request body size, in megabytes, defaults to 1m.
  * Increase if you intend to upload large files.
  * @property ingressProxyReadTimeoutSeconds Proxy Read Timeout, in seconds, defaults to 60s.
