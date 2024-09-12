@@ -2,6 +2,7 @@ package com.github.mvysny.shepherd.web
 
 import com.github.mvysny.shepherd.api.KubernetesShepherdClient
 import com.github.mvysny.shepherd.api.ShepherdClient
+import com.vaadin.flow.component.UI
 import com.vaadin.flow.component.notification.Notification
 import com.vaadin.flow.component.notification.NotificationVariant
 import com.vaadin.flow.component.page.AppShellConfigurator
@@ -51,9 +52,15 @@ class MyServiceInitListener : VaadinServiceInitListener {
     private fun initSession(session: VaadinSession) {
         session.setErrorHandler {
             log.error("Internal error", it.throwable)
-            val n = Notification.show("We're sorry, an internal error occurred", 3000, Notification.Position.TOP_CENTER)
-            n.addThemeVariants(NotificationVariant.LUMO_ERROR)
-            n.open()
+            if (UI.getCurrent() != null) {
+                val n = Notification.show(
+                    "We're sorry, an internal error occurred",
+                    3000,
+                    Notification.Position.TOP_CENTER
+                )
+                n.addThemeVariants(NotificationVariant.LUMO_ERROR)
+                n.open()
+            }
         }
     }
 
