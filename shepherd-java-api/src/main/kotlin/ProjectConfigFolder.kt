@@ -24,7 +24,9 @@ public class ProjectConfigFolder(public val folder: Path) {
 
     public fun requireProjectExists(id: ProjectId): Path {
         val configFile = getConfigFile(id)
-        require(configFile.exists()) { "Project $id doesn't exist: no such file $configFile" }
+        if (!configFile.exists()) {
+            throw NoSuchProjectException(id)
+        }
         return configFile
     }
 
@@ -52,6 +54,18 @@ public class ProjectConfigFolder(public val folder: Path) {
         val f = getConfigFile(id)
         if (!f.deleteIfExists()) {
             log.warn("File $f doesn't exist, not deleted")
+        } else {
+            log.info("Deleted project file $f")
+        }
+    }
+
+    /**
+     * Deletes config file for given project. Does nothing if the file doesn't exist.
+     */
+    public fun delete(id: ProjectId) {
+        val f = getConfigFile(id)
+        if (!f.deleteIfExists()) {
+            throw NoSuchProjectException(id)
         } else {
             log.info("Deleted project file $f")
         }

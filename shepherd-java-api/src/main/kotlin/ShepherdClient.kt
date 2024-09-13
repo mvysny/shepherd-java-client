@@ -22,7 +22,7 @@ public interface ShepherdClient : Closeable {
 
     /**
      * Retrieves info about given project. Fails with an exception if there is no such project.
-     * @throws java.io.FileNotFoundException if such project doesn't exist.
+     * @throws NoSuchProjectException if the project doesn't exist.
      */
     public fun getProjectInfo(id: ProjectId): Project
 
@@ -57,6 +57,7 @@ public interface ShepherdClient : Closeable {
      * Blocks until the update is fully completed.
      * @throws IllegalArgumentException if the updated project memory or CPU requirements would overflow the
      * available memory or configured max values (see [getConfig] and [Config.maxProjectRuntimeResources]/[Config.maxProjectBuildResources]).
+     * @throws NoSuchProjectException if the project doesn't exist.
      */
     public fun updateProject(project: Project)
 
@@ -69,29 +70,35 @@ public interface ShepherdClient : Closeable {
      *
      * Blocks until the project is fully deleted. This may take up to 1 minute since
      * cleanup of Kubernetes objects is a lengthy operation.
+     *
+     * Does nothing if the project doesn't exist.
      */
     public fun deleteProject(id: ProjectId)
 
     /**
      * Retrieves the run logs of the main app pod (=the app itself). There may be additional pods (e.g. PostgreSQL)
      * but their logs are not returned.
+     * @throws NoSuchProjectException if the project doesn't exist.
      */
     public fun getRunLogs(id: ProjectId): String
 
     /**
      * Returns the current CPU/memory usage of the main app pod.
+     * @throws NoSuchProjectException if the project doesn't exist.
      */
     public fun getRunMetrics(id: ProjectId): ResourcesUsage
 
     /**
      * Retrieve the last 30 builds for given project [id].
      * @return the list of builds, sorted by [Build.number] ascending.
+     * @throws NoSuchProjectException if the project doesn't exist.
      */
     public fun getLastBuilds(id: ProjectId): List<Build>
 
     /**
      * Retrieves the full build log (stdout).
      * @param buildNumber pass in [Build.number].
+     * @throws NoSuchProjectException if the project doesn't exist.
      */
     public fun getBuildLog(id: ProjectId, buildNumber: Int): String
 
@@ -296,3 +303,5 @@ public data class MemoryUsageStats(
 ) {
     override fun toString(): String = "$usageMb Mb of $limitMb Mb (${usageMb * 100 / limitMb}%)"
 }
+
+public class NoSuchProjectException(public val projectId: ProjectId, cause: Throwable? = null) : Exception("No such project: $projectId", cause)

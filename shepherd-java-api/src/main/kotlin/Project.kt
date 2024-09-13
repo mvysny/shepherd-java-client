@@ -29,11 +29,12 @@ import kotlin.io.path.outputStream
 @Serializable(with = ProjectIdAsStringSerializer::class)
 public data class ProjectId(public val id: String) : Comparable<ProjectId> {
     init {
-        require(idValidator.matches(id)) { "The ID must contain at most 54 characters, it must contain only lowercase alphanumeric characters or '-', it must start and end with an alphanumeric character" }
+        require(isValid(id)) { "The ID must contain at most 54 characters, it must contain only lowercase alphanumeric characters or '-', it must start and end with an alphanumeric character" }
     }
     public companion object {
         public const val idValidatorPattern: String = "[a-z0-9][a-z0-9\\-]{0,52}[a-z0-9]"
         private val idValidator = idValidatorPattern.toRegex()
+        public fun isValid(id: String): Boolean = idValidator.matches(id)
     }
 
     override fun compareTo(other: ProjectId): Int = id.compareTo(other.id)

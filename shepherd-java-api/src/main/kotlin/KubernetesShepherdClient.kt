@@ -1,6 +1,7 @@
 package com.github.mvysny.shepherd.api
 
 import org.slf4j.LoggerFactory
+import java.io.FileNotFoundException
 
 /**
  * Interacts with the actual shepherd system.
@@ -86,10 +87,21 @@ public class KubernetesShepherdClient @JvmOverloads constructor(
         projectConfigFolder.deleteIfExists(id)
     }
 
-    override fun getRunLogs(id: ProjectId): String = kubernetes.getRunLogs(id)
-    override fun getRunMetrics(id: ProjectId): ResourcesUsage = kubernetes.getMetrics(id)
+    override fun getRunLogs(id: ProjectId): String {
+        projectConfigFolder.requireProjectExists(id)
+        return kubernetes.getRunLogs(id)
+    }
+    override fun getRunMetrics(id: ProjectId): ResourcesUsage {
+        projectConfigFolder.requireProjectExists(id)
+        return kubernetes.getMetrics(id)
+    }
     override fun getLastBuilds(id: ProjectId): List<Build> {
-        val lastBuilds = jenkins.getLastBuilds(id)
+        projectConfigFolder.requireProjectExists(id)
+        val lastBuilds = try {
+            jenkins.getLastBuilds(id)
+        } catch (e: FileNotFoundException) {
+            throw NoSuchProjectException(id, e)
+        }
         return lastBuilds.map { it.toBuild() }
     }
 

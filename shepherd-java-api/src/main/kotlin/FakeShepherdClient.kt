@@ -91,16 +91,33 @@ public class FakeShepherdClient @JvmOverloads constructor(
         """.trim()
     }
 
-    override fun getRunMetrics(id: ProjectId): ResourcesUsage = ResourcesUsage(
-        Random.nextInt(64, 256),
-        Random.nextFloat()
-    )
+    override fun getRunMetrics(id: ProjectId): ResourcesUsage {
+        projectConfigFolder.requireProjectExists(id)
+        return ResourcesUsage(
+            Random.nextInt(64, 256),
+            Random.nextFloat()
+        )
+    }
 
-    override fun getLastBuilds(id: ProjectId): List<Build> = listOf(Build(1, Duration.ofMinutes(3), Duration.ofMinutes(5), Instant.now(), BuildResult.BUILDING))
+    override fun getLastBuilds(id: ProjectId): List<Build> {
+        projectConfigFolder.requireProjectExists(id)
+        return listOf(
+            Build(
+                1,
+                Duration.ofMinutes(3),
+                Duration.ofMinutes(5),
+                Instant.now(),
+                BuildResult.BUILDING
+            )
+        )
+    }
 
-    override fun getBuildLog(id: ProjectId, buildNumber: Int): String = """
-Dummy build log
-    """.trim()
+    override fun getBuildLog(id: ProjectId, buildNumber: Int): String {
+        projectConfigFolder.requireProjectExists(id)
+        return """
+    Dummy build log
+        """.trim()
+    }
 
     override fun getConfig(): Config = cfg
 

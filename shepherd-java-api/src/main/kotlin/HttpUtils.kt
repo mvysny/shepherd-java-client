@@ -81,6 +81,9 @@ public inline fun <reified T> HttpResponse<InputStream>.json(json: Json = Json):
  * @param responseBlock runs on success. Takes a [HttpResponse] and produces the object of type [T].
  * You can use [json] or other utility methods to convert JSON to a Java object.
  * @return whatever has been returned by [responseBlock]
+ * @throws FileNotFoundException on 404
+ * @throws HttpResponseException or any other http error code
+ * @throws IOException on i/o error
  */
 public fun <T> HttpClient.exec(request: HttpRequest, responseBlock: (HttpResponse<InputStream>) -> T): T {
     val result = send(request, BodyHandlers.ofInputStream())

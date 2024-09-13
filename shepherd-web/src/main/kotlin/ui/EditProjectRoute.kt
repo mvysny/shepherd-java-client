@@ -17,12 +17,11 @@ import com.github.mvysny.karibudsl.v10.textField
 import com.github.mvysny.karibudsl.v10.verticalLayout
 import com.github.mvysny.karibudsl.v23.multiSelectComboBox
 import com.github.mvysny.kaributools.navigateTo
-import com.github.mvysny.shepherd.api.ProjectId
 import com.github.mvysny.shepherd.api.ServiceType
 import com.github.mvysny.shepherd.web.Bootstrap
 import com.github.mvysny.shepherd.web.host
+import com.github.mvysny.shepherd.web.security.checkProjectId
 import com.github.mvysny.shepherd.web.showErrorNotification
-import com.github.mvysny.shepherd.web.ui.components.SimpleStringSetField
 import com.github.mvysny.shepherd.web.ui.components.simpleStringSetField
 import com.vaadin.flow.component.HasComponents
 import com.vaadin.flow.component.html.H2
@@ -31,13 +30,11 @@ import com.vaadin.flow.component.textfield.TextField
 import com.vaadin.flow.data.binder.Binder
 import com.vaadin.flow.router.BeforeEvent
 import com.vaadin.flow.router.HasUrlParameter
-import com.vaadin.flow.router.NotFoundException
 import com.vaadin.flow.router.PageTitle
 import com.vaadin.flow.router.Route
 import jakarta.validation.ValidationException
-import java.io.FileNotFoundException
 
-@Route("edit", layout = MainLayout::class)
+@Route("project/edit", layout = MainLayout::class)
 @PageTitle("Edit Project")
 class EditProjectRoute : KComposite(), HasUrlParameter<String> {
     private lateinit var captionComponent: H2
@@ -45,6 +42,8 @@ class EditProjectRoute : KComposite(), HasUrlParameter<String> {
     private lateinit var project: MutableProject
     private val layout = ui {
         verticalLayout {
+            setSizeFull()
+
             captionComponent = h2()
             form = projectForm(false)
             button("Save & Apply") {
@@ -54,11 +53,7 @@ class EditProjectRoute : KComposite(), HasUrlParameter<String> {
     }
 
     override fun setParameter(event: BeforeEvent, parameter: String) {
-        val project = try {
-            Bootstrap.getClient().getProjectInfo(ProjectId(parameter))
-        } catch (_: FileNotFoundException) {
-            throw NotFoundException()
-        }
+        val project = checkProjectId(parameter)
         captionComponent.text = project.id.id
         this.project = project.toMutable()
         form.binder.bean = this.project

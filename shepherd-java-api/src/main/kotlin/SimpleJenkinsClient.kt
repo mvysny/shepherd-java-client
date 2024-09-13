@@ -261,6 +261,7 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
 
     /**
      * Returns the last 30 builds for given project [id]. The builds are sorted by [JenkinsBuild.number] ascending.
+     * @throws java.io.FileNotFoundException if the project doesn't exist.
      */
     fun getLastBuilds(id: ProjectId): List<JenkinsBuild> {
         // general project info: http://localhost:8080/job/vaadin-boot-example-gradle/api/json?depth=2
