@@ -4,6 +4,7 @@ import com.github.mvysny.karibudsl.v10.KComposite
 import com.github.mvysny.karibudsl.v10.KFormLayout
 import com.github.mvysny.karibudsl.v10.VaadinDsl
 import com.github.mvysny.karibudsl.v10.beanValidationBinder
+import com.github.mvysny.karibudsl.v10.bigDecimalField
 import com.github.mvysny.karibudsl.v10.bind
 import com.github.mvysny.karibudsl.v10.button
 import com.github.mvysny.karibudsl.v10.checkBox
@@ -29,6 +30,7 @@ import com.github.mvysny.shepherd.web.ui.components.simpleStringSetField
 import com.vaadin.flow.component.HasComponents
 import com.vaadin.flow.component.html.H2
 import com.vaadin.flow.data.binder.Binder
+import com.vaadin.flow.function.SerializablePredicate
 import com.vaadin.flow.router.BeforeEvent
 import com.vaadin.flow.router.HasUrlParameter
 import com.vaadin.flow.router.PageTitle
@@ -77,6 +79,8 @@ class EditProjectRoute : KComposite(), HasUrlParameter<String> {
 class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject> {
     override val binder: Binder<MutableProject> = beanValidationBinder()
 
+    private val config = Bootstrap.getClient().getConfig()
+
     init {
         val isAdmin = getCurrentUser().isAdmin
 
@@ -117,10 +121,17 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
         h4("Runtime") {
             colspan = 2
         }
-        integerField("how much memory the project needs for running, in MB. Please try to keep the memory requirements as low as possible, so that we can host as many projects as possible. 256MB is a good default.") {
-            bind(binder).bind(MutableProject::runtimeMemoryMb)
+        integerField("how much memory the project needs for running, in MB. Please try to keep the memory requirements as low as possible, so that we can host as many projects as possible. 256MB is a good default, but Spring Boot project may require 350MB or more.") {
+            bind(binder)
+                .withValidator(SerializablePredicate { it <= config.maxProjectRuntimeResources.memoryMb }, "Can not be larger than ${config.maxProjectRuntimeResources.memoryMb}")
+                .bind(MutableProject::runtimeMemoryMb)
         }
-        // todo runtimeCpu
+        bigDecimalField("Max CPU cores to use. 1 means 1 CPU core to be used.") {
+            isEnabled = isAdmin
+            bind(binder)
+                .withValidator(SerializablePredicate { it <= config.maxProjectRuntimeResources.cpu.toBigDecimal() }, "Can not be larger than ${config.maxProjectRuntimeResources.cpu}")
+                .bind(MutableProject::runtimeCpu)
+        }
         namedVarSetField("runtime environment variables, e.g. `SPRING_DATASOURCE_URL` to `jdbc:postgresql://liukuri-postgres:5432/postgres`") {
             bind(binder).bind(MutableProject::envVars)
         }

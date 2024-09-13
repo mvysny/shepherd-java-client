@@ -18,6 +18,8 @@ import com.github.mvysny.shepherd.web.security.User
 import jakarta.validation.Validation
 import jakarta.validation.ValidationException
 import jakarta.validation.Validator
+import jakarta.validation.constraints.DecimalMax
+import jakarta.validation.constraints.DecimalMin
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
@@ -26,6 +28,7 @@ import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Pattern
 import org.hibernate.validator.constraints.Length
 import org.hibernate.validator.constraints.URL
+import java.math.BigDecimal
 
 /**
  * An editable version of [Project].
@@ -92,12 +95,10 @@ data class MutableProject(
     var projectOwnerEmail: String?,
     @field:NotNull
     @field:Min(64)
-    @field:Max(512)
     var runtimeMemoryMb: Int,
     @field:NotNull
-    @field:Min(1)
-    @field:Max(1)
-    var runtimeCpu: Float,
+    @field:DecimalMin("0.1")
+    var runtimeCpu: BigDecimal,
     @field:NotNull
     var envVars: Set<NamedVar>,
     var buildResources: Resources,
@@ -133,7 +134,7 @@ data class MutableProject(
             projectOwnerName = owner.name,
             projectOwnerEmail = owner.email,
             runtimeMemoryMb = Resources.defaultRuntimeResources.memoryMb,
-            runtimeCpu = Resources.defaultRuntimeResources.cpu,
+            runtimeCpu = Resources.defaultRuntimeResources.cpu.toBigDecimal(),
             envVars = setOf(),
             buildResources = Resources.defaultBuildResources,
             buildArgs = setOf(),
@@ -176,7 +177,7 @@ data class MutableProject(
             runtime = ProjectRuntime(
                 resources = Resources(
                     runtimeMemoryMb,
-                    runtimeCpu
+                    runtimeCpu.toFloat()
                 ), envVars = envVars.associate { it.name to it.value }),
             build = BuildSpec(
                 buildResources,
@@ -215,7 +216,7 @@ fun Project.toMutable(): MutableProject = MutableProject(
     projectOwnerName = owner.name,
     projectOwnerEmail = owner.email,
     runtimeMemoryMb = runtime.resources.memoryMb,
-    runtimeCpu = runtime.resources.cpu,
+    runtimeCpu = runtime.resources.cpu.toBigDecimal(),
     envVars = runtime.envVars.map { NamedVar(it.key, it.value) } .toSet(),
     buildResources = build.resources,
     buildArgs = build.buildArgs.map { NamedVar(it.key, it.value) } .toSet(),
