@@ -7,6 +7,7 @@ import com.github.mvysny.karibudsl.v10.navbar
 import com.github.mvysny.karibudsl.v10.routerLink
 import com.github.mvysny.karibudsl.v10.span
 import com.github.mvysny.karibudsl.v10.verticalLayout
+import com.github.mvysny.shepherd.web.security.getCurrentUser
 import com.vaadin.flow.component.applayout.AppLayout
 import com.vaadin.flow.component.html.H4
 import com.vaadin.flow.component.icon.VaadinIcon
@@ -23,6 +24,9 @@ class MainLayout : AppLayout() {
         drawer {
             verticalLayout(padding = false) {
                 routerLink(VaadinIcon.LIST, "Project List", ProjectListRoute::class)
+                if (getCurrentUser().isAdmin) {
+                    routerLink(VaadinIcon.USER, "Users", UsersRoute::class)
+                }
             }
         }
     }

@@ -35,6 +35,9 @@ data class User(
 @Serializable
 data class Users(val users: List<User>)
 
+/**
+ * Manages list of users. The list of users is persisted as a JSON file at `/etc/shepherd/java/webadmin-users.json`.
+ */
 object UserRegistry {
     @JvmStatic
     private val log = LoggerFactory.getLogger(UserRegistry::class.java)
@@ -68,7 +71,20 @@ object UserRegistry {
         users.addAll(loadUsers().users)
     }
 
+    /**
+     * Returns a deep copy of all users. Changes to the user objects will not be reflected to the actual internal user list.
+     */
+    fun getUsers(): List<User> = users.map { it.copy() }
+
     fun findByEmail(email: String): User? = users.find { it.email == email }
+
+    /**
+     * Deletes user with given [email] from the registry.
+     */
+    fun delete(email: String) {
+        users.removeIf { it.email == email }
+        save()
+    }
 }
 
 class UserLoginService : AbstractLoginService<User>() {
@@ -93,4 +109,4 @@ class UserLoginService : AbstractLoginService<User>() {
     }
 }
 
-fun getCurrentUser(): User? = UserLoginService.get().currentUser
+fun getCurrentUser(): User = checkNotNull(UserLoginService.get().currentUser) { "No user logged in" }
