@@ -7,7 +7,11 @@ import com.github.mvysny.shepherd.web.ui.ProjectListRoute
 import com.github.mvysny.vaadinsimplesecurity.AbstractLoginService
 import com.github.mvysny.vaadinsimplesecurity.HasPassword
 import com.github.mvysny.vaadinsimplesecurity.SimpleUserWithRoles
+import jakarta.validation.constraints.Email
+import jakarta.validation.constraints.NotEmpty
+import jakarta.validation.constraints.NotNull
 import kotlinx.serialization.Serializable
+import org.hibernate.validator.constraints.Length
 import org.slf4j.LoggerFactory
 import java.util.concurrent.CopyOnWriteArraySet
 import javax.security.auth.login.FailedLoginException
@@ -20,9 +24,19 @@ enum class UserRoles {
 
 @Serializable
 data class User(
+    @field:NotNull
+    @field:NotEmpty
+    @field:Email
+    @field:Length(min = 1, max = 255)
     var email: String,
+    @field:NotNull
+    @field:NotEmpty
+    @field:Length(min = 1, max = 255)
     var name: String,
+    @field:NotNull
     var roles: Set<UserRoles>,
+    @field:NotNull
+    @field:NotEmpty
     private var hashedPassword: String,
 ): java.io.Serializable, HasPassword {
     val isAdmin: Boolean get() = roles.contains(UserRoles.ADMIN)
@@ -87,6 +101,9 @@ object UserRegistry {
     }
 }
 
+/**
+ * Session-scoped service which gives access to the currently logged-in user.
+ */
 class UserLoginService : AbstractLoginService<User>() {
     override fun toUserWithRoles(user: User): SimpleUserWithRoles =
         SimpleUserWithRoles(user.email, user.roles.map { it.name } .toSet())
@@ -109,4 +126,7 @@ class UserLoginService : AbstractLoginService<User>() {
     }
 }
 
+/**
+ * Helper function to get the currently logged-in user. Fails if no-one is logged in.
+ */
 fun getCurrentUser(): User = checkNotNull(UserLoginService.get().currentUser) { "No user logged in" }

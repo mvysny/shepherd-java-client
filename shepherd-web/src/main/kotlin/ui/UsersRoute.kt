@@ -1,11 +1,16 @@
 package com.github.mvysny.shepherd.web.ui
 
 import com.github.mvysny.karibudsl.v10.KComposite
+import com.github.mvysny.karibudsl.v10.KFormLayout
+import com.github.mvysny.karibudsl.v10.beanValidationBinder
+import com.github.mvysny.karibudsl.v10.bind
 import com.github.mvysny.karibudsl.v10.button
 import com.github.mvysny.karibudsl.v10.columnFor
 import com.github.mvysny.karibudsl.v10.componentColumn
+import com.github.mvysny.karibudsl.v10.emailField
 import com.github.mvysny.karibudsl.v10.grid
 import com.github.mvysny.karibudsl.v10.onClick
+import com.github.mvysny.karibudsl.v10.textField
 import com.github.mvysny.karibudsl.v10.verticalLayout
 import com.github.mvysny.shepherd.web.security.User
 import com.github.mvysny.shepherd.web.security.UserRegistry
@@ -62,5 +67,17 @@ class UsersRoute : KComposite() {
     private fun delete(user: User) {
         UserRegistry.delete(user.email)
         refresh()
+    }
+}
+
+class UserForm : KFormLayout() {
+    val binder = beanValidationBinder<User>()
+    init {
+        emailField("E-mail") {
+            bind(binder).bind(User::email)
+        }
+        emailField("E-mail") {
+            bind(binder).bind(User::email)
+        }
     }
 }
