@@ -105,6 +105,12 @@ object UserRegistry {
         users.add(user.copy())
         save()
     }
+
+    fun create(user: User) {
+        require(findByEmail(user.email) == null) { "User ${user.email} already exists." }
+        users.add(user.copy())
+        save()
+    }
 }
 
 /**

@@ -33,9 +33,9 @@ class ProjectListRoute : KComposite() {
         verticalLayout {
             setSizeFull()
 
-            val user = getCurrentUser()!!
+            val user = getCurrentUser()
             val ownerEmail = if (user.isAdmin) null else user.email
-            val projects: List<ProjectView> = Bootstrap.getClient().getAllProjects()
+            val projects: List<ProjectView> = Bootstrap.getClient().getAllProjects(ownerEmail)
             grid<ProjectView> {
                 isExpand = true
                 setItems(projects)

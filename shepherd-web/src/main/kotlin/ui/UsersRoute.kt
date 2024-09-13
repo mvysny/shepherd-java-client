@@ -62,8 +62,10 @@ class UsersRoute : KComposite() {
     }
 
     private fun createUser() {
-        // @todo mavi implement
-        showErrorNotification("Not implemented")
+        FormDialog(UserForm(true), User("", "", setOf(UserRoles.USER), "")) { user ->
+            UserRegistry.create(user)
+            refresh()
+        } .open()
     }
 
     private fun edit(user: User) {
@@ -79,7 +81,7 @@ class UsersRoute : KComposite() {
     }
 }
 
-class UserForm(val isCreating: Boolean) : KFormLayout(), Form<User> {
+private class UserForm(val isCreating: Boolean) : KFormLayout(), Form<User> {
     override val binder = beanValidationBinder<User>()
     private val password: PasswordField
     init {
@@ -96,11 +98,20 @@ class UserForm(val isCreating: Boolean) : KFormLayout(), Form<User> {
             bind(binder).bind(User::roles)
         }
         password = passwordField("Password") {
-            placeholder = "Leave empty to not to change the password"
+            if (!isCreating) {
+                placeholder = "Leave empty to not to change the password"
+            }
         }
     }
 
     override fun writeIfValid(toBean: User?): Boolean {
+        if (password.value.isBlank() && isCreating) {
+            password.isInvalid = true
+            password.errorMessage = "Please provide a password"
+            showErrorNotification("Please provide a password")
+            return false
+        }
+        password.isInvalid = false
         if (password.value.isNotBlank()) {
             toBean!!.setPassword(password.value.trim())
         }
