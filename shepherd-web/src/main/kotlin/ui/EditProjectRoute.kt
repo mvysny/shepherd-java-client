@@ -24,6 +24,7 @@ import com.github.mvysny.shepherd.web.host
 import com.github.mvysny.shepherd.web.security.checkProjectId
 import com.github.mvysny.shepherd.web.security.getCurrentUser
 import com.github.mvysny.shepherd.web.ui.components.Form
+import com.github.mvysny.shepherd.web.ui.components.namedVarSetField
 import com.github.mvysny.shepherd.web.ui.components.simpleStringSetField
 import com.vaadin.flow.component.HasComponents
 import com.vaadin.flow.component.html.H2
@@ -120,19 +121,23 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
             bind(binder).bind(MutableProject::runtimeMemoryMb)
         }
         // todo runtimeCpu
-        // todo env vars
-        // todo buildArgs
-        textField("if not null, we build off this dockerfile instead of the default `Dockerfile`") {
+        namedVarSetField("runtime environment variables, e.g. `SPRING_DATASOURCE_URL` to `jdbc:postgresql://liukuri-postgres:5432/postgres`") {
+            bind(binder).bind(MutableProject::envVars)
+        }
+        namedVarSetField("optional build args, passed as `--build-arg name=\"value\"` to `docker build`. You can e.g. pass Vaadin Offline Key here.") {
+            bind(binder).bind(MutableProject::buildArgs)
+        }
+        textField("If not null, we build off this dockerfile instead of the default `Dockerfile`") {
             bind(binder).bind(MutableProject::buildDockerFile)
         }
         h4("Publishing") {
             colspan = 2
         }
-        checkBox("if true (the default), the project will be published on the main domain as well, at `$host/PROJECT_ID`.") {
+        checkBox("Publish the project on the main domain as well, at `$host/PROJECT_ID`.") {
             bind(binder).bind(MutableProject::publishOnMainDomain)
         }
         checkBox(
-            "only affects additional domains; if the project is published on the main domain then it always uses https. " +
+            "Only affects additional domains; if the project is published on the main domain then it always uses https. " +
                     "Defaults to true. If false, the project is published on additional domains via plain http. " +
                     "Useful e.g. when CloudFlare unwraps https for us. Ignored if there are no additional domains."
         ) {

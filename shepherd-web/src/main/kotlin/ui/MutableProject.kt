@@ -99,10 +99,10 @@ data class MutableProject(
     @field:Max(1)
     var runtimeCpu: Float,
     @field:NotNull
-    var envVars: MutableList<NamedVar>,
+    var envVars: Set<NamedVar>,
     var buildResources: Resources,
     @field:NotNull
-    var buildArgs: MutableList<NamedVar>,
+    var buildArgs: Set<NamedVar>,
     @field:Length(max = 255)
     var buildDockerFile: String?,
 
@@ -134,9 +134,9 @@ data class MutableProject(
             projectOwnerEmail = owner.email,
             runtimeMemoryMb = Resources.defaultRuntimeResources.memoryMb,
             runtimeCpu = Resources.defaultRuntimeResources.cpu,
-            envVars = mutableListOf(),
+            envVars = setOf(),
             buildResources = Resources.defaultBuildResources,
-            buildArgs = mutableListOf(),
+            buildArgs = setOf(),
             buildDockerFile = null,
             publishOnMainDomain = true,
             publishAdditionalDomainsHttps = true,
@@ -198,11 +198,11 @@ data class NamedVar(
     @field:NotNull
     @field:NotBlank
     @field:Length(max = 255)
-    var name: String = "",
+    val name: String = "",
     @field:NotNull
     @field:NotBlank
     @field:Length(max = 255)
-    var value: String = ""
+    val value: String = ""
 )
 
 fun Project.toMutable(): MutableProject = MutableProject(
@@ -216,9 +216,9 @@ fun Project.toMutable(): MutableProject = MutableProject(
     projectOwnerEmail = owner.email,
     runtimeMemoryMb = runtime.resources.memoryMb,
     runtimeCpu = runtime.resources.cpu,
-    envVars = runtime.envVars.map { NamedVar(it.key, it.value) } .toMutableList(),
+    envVars = runtime.envVars.map { NamedVar(it.key, it.value) } .toSet(),
     buildResources = build.resources,
-    buildArgs = build.buildArgs.map { NamedVar(it.key, it.value) } .toMutableList(),
+    buildArgs = build.buildArgs.map { NamedVar(it.key, it.value) } .toSet(),
     buildDockerFile = build.dockerFile,
     publishOnMainDomain = publication.publishOnMainDomain,
     publishAdditionalDomainsHttps = publication.https,

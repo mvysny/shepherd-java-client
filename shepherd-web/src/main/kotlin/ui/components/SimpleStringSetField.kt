@@ -20,7 +20,7 @@ import com.vaadin.flow.component.textfield.TextFieldVariant
 /**
  * A simple field which allows the user to edit a set of short strings.
  */
-class SimpleStringSetField(label: String) : CustomField<Set<String>>() {
+class SimpleStringSetField(label: String? = null) : CustomField<Set<String>>() {
     private val comboBox: MultiSelectComboBox<String>
     private val addItemTextField: TextField
     private val addItemButton: Button
@@ -73,4 +73,4 @@ class SimpleStringSetField(label: String) : CustomField<Set<String>>() {
 }
 
 @VaadinDsl
-fun (@VaadinDsl HasComponents).simpleStringSetField(label: String = "", block: SimpleStringSetField.() -> Unit = {}) = init(SimpleStringSetField(label), block)
+fun (@VaadinDsl HasComponents).simpleStringSetField(label: String? = null, block: (@VaadinDsl SimpleStringSetField).() -> Unit = {}) = init(SimpleStringSetField(label), block)
