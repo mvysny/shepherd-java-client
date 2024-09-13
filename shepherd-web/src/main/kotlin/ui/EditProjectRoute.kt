@@ -21,7 +21,8 @@ import com.github.mvysny.shepherd.api.ServiceType
 import com.github.mvysny.shepherd.web.Bootstrap
 import com.github.mvysny.shepherd.web.host
 import com.github.mvysny.shepherd.web.security.checkProjectId
-import com.github.mvysny.shepherd.web.showErrorNotification
+import com.github.mvysny.shepherd.web.security.getCurrentUser
+import com.github.mvysny.shepherd.web.ui.components.Form
 import com.github.mvysny.shepherd.web.ui.components.simpleStringSetField
 import com.vaadin.flow.component.HasComponents
 import com.vaadin.flow.component.html.H2
@@ -33,7 +34,6 @@ import com.vaadin.flow.router.HasUrlParameter
 import com.vaadin.flow.router.PageTitle
 import com.vaadin.flow.router.Route
 import jakarta.annotation.security.PermitAll
-import jakarta.validation.ValidationException
 
 @Route("project/edit", layout = MainLayout::class)
 @PageTitle("Edit Project")
@@ -62,14 +62,7 @@ class EditProjectRoute : KComposite(), HasUrlParameter<String> {
     }
 
     private fun save() {
-        if (!form.binder.validate().isOk) {
-            showErrorNotification("There are errors in the form")
-            return
-        }
-        try {
-            project.validate()
-        } catch (e: ValidationException) {
-            showErrorNotification("Error: " + e.message)
+        if (!form.writeIfValid(null)) {
             return
         }
 
@@ -78,8 +71,8 @@ class EditProjectRoute : KComposite(), HasUrlParameter<String> {
     }
 }
 
-class ProjectForm(val creatingNew: Boolean) : KFormLayout() {
-    val binder: Binder<MutableProject> = beanValidationBinder()
+class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject> {
+    override val binder: Binder<MutableProject> = beanValidationBinder()
     private val gitRepoCredentialsIDField: TextField
     private val projectOwnerNameField: TextField
     private val projectOwnerEmailField: EmailField
@@ -162,12 +155,20 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout() {
             setItems(ServiceType.entries)
             bind(binder).bind(MutableProject::additionalServices)
         }
+
+        if (!getCurrentUser().isAdmin) {
+            disableFieldsForRegularUser()
+        }
     }
 
-    fun disableFieldsForRegularUser() {
+    private fun disableFieldsForRegularUser() {
         gitRepoCredentialsIDField.isVisible = false
         projectOwnerNameField.isEnabled = false
         projectOwnerEmailField.isEnabled = false
+    }
+
+    override fun additionalValidation(bean: MutableProject) {
+        bean.validate()
     }
 }
 

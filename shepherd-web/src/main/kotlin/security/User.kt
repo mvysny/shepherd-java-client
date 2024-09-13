@@ -99,6 +99,12 @@ object UserRegistry {
         users.removeIf { it.email == email }
         save()
     }
+
+    fun update(user: User) {
+        users.removeIf { it.email == user.email }
+        users.add(user.copy())
+        save()
+    }
 }
 
 /**
