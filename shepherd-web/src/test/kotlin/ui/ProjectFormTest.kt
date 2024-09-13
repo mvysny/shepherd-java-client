@@ -9,6 +9,7 @@ class ProjectFormTest : AbstractAppTest() {
     private val fakeProject: Project = Bootstrap.getClient().getAllProjects(null)[0].project
 
     @Test fun smoke() {
+        login()
         var form = ProjectForm(false)
         form.binder.bean = fakeProject.toMutable()
         form.binder.bean = fakeProject.toMutable()

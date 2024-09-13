@@ -6,6 +6,7 @@ import com.github.mvysny.kaributesting.v10._expectOne
 import com.github.mvysny.kaributools.navigateTo
 import com.github.mvysny.shepherd.api.FakeShepherdClient
 import com.github.mvysny.shepherd.web.security.UserLoginService
+import com.github.mvysny.shepherd.web.security.UserRegistry
 import com.github.mvysny.shepherd.web.ui.ProjectListRoute
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
@@ -23,6 +24,7 @@ abstract class AbstractAppTest {
         }
 
         @BeforeAll @JvmStatic fun bootstrap() {
+            UserRegistry.deleteAll()
             Bootstrap.client = FakeShepherdClient().withFakeProject()
             Bootstrap().contextInitialized(null)
         }

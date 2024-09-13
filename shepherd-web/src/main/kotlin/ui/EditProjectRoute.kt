@@ -26,8 +26,6 @@ import com.github.mvysny.shepherd.web.ui.components.Form
 import com.github.mvysny.shepherd.web.ui.components.simpleStringSetField
 import com.vaadin.flow.component.HasComponents
 import com.vaadin.flow.component.html.H2
-import com.vaadin.flow.component.textfield.EmailField
-import com.vaadin.flow.component.textfield.TextField
 import com.vaadin.flow.data.binder.Binder
 import com.vaadin.flow.router.BeforeEvent
 import com.vaadin.flow.router.HasUrlParameter
@@ -73,11 +71,10 @@ class EditProjectRoute : KComposite(), HasUrlParameter<String> {
 
 class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject> {
     override val binder: Binder<MutableProject> = beanValidationBinder()
-    private val gitRepoCredentialsIDField: TextField
-    private val projectOwnerNameField: TextField
-    private val projectOwnerEmailField: EmailField
 
     init {
+        val isAdmin = getCurrentUser().isAdmin
+
         textField("The project ID, must be unique. The project will be published and running at https://$host/PROJECT_ID") {
             isEnabled = creatingNew // can't change project ID
             bind(binder).bind(MutableProject::id)
@@ -100,19 +97,21 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
         textField("GIT Repository branch: usually `master` or `main`") {
             bind(binder).bind(MutableProject::gitRepoBranch)
         }
-        gitRepoCredentialsIDField = textField("GIT Repository Credentials ID") {
+        textField("GIT Repository Credentials ID") {
+            isVisible = isAdmin
             bind(binder).bind(MutableProject::gitRepoCredentialsID)
         }
         h4("Owner") {
             colspan = 2
         }
-        projectOwnerNameField = textField("Project Owner Name") {
+        textField("Project Owner Name") {
+            isEnabled = isAdmin
             bind(binder).bind(MutableProject::projectOwnerName)
         }
-        projectOwnerEmailField =
-            emailField("How to reach the project owner in case the project needs to be modified/misbehaves. Jenkins will send notification emails about the failed builds here.") {
-                bind(binder).bind(MutableProject::projectOwnerEmail)
-            }
+        emailField("How to reach the project owner in case the project needs to be modified/misbehaves. Jenkins will send notification emails about the failed builds here.") {
+            isEnabled = isAdmin
+            bind(binder).bind(MutableProject::projectOwnerEmail)
+        }
         h4("Runtime") {
             colspan = 2
         }
@@ -155,16 +154,6 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
             setItems(ServiceType.entries)
             bind(binder).bind(MutableProject::additionalServices)
         }
-
-        if (!getCurrentUser().isAdmin) {
-            disableFieldsForRegularUser()
-        }
-    }
-
-    private fun disableFieldsForRegularUser() {
-        gitRepoCredentialsIDField.isVisible = false
-        projectOwnerNameField.isEnabled = false
-        projectOwnerEmailField.isEnabled = false
     }
 
     override fun additionalValidation(bean: MutableProject) {

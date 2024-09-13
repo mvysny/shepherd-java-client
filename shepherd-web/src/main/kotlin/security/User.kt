@@ -15,8 +15,11 @@ import org.hibernate.validator.constraints.Length
 import org.slf4j.LoggerFactory
 import java.util.concurrent.CopyOnWriteArraySet
 import javax.security.auth.login.FailedLoginException
+import kotlin.io.path.deleteIfExists
+import kotlin.io.path.deleteRecursively
 import kotlin.io.path.div
 import kotlin.io.path.exists
+import kotlin.io.path.extension
 
 enum class UserRoles {
     USER, ADMIN
@@ -57,22 +60,31 @@ object UserRegistry {
     private val log = LoggerFactory.getLogger(UserRegistry::class.java)
     private val configFile = ProjectConfigFolder.LINUX_ROOT_FOLDER / "java" / "webadmin-users.json"
     private fun loadUsers(): Users {
-        users.clear()
-        if (!configFile.exists()) {
-            log.warn("$configFile missing, creating a default one.")
+        var users: Users
+        if (configFile.exists()) {
+            users = JsonUtils.fromFile(configFile)
+        } else {
+            log.warn("$configFile missing")
+            users = Users(listOf())
+        }
+        if (users.users.isEmpty()) {
+            log.warn("No users defined, creating a default admin mavi@vaadin.com with password 'admin'")
             val admin = User("mavi@vaadin.com", "Martin Vysny", setOf(UserRoles.USER, UserRoles.ADMIN), "")
             admin.setPassword("admin")
+            users = Users(listOf(admin))
             log.warn("Created admin mavi@vaadin.com with password 'admin'. Please change the password as soon as possible.")
-            val users = Users(listOf(admin))
-            try {
-                JsonUtils.saveToFile(users, configFile, false)
-            } catch (e: Exception) {
-                log.error("Failed to save initial user set", e)
-            }
-            return users
-        } else {
-            return JsonUtils.fromFile(configFile)
         }
+        return users
+    }
+
+    private fun init() {
+        users.addAll(loadUsers().users)
+    }
+
+    fun deleteAll() {
+        configFile.deleteIfExists()
+        users.clear()
+        init()
     }
 
     private fun save() {
@@ -82,7 +94,7 @@ object UserRegistry {
     private val users = CopyOnWriteArraySet<User>()
 
     init {
-        users.addAll(loadUsers().users)
+        init()
     }
 
     /**
