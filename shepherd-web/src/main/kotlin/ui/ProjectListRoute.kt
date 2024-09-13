@@ -14,6 +14,7 @@ import com.github.mvysny.shepherd.api.Project
 import com.github.mvysny.shepherd.api.ProjectView
 import com.github.mvysny.shepherd.web.Bootstrap
 import com.github.mvysny.shepherd.web.host
+import com.github.mvysny.shepherd.web.security.getCurrentUser
 import com.vaadin.flow.component.Component
 import com.vaadin.flow.component.html.Anchor
 import com.vaadin.flow.component.html.Div
@@ -31,6 +32,8 @@ class ProjectListRoute : KComposite() {
         verticalLayout {
             setSizeFull()
 
+            val user = getCurrentUser()!!
+            val ownerEmail = if (user.isAdmin) null else user.email
             val projects: List<ProjectView> = Bootstrap.getClient().getAllProjects()
             grid<ProjectView> {
                 isExpand = true

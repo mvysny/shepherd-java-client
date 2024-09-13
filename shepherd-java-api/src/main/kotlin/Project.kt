@@ -166,11 +166,7 @@ public data class Project(
          * @throws java.io.FileNotFoundException Fails if the file doesn't exist.
          */
         @JvmStatic
-        public fun loadFromFile(file: Path): Project =
-            file.inputStream().buffered().use { stream -> Json.decodeFromStream(stream) }
-
-        private val jsonPrettyPrint = Json { prettyPrint = true }
-        private fun getJson(prettyPrint: Boolean): Json = if (prettyPrint) jsonPrettyPrint else Json
+        public fun loadFromFile(file: Path): Project = JsonUtils.fromFile(file)
 
         @JvmStatic
         public fun fromJson(json: String): Project = Json.decodeFromString(json)
@@ -182,11 +178,11 @@ public data class Project(
      */
     @JvmOverloads
     public fun saveToFile(file: Path, prettyPrint: Boolean = true) {
-        file.outputStream().buffered().use { stream -> getJson(prettyPrint).encodeToStream(this, stream) }
+        JsonUtils.saveToFile<Project>(this, file, prettyPrint)
     }
 
     @JvmOverloads
-    public fun toJson(prettyPrint: Boolean = false): String = getJson(prettyPrint).encodeToString(this)
+    public fun toJson(prettyPrint: Boolean = false): String = JsonUtils.toJson(this, prettyPrint)
 }
 
 @Serializable

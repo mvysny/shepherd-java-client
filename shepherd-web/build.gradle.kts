@@ -3,6 +3,7 @@ import org.gradle.kotlin.dsl.vaadin
 plugins {
     alias(libs.plugins.vaadin)
     application
+    kotlin("plugin.serialization") version libs.versions.kotlin
 }
 
 dependencies {
@@ -16,6 +17,9 @@ dependencies {
     }
     implementation(libs.vaadin.boot)
     implementation(libs.karibu.dsl)
+    implementation(libs.vaadin.simplesecurity)
+
+    implementation(libs.kotlinx.serialization.json)
 
     testImplementation(libs.junit)
     testImplementation(kotlin("test"))
