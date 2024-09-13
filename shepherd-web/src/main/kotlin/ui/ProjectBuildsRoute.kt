@@ -16,12 +16,13 @@ import com.vaadin.flow.component.html.Anchor
 import com.vaadin.flow.component.html.H2
 import com.vaadin.flow.router.BeforeEvent
 import com.vaadin.flow.router.HasUrlParameter
+import com.vaadin.flow.router.PageTitle
 import com.vaadin.flow.router.Route
-import com.vaadin.flow.router.RouteParameters
 import com.vaadin.flow.server.InputStreamFactory
 import com.vaadin.flow.server.StreamResource
 
 @Route("project/builds", layout = MainLayout::class)
+@PageTitle("Builds")
 class ProjectBuildsRoute : KComposite(), HasUrlParameter<String> {
     private lateinit var project: Project
     private lateinit var captionComponent: H2
@@ -44,6 +45,7 @@ class ProjectBuildsRoute : KComposite(), HasUrlParameter<String> {
     }
     override fun setParameter(event: BeforeEvent, parameter: String) {
         project = checkProjectId(parameter)
+        captionComponent.text = "${project.id.id}: Builds"
         val builds = Bootstrap.getClient().getLastBuilds(project.id)
         buildsGrid.setItems(builds)
     }
