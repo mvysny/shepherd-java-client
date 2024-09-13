@@ -71,6 +71,8 @@ public class ProjectConfigFolder(public val folder: Path) {
         }
     }
 
+    public fun existsProject(id: ProjectId): Boolean = getConfigFile(id).exists()
+
     public companion object {
         @JvmStatic
         private val log = LoggerFactory.getLogger(ProjectConfigFolder::class.java)

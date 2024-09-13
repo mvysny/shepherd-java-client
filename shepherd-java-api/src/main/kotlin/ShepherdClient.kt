@@ -26,6 +26,8 @@ public interface ShepherdClient : Closeable {
      */
     public fun getProjectInfo(id: ProjectId): Project
 
+    public fun existsProject(id: ProjectId): Boolean
+
     /**
      * Creates new [project]:
      *

@@ -52,6 +52,7 @@ public class FakeShepherdClient @JvmOverloads constructor(
     }
 
     override fun getProjectInfo(id: ProjectId): Project = projectConfigFolder.getProjectInfo(id)
+    override fun existsProject(id: ProjectId): Boolean = projectConfigFolder.existsProject(id)
 
     override fun createProject(project: Project) {
         projectConfigFolder.requireProjectDoesntExist(project.id)
