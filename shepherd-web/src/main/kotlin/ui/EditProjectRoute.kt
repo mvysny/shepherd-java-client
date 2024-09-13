@@ -32,10 +32,12 @@ import com.vaadin.flow.router.BeforeEvent
 import com.vaadin.flow.router.HasUrlParameter
 import com.vaadin.flow.router.PageTitle
 import com.vaadin.flow.router.Route
+import jakarta.annotation.security.PermitAll
 import jakarta.validation.ValidationException
 
 @Route("project/edit", layout = MainLayout::class)
 @PageTitle("Edit Project")
+@PermitAll
 class EditProjectRoute : KComposite(), HasUrlParameter<String> {
     private lateinit var captionComponent: H2
     private lateinit var form: ProjectForm

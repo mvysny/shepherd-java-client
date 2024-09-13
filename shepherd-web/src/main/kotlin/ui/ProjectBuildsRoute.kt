@@ -20,9 +20,11 @@ import com.vaadin.flow.router.PageTitle
 import com.vaadin.flow.router.Route
 import com.vaadin.flow.server.InputStreamFactory
 import com.vaadin.flow.server.StreamResource
+import jakarta.annotation.security.PermitAll
 
 @Route("project/builds", layout = MainLayout::class)
 @PageTitle("Builds")
+@PermitAll
 class ProjectBuildsRoute : KComposite(), HasUrlParameter<String> {
     private lateinit var project: Project
     private lateinit var captionComponent: H2

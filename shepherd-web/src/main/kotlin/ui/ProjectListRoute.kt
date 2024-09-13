@@ -7,7 +7,6 @@ import com.github.mvysny.karibudsl.v10.componentColumn
 import com.github.mvysny.karibudsl.v10.grid
 import com.github.mvysny.karibudsl.v10.isExpand
 import com.github.mvysny.karibudsl.v10.routerLink
-import com.github.mvysny.karibudsl.v10.span
 import com.github.mvysny.karibudsl.v10.text
 import com.github.mvysny.karibudsl.v10.verticalLayout
 import com.github.mvysny.shepherd.api.Project
@@ -24,9 +23,11 @@ import com.vaadin.flow.data.renderer.ComponentRenderer
 import com.vaadin.flow.router.PageTitle
 import com.vaadin.flow.router.Route
 import com.vaadin.flow.router.RouterLink
+import jakarta.annotation.security.PermitAll
 
 @Route("", layout = MainLayout::class)
 @PageTitle("Projects")
+@PermitAll
 class ProjectListRoute : KComposite() {
     private val layout = ui {
         verticalLayout {

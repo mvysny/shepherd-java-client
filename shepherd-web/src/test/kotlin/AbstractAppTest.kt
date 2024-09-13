@@ -2,7 +2,11 @@ package com.github.mvysny.shepherd.web
 
 import com.github.mvysny.kaributesting.v10.MockVaadin
 import com.github.mvysny.kaributesting.v10.Routes
+import com.github.mvysny.kaributesting.v10._expectOne
+import com.github.mvysny.kaributools.navigateTo
 import com.github.mvysny.shepherd.api.FakeShepherdClient
+import com.github.mvysny.shepherd.web.security.UserLoginService
+import com.github.mvysny.shepherd.web.ui.ProjectListRoute
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
@@ -25,6 +29,12 @@ abstract class AbstractAppTest {
         @AfterAll @JvmStatic fun shutdown() {
             Bootstrap().contextDestroyed(null)
         }
+    }
+
+    fun login() {
+        UserLoginService.get().login("mavi@vaadin.com", "admin")
+        navigateTo<ProjectListRoute>()
+        _expectOne<ProjectListRoute>()
     }
 
     @BeforeEach fun setupVaadin() {

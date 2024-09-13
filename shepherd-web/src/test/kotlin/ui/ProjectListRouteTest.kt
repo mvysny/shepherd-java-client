@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test
 
 class ProjectListRouteTest : AbstractAppTest() {
     @BeforeEach fun navigate() {
+        login()
         navigateTo<ProjectListRoute>()
     }
 

@@ -2,6 +2,9 @@ package com.github.mvysny.shepherd.web
 
 import com.github.mvysny.shepherd.api.KubernetesShepherdClient
 import com.github.mvysny.shepherd.api.ShepherdClient
+import com.github.mvysny.shepherd.web.security.UserLoginService
+import com.github.mvysny.shepherd.web.ui.LoginRoute
+import com.github.mvysny.vaadinsimplesecurity.SimpleNavigationAccessControl
 import com.vaadin.flow.component.UI
 import com.vaadin.flow.component.notification.Notification
 import com.vaadin.flow.component.notification.NotificationVariant
@@ -45,8 +48,20 @@ class AppShell : AppShellConfigurator
  * Configures Vaadin. Registered via the Java Service Loader API.
  */
 class MyServiceInitListener : VaadinServiceInitListener {
+    // Handles authorization - pulls in the currently-logged-in user from given service and checks
+    // whether the user can access given route.
+    //
+    // InMemoryLoginService remembers the currently logged-in user in the Vaadin Session; it
+    // retrieves the users from the InMemoryUserRegistry.
+    private val accessControl = SimpleNavigationAccessControl.usingService(UserLoginService::get);
+
+    init {
+        accessControl.setLoginView(LoginRoute::class.java)
+    }
+
     override fun serviceInit(event: ServiceInitEvent) {
         event.source.addSessionInitListener { initSession(it.session) }
+        event.source.addUIInitListener { it.ui.addBeforeEnterListener(accessControl) }
     }
 
     private fun initSession(session: VaadinSession) {

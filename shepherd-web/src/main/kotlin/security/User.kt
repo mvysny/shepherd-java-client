@@ -1,7 +1,9 @@
 package com.github.mvysny.shepherd.web.security
 
+import com.github.mvysny.kaributools.navigateTo
 import com.github.mvysny.shepherd.api.JsonUtils
 import com.github.mvysny.shepherd.api.ProjectConfigFolder
+import com.github.mvysny.shepherd.web.ui.ProjectListRoute
 import com.github.mvysny.vaadinsimplesecurity.AbstractLoginService
 import com.github.mvysny.vaadinsimplesecurity.HasPassword
 import com.github.mvysny.vaadinsimplesecurity.SimpleUserWithRoles
@@ -36,7 +38,7 @@ data class Users(val users: List<User>)
 object UserRegistry {
     @JvmStatic
     private val log = LoggerFactory.getLogger(UserRegistry::class.java)
-    private val configFile = ProjectConfigFolder.LINUX_ROOT_FOLDER / "java" / "webadmin.json"
+    private val configFile = ProjectConfigFolder.LINUX_ROOT_FOLDER / "java" / "webadmin-users.json"
     private fun loadUsers(): Users {
         users.clear()
         if (!configFile.exists()) {
@@ -83,6 +85,7 @@ class UserLoginService : AbstractLoginService<User>() {
             throw FailedLoginException("Invalid username or password")
         }
         login(user)
+        navigateTo<ProjectListRoute>()
     }
 
     companion object {
