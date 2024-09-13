@@ -9,10 +9,10 @@ import com.vaadin.flow.component.Component
 import com.vaadin.flow.component.dialog.Dialog
 
 /**
- * @param bean may be null in buffered mode, if the bean is set upfront to the form.
+ * @param bean the bean to edit.
  * @param onSave when Save is pressed and validation passes.
  */
-class FormDialog<B>(val form: Form<B>, private val bean: B?, val onSave: (B) -> Unit) : Dialog() {
+class FormDialog<B>(val form: Form<B>, private val bean: B, val onSave: (B) -> Unit) : Dialog() {
     init {
         isModal = true
 
@@ -29,14 +29,12 @@ class FormDialog<B>(val form: Form<B>, private val bean: B?, val onSave: (B) -> 
             }
         }
 
-        if (form.binder.bean == null) {
-            form.binder.readBean(bean!!)
-        }
+        form.binder.readBean(bean!!)
     }
 
     private fun save() {
         if (form.writeIfValid(bean)) {
-            onSave(form.binder.bean ?: bean ?: throw RuntimeException("Foo"))
+            onSave(bean)
             close()
         }
     }

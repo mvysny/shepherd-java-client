@@ -104,7 +104,7 @@ private class UserForm(val isCreating: Boolean) : KFormLayout(), Form<User> {
         }
     }
 
-    override fun writeIfValid(toBean: User?): Boolean {
+    override fun writeIfValid(toBean: User): Boolean {
         if (password.value.isBlank() && isCreating) {
             password.isInvalid = true
             password.errorMessage = "Please provide a password"
@@ -113,7 +113,7 @@ private class UserForm(val isCreating: Boolean) : KFormLayout(), Form<User> {
         }
         password.isInvalid = false
         if (password.value.isNotBlank()) {
-            toBean!!.setPassword(password.value.trim())
+            toBean.setPassword(password.value.trim())
         }
         return super.writeIfValid(toBean)
     }

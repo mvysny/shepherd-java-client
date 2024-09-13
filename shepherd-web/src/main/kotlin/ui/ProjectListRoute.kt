@@ -90,8 +90,7 @@ class ProjectListRoute : KComposite() {
     private fun createNewProject() {
         val project = MutableProject.newEmpty(getCurrentUser())
         val form = ProjectForm(true)
-        form.binder.bean = project
-        FormDialog(form, null) {
+        FormDialog(form, project) {
             Bootstrap.getClient().createProject(project.toProject())
             UI.getCurrent().page.reload()
         } .open()
