@@ -17,6 +17,7 @@ import com.github.mvysny.karibudsl.v10.textField
 import com.github.mvysny.karibudsl.v10.verticalLayout
 import com.github.mvysny.karibudsl.v23.multiSelectComboBox
 import com.github.mvysny.kaributools.navigateTo
+import com.github.mvysny.shepherd.api.ProjectId
 import com.github.mvysny.shepherd.api.ServiceType
 import com.github.mvysny.shepherd.web.Bootstrap
 import com.github.mvysny.shepherd.web.host
@@ -69,6 +70,9 @@ class EditProjectRoute : KComposite(), HasUrlParameter<String> {
     }
 }
 
+/**
+ * Edits [MutableProject] in unbuffered mode. Unbuffered because of nested mutable sets.
+ */
 class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject> {
     override val binder: Binder<MutableProject> = beanValidationBinder()
 
@@ -87,9 +91,6 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
         }
         h4("Git Repository") {
             colspan = 2
-        }
-        textField("GIT Repository URL: the git repository from where the project comes from, e.g. https://github.com/mvysny/vaadin-boot-example-gradle") {
-            bind(binder).bind(MutableProject::gitRepoURL)
         }
         textField("GIT Repository URL: the git repository from where the project comes from, e.g. https://github.com/mvysny/vaadin-boot-example-gradle") {
             bind(binder).bind(MutableProject::gitRepoURL)
@@ -158,6 +159,11 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
 
     override fun additionalValidation(bean: MutableProject) {
         bean.validate()
+        if (creatingNew) {
+            if (Bootstrap.getClient().existsProject(ProjectId(bean.id!!))) {
+                throw RuntimeException("${bean.id}: project already exists")
+            }
+        }
     }
 }
 

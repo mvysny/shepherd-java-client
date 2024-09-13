@@ -2,10 +2,13 @@ package com.github.mvysny.shepherd.web.ui
 
 import com.github.mvysny.karibudsl.v10.KComposite
 import com.github.mvysny.karibudsl.v10.anchor
+import com.github.mvysny.karibudsl.v10.button
 import com.github.mvysny.karibudsl.v10.column
 import com.github.mvysny.karibudsl.v10.componentColumn
 import com.github.mvysny.karibudsl.v10.grid
+import com.github.mvysny.karibudsl.v10.horizontalLayout
 import com.github.mvysny.karibudsl.v10.isExpand
+import com.github.mvysny.karibudsl.v10.onClick
 import com.github.mvysny.karibudsl.v10.routerLink
 import com.github.mvysny.karibudsl.v10.text
 import com.github.mvysny.karibudsl.v10.verticalLayout
@@ -14,7 +17,9 @@ import com.github.mvysny.shepherd.api.ProjectView
 import com.github.mvysny.shepherd.web.Bootstrap
 import com.github.mvysny.shepherd.web.host
 import com.github.mvysny.shepherd.web.security.getCurrentUser
+import com.github.mvysny.shepherd.web.ui.components.FormDialog
 import com.vaadin.flow.component.Component
+import com.vaadin.flow.component.UI
 import com.vaadin.flow.component.html.Anchor
 import com.vaadin.flow.component.html.Div
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout
@@ -32,6 +37,12 @@ class ProjectListRoute : KComposite() {
     private val layout = ui {
         verticalLayout {
             setSizeFull()
+
+            horizontalLayout {
+                button("Create New Project") {
+                    onClick { createNewProject() }
+                }
+            }
 
             val user = getCurrentUser()
             val ownerEmail = if (user.isAdmin) null else user.email
@@ -74,6 +85,16 @@ class ProjectListRoute : KComposite() {
         l.isPadding = false
         getPublishedURLs(host).map { it -> Anchor(it, it) } .forEach { l.add(it) }
         return l
+    }
+
+    private fun createNewProject() {
+        val project = MutableProject.newEmpty(getCurrentUser())
+        val form = ProjectForm(true)
+        form.binder.bean = project
+        FormDialog(form, null) {
+            Bootstrap.getClient().createProject(project.toProject())
+            UI.getCurrent().page.reload()
+        } .open()
     }
 }
 

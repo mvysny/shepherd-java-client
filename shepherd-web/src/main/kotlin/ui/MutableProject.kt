@@ -11,8 +11,10 @@ import com.github.mvysny.shepherd.api.Publication
 import com.github.mvysny.shepherd.api.Resources
 import com.github.mvysny.shepherd.api.Service
 import com.github.mvysny.shepherd.api.ServiceType
+import com.github.mvysny.shepherd.web.Bootstrap
 import com.github.mvysny.shepherd.web.host
 import com.github.mvysny.shepherd.web.jsr303Validate
+import com.github.mvysny.shepherd.web.security.User
 import jakarta.validation.Validation
 import jakarta.validation.ValidationException
 import jakarta.validation.Validator
@@ -121,15 +123,15 @@ data class MutableProject(
     var additionalServices: MutableSet<ServiceType>
 ) {
     companion object {
-        fun newEmpty() = MutableProject(
+        fun newEmpty(owner: User) = MutableProject(
             id = null,
             description = null,
             webpage = null,
             gitRepoURL = null,
             gitRepoBranch = "main",
             gitRepoCredentialsID = null,
-            projectOwnerName = null,
-            projectOwnerEmail = null,
+            projectOwnerName = owner.name,
+            projectOwnerEmail = owner.email,
             runtimeMemoryMb = Resources.defaultRuntimeResources.memoryMb,
             runtimeCpu = Resources.defaultRuntimeResources.cpu,
             envVars = mutableListOf(),

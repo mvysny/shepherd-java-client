@@ -2,14 +2,13 @@ package com.github.mvysny.shepherd.web.ui.components
 
 import com.github.mvysny.shepherd.web.showErrorNotification
 import com.vaadin.flow.data.binder.Binder
-import com.vaadin.flow.data.binder.ValidationException
 
 interface Form<B> {
     val binder: Binder<B>
 
     /**
      * @param bean bean being edited.
-     * @throws com.vaadin.flow.data.binder.ValidationException if validation fails.
+     * @throws Exception if validation fails.
      */
     fun additionalValidation(bean: B) {}
 
@@ -20,7 +19,7 @@ interface Form<B> {
     fun writeIfValid(toBean: B?): Boolean {
         try {
             additionalValidation(binder.bean ?: toBean ?: throw UnsupportedOperationException("toBean must not be null when binder in buffered mode"))
-        } catch (e: ValidationException) {
+        } catch (e: Exception) {
             showErrorNotification("There are errors in the form: ${e.message}")
             return false
         }
