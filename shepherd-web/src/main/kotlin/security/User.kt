@@ -62,6 +62,10 @@ object UserRegistry {
 
     private val users = CopyOnWriteArraySet<User>()
 
+    init {
+        users.addAll(loadUsers().users)
+    }
+
     fun findByEmail(email: String): User? = users.find { it.email == email }
 }
 
