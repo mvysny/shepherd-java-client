@@ -10,7 +10,7 @@ import com.github.mvysny.karibudsl.v10.button
 import com.github.mvysny.karibudsl.v10.checkBox
 import com.github.mvysny.karibudsl.v10.emailField
 import com.github.mvysny.karibudsl.v10.h2
-import com.github.mvysny.karibudsl.v10.h4
+import com.github.mvysny.karibudsl.v10.h3
 import com.github.mvysny.karibudsl.v10.init
 import com.github.mvysny.karibudsl.v10.integerField
 import com.github.mvysny.karibudsl.v10.onClick
@@ -94,7 +94,7 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
         textField("WebPage: the project home page. May be empty, in such case GitRepo URL is considered the home page.") {
             bind(binder).bind(MutableProject::webpage)
         }
-        h4("Git Repository") {
+        h3("Git Repository") {
             colspan = 2
         }
         textField("GIT Repository URL: the git repository from where the project comes from, e.g. https://github.com/mvysny/vaadin-boot-example-gradle") {
@@ -107,7 +107,7 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
             isVisible = isAdmin
             bind(binder).bind(MutableProject::gitRepoCredentialsID)
         }
-        h4("Owner") {
+        h3("Owner") {
             colspan = 2
         }
         textField("Project Owner Name") {
@@ -118,7 +118,7 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
             isEnabled = isAdmin
             bind(binder).bind(MutableProject::projectOwnerEmail)
         }
-        h4("Runtime") {
+        h3("Runtime") {
             colspan = 2
         }
         integerField("how much memory the project needs for running, in MB. Please try to keep the memory requirements as low as possible, so that we can host as many projects as possible. 256MB is a good default, but Spring Boot project may require 350MB or more.") {
@@ -141,7 +141,7 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
         textField("If not null, we build off this dockerfile instead of the default `Dockerfile`") {
             bind(binder).bind(MutableProject::buildDockerFile)
         }
-        h4("Publishing") {
+        h3("Publishing") {
             colspan = 2
         }
         checkBox("Publish the project on the main domain as well, at `$host/PROJECT_ID`.") {
@@ -164,7 +164,7 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
         integerField("Proxy Read Timeout, in seconds, defaults to 60s. Increase to 6 minutes or more if you use Vaadin Push, otherwise the connection will be dropped out. Alternatively, set this to 3 minutes and set Vaadin heartbeat frequency to 2 minutes.") {
             bind(binder).bind(MutableProject::ingressProxyReadTimeoutSeconds)
         }
-        h4("Additional Services") {
+        h3("Additional Services") {
             colspan = 2
         }
         multiSelectComboBox<ServiceType>("additional services, only accessible by your project. If you enable PostgreSQL, then use the following values to access the database: JDBC URI: `jdbc:postgresql://postgres-service:5432/postgres`, username: `postgres`, password: `mysecretpassword`.") {

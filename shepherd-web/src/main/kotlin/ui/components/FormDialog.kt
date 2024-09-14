@@ -1,6 +1,7 @@
 package com.github.mvysny.shepherd.web.ui.components
 
 import com.github.mvysny.karibudsl.v10.button
+import com.github.mvysny.karibudsl.v10.content
 import com.github.mvysny.karibudsl.v10.horizontalLayout
 import com.github.mvysny.karibudsl.v10.onClick
 import com.github.mvysny.karibudsl.v10.verticalLayout
@@ -17,14 +18,17 @@ class FormDialog<B>(val form: Form<B>, private val bean: B, val onSave: (B) -> U
         isModal = true
 
         verticalLayout {
+            content { align(right, middle) }
+
             add(form as Component)
             horizontalLayout {
+
+                button("Cancel") {
+                    onClick { close() }
+                }
                 button("Save") {
                     setPrimary()
                     onClick { save() }
-                }
-                button("Cancel") {
-                    onClick { close() }
                 }
             }
         }
