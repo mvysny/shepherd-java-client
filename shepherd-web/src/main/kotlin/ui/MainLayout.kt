@@ -10,6 +10,7 @@ import com.github.mvysny.karibudsl.v10.navbar
 import com.github.mvysny.karibudsl.v10.span
 import com.github.mvysny.karibudsl.v23.route
 import com.github.mvysny.karibudsl.v23.sideNav
+import com.github.mvysny.shepherd.web.host
 import com.github.mvysny.shepherd.web.security.UserLoginService
 import com.github.mvysny.shepherd.web.security.getCurrentUser
 import com.vaadin.flow.component.applayout.AppLayout
@@ -22,7 +23,7 @@ class MainLayout : AppLayout() {
     init {
         navbar {
             drawerToggle()
-            h3("Vaadin Shepherd")
+            h3("Vaadin Shepherd $host")
             span("/")
             routeTitle = h3("")
             // spacer, to push right content to the right.

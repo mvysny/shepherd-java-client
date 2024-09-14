@@ -19,7 +19,7 @@ import jakarta.servlet.ServletContextListener
 import jakarta.servlet.annotation.WebListener
 import org.slf4j.LoggerFactory
 
-val host = "v-herd.eu"
+lateinit var host: String
 
 @WebListener
 class Bootstrap : ServletContextListener {
@@ -32,6 +32,7 @@ class Bootstrap : ServletContextListener {
         if (client == null) {
             client = KubernetesShepherdClient()
         }
+        host = getClient().getConfig().hostDNS
     }
 
     override fun contextDestroyed(sce: ServletContextEvent?) {
