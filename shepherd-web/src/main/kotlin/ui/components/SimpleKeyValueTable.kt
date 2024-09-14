@@ -11,6 +11,7 @@ import com.github.mvysny.shepherd.web.Bootstrap
 import com.github.mvysny.shepherd.web.ui.PublishedURLsAsVerticalLayout
 import com.vaadin.flow.component.Component
 import com.vaadin.flow.component.HasComponents
+import com.vaadin.flow.component.html.Anchor
 import com.vaadin.flow.component.html.Span
 import com.vaadin.flow.component.orderedlayout.VerticalLayout
 import org.intellij.lang.annotations.Language
@@ -72,7 +73,8 @@ class ProjectQuickDetailsTable(project: Project? = null) : SimpleKeyValueTable(2
         removeAll()
         addRow("Project ID", project.id.id)
         addRow("Description", project.description)
-        addRow("Home Page", project.resolveWebpage())
+        val homepage = project.resolveWebpage()
+        addRow("Home Page", Anchor(homepage, homepage))
         addRow("Git", "${project.gitRepo.url} (${project.gitRepo.branch})")
         addRow("Owner", project.owner.toString())
         addRow("Runtime Max Resources", project.runtime.resources.toString())
