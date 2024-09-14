@@ -75,7 +75,7 @@ class ProjectQuickDetailsTable(project: Project? = null) : SimpleKeyValueTable(2
         addRow("Home Page", project.resolveWebpage())
         addRow("Git", "${project.gitRepo.url} (${project.gitRepo.branch})")
         addRow("Owner", project.owner.toString())
-        addRow("Runtime", project.runtime.resources.toString())
+        addRow("Runtime Resources", project.runtime.resources.toString())
         addRow("Build Resources", project.build.resources.toString())
         addRow("Published at", PublishedURLsAsVerticalLayout(project))
         addRow("Services", project.additionalServices.joinToString { it.type.toString() })

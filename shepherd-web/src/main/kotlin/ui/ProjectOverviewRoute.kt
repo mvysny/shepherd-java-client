@@ -55,7 +55,7 @@ class ProjectOverviewRoute : KComposite(), HasUrlParameter<String> {
         project = checkProjectId(parameter)
         quickDetails.showProject(project)
         val runMetrics = Bootstrap.getClient().getRunMetrics(project.id)
-        quickDetails.addRow("Runtime Metrics", runMetrics.toString())
+        quickDetails.addRow("Runtime Usage", runMetrics.toString())
         downloadRuntimeLogs.setHref(StreamResource("${project.id.id}-log.txt",
             InputStreamFactory { Bootstrap.getClient().getRunLogs(project.id).toByteArray().inputStream() }))
     }
