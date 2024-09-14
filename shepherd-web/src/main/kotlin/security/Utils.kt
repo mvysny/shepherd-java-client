@@ -11,7 +11,7 @@ fun checkProjectId(id: String): Project {
         throw NotFoundException()
     }
     val pid = ProjectId(id)
-    val currentUser = getCurrentUser() ?: throw NotFoundException()
+    val currentUser = UserLoginService.get().currentUser ?: throw NotFoundException()
     val project = try {
         Bootstrap.getClient().getProjectInfo(pid)
     } catch (_: NoSuchProjectException) {

@@ -1,6 +1,5 @@
 package com.github.mvysny.shepherd.web.ui.components
 
-import com.github.mvysny.shepherd.web.showErrorNotification
 import com.vaadin.flow.data.binder.Binder
 
 /**

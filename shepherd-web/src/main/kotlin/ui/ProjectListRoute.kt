@@ -13,15 +13,20 @@ import com.github.mvysny.karibudsl.v10.routerLink
 import com.github.mvysny.karibudsl.v10.text
 import com.github.mvysny.karibudsl.v10.verticalLayout
 import com.github.mvysny.shepherd.api.Project
+import com.github.mvysny.shepherd.api.ProjectId
 import com.github.mvysny.shepherd.api.ProjectView
 import com.github.mvysny.shepherd.web.Bootstrap
 import com.github.mvysny.shepherd.web.host
 import com.github.mvysny.shepherd.web.security.getCurrentUser
 import com.github.mvysny.shepherd.web.ui.components.FormDialog
+import com.github.mvysny.shepherd.web.ui.components.confirmDialog
+import com.github.mvysny.shepherd.web.ui.components.iconButtonColumn
+import com.github.mvysny.shepherd.web.ui.components.showInfoNotification
 import com.vaadin.flow.component.Component
 import com.vaadin.flow.component.UI
 import com.vaadin.flow.component.html.Anchor
 import com.vaadin.flow.component.html.Div
+import com.vaadin.flow.component.icon.VaadinIcon
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout
 import com.vaadin.flow.component.orderedlayout.VerticalLayout
 import com.vaadin.flow.data.renderer.ComponentRenderer
@@ -74,9 +79,19 @@ class ProjectListRoute : KComposite() {
                     isExpand = false; isAutoWidth = true; isResizable = true
                     setHeader("Builds")
                 }
+                iconButtonColumn(VaadinIcon.TRASH) {
+                    delete(it.project.id)
+                }
 
                 setItemDetailsRenderer(ComponentRenderer { p -> Div(p.project.toString()) })
             }
+        }
+    }
+
+    private fun delete(id: ProjectId) {
+        confirmDialog("Delete project ${id.id}? This action can not be reverted!") {
+            Bootstrap.getClient().deleteProject(id)
+            showInfoNotification("Project ${id.id} deleted successfully")
         }
     }
 

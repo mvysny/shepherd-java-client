@@ -17,11 +17,15 @@ import com.github.mvysny.karibudsl.v23.multiSelectComboBox
 import com.github.mvysny.shepherd.web.security.User
 import com.github.mvysny.shepherd.web.security.UserRegistry
 import com.github.mvysny.shepherd.web.security.UserRoles
-import com.github.mvysny.shepherd.web.showErrorNotification
 import com.github.mvysny.shepherd.web.ui.components.Form
 import com.github.mvysny.shepherd.web.ui.components.FormDialog
+import com.github.mvysny.shepherd.web.ui.components.confirmDialog
+import com.github.mvysny.shepherd.web.ui.components.iconButtonColumn
+import com.github.mvysny.shepherd.web.ui.components.showErrorNotification
+import com.github.mvysny.shepherd.web.ui.components.showInfoNotification
 import com.vaadin.flow.component.button.Button
 import com.vaadin.flow.component.grid.Grid
+import com.vaadin.flow.component.icon.VaadinIcon
 import com.vaadin.flow.component.textfield.PasswordField
 import com.vaadin.flow.router.PageTitle
 import com.vaadin.flow.router.Route
@@ -47,8 +51,8 @@ class UsersRoute : KComposite() {
                 columnFor(User::email)
                 columnFor(User::name)
                 columnFor(User::roles)
-                componentColumn({ user -> Button("Edit", { edit(user) })})
-                componentColumn({ user -> Button("Delete", { delete(user) })})
+                iconButtonColumn(VaadinIcon.EDIT) { edit(it) }
+                iconButtonColumn(VaadinIcon.TRASH) { delete(it) }
             }
         }
     }
@@ -76,8 +80,11 @@ class UsersRoute : KComposite() {
     }
 
     private fun delete(user: User) {
-        UserRegistry.delete(user.email)
-        refresh()
+        confirmDialog("Delete user ${user.email}? This action can not be reverted, but you can re-create the user easily. The user won't be able to log in but his projects will remain.") {
+            UserRegistry.delete(user.email)
+            refresh()
+            showInfoNotification("User ${user.email} deleted successfully")
+        }
     }
 }
 
