@@ -15,13 +15,16 @@ import com.github.mvysny.karibudsl.v10.verticalLayout
 import com.github.mvysny.shepherd.api.Project
 import com.github.mvysny.shepherd.api.ProjectId
 import com.github.mvysny.shepherd.api.ProjectView
+import com.github.mvysny.shepherd.api.Publication
 import com.github.mvysny.shepherd.web.Bootstrap
 import com.github.mvysny.shepherd.web.host
 import com.github.mvysny.shepherd.web.security.getCurrentUser
 import com.github.mvysny.shepherd.web.ui.components.FormDialog
+import com.github.mvysny.shepherd.web.ui.components.ProjectQuickDetailsTable
 import com.github.mvysny.shepherd.web.ui.components.confirmDialog
 import com.github.mvysny.shepherd.web.ui.components.iconButtonColumn
-import com.github.mvysny.shepherd.web.ui.components.sheperdStatsTable
+import com.github.mvysny.shepherd.web.ui.components.projectQuickDetailsTable
+import com.github.mvysny.shepherd.web.ui.components.shepherdStatsTable
 import com.github.mvysny.shepherd.web.ui.components.showInfoNotification
 import com.vaadin.flow.component.Component
 import com.vaadin.flow.component.UI
@@ -44,7 +47,7 @@ class ProjectListRoute : KComposite() {
         verticalLayout {
             setSizeFull()
 
-            sheperdStatsTable()
+            shepherdStatsTable()
 
             horizontalLayout {
                 button("Create New Project") {
@@ -86,7 +89,7 @@ class ProjectListRoute : KComposite() {
                     delete(it.project.id)
                 }
 
-                setItemDetailsRenderer(ComponentRenderer { p -> Div(p.project.toString()) })
+                setItemDetailsRenderer(ComponentRenderer { p -> ProjectQuickDetailsTable(p.project) })
             }
         }
     }
@@ -98,12 +101,7 @@ class ProjectListRoute : KComposite() {
         }
     }
 
-    private fun Project.getPublishedURLsInVerticalLayout(): Component {
-        val l = VerticalLayout()
-        l.isPadding = false
-        getPublishedURLs(host).map { it -> Anchor(it, it) } .forEach { l.add(it) }
-        return l
-    }
+    private fun Project.getPublishedURLsInVerticalLayout(): Component = PublishedURLsAsVerticalLayout(this)
 
     private fun createNewProject() {
         val project = MutableProject.newEmpty(getCurrentUser())
@@ -127,5 +125,13 @@ private class BuildLinks(val project: ProjectView) : HorizontalLayout() {
             anchor(BuildLogStreamResource(project.project.id, lastBuild), "#${lastBuild.number}: ${lastBuild.outcome}")
             text(")")
         }
+    }
+}
+
+class PublishedURLsAsVerticalLayout(project: Project) : VerticalLayout() {
+    init {
+        isPadding = false
+        isSpacing = false
+        project.getPublishedURLs(host).map { it -> Anchor(it, it) } .forEach { add(it) }
     }
 }

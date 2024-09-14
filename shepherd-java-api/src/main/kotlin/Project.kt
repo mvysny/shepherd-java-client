@@ -88,6 +88,8 @@ public data class Resources(
         @JvmStatic
         public val defaultBuildResources: Resources = Resources(memoryMb = 2048, cpu = 2f)
     }
+
+    override fun toString(): String = "Memory: $memoryMb MB; CPU: $cpu"
 }
 
 /**

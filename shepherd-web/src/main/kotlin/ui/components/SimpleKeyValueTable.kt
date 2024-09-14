@@ -6,16 +6,19 @@ import com.github.mvysny.karibudsl.v10.div
 import com.github.mvysny.karibudsl.v10.init
 import com.github.mvysny.karibudsl.v10.strong
 import com.github.mvysny.kaributools.HtmlSpan
+import com.github.mvysny.shepherd.api.Project
 import com.github.mvysny.shepherd.web.Bootstrap
+import com.github.mvysny.shepherd.web.ui.PublishedURLsAsVerticalLayout
 import com.vaadin.flow.component.Component
 import com.vaadin.flow.component.HasComponents
 import com.vaadin.flow.component.html.Span
+import com.vaadin.flow.component.orderedlayout.VerticalLayout
 import org.intellij.lang.annotations.Language
 
 /**
  * Shows a simple key-value table pair.
  */
-open class SimpleKeyValueTable : KComposite() {
+open class SimpleKeyValueTable(columns: Int = 1) : KComposite() {
     private val div = ui {
         div()
     }
@@ -25,7 +28,7 @@ open class SimpleKeyValueTable : KComposite() {
         div.element.style.set("font-size", "90%")
         div.element.style.set("display", "grid")
         div.element.style.set("gap", "0px 10px")
-        div.element.style.set("grid-template-columns", "auto 1fr")
+        div.element.style.set("grid-template-columns", "repeat($columns, auto 1fr)")
     }
 
     fun addRow(header: String, body: String) {
@@ -41,10 +44,10 @@ open class SimpleKeyValueTable : KComposite() {
 }
 
 @VaadinDsl
-fun (@VaadinDsl HasComponents).simpleKeyValueTable(block: (@VaadinDsl SimpleKeyValueTable).() -> Unit = {}) = init(SimpleKeyValueTable(), block)
+fun (@VaadinDsl HasComponents).simpleKeyValueTable(columns: Int = 1, block: (@VaadinDsl SimpleKeyValueTable).() -> Unit = {}) = init(SimpleKeyValueTable(columns), block)
 
 @VaadinDsl
-fun (@VaadinDsl HasComponents).sheperdStatsTable() {
+fun (@VaadinDsl HasComponents).shepherdStatsTable() {
     val stats = Bootstrap.getClient().getStats()
     simpleKeyValueTable {
         addRow("Project Count", stats.projectCount.toString())
@@ -54,3 +57,20 @@ fun (@VaadinDsl HasComponents).sheperdStatsTable() {
         addRow("Host OS: Disk Space", stats.diskUsage.toString())
     }
 }
+
+class ProjectQuickDetailsTable(project: Project) : SimpleKeyValueTable(2) {
+    init {
+        addRow("Project ID", project.id.id)
+        addRow("Description", project.description)
+        addRow("Home Page", project.resolveWebpage())
+        addRow("Git", "${project.gitRepo.url} (${project.gitRepo.branch})")
+        addRow("Owner", project.owner.toString())
+        addRow("Runtime", project.runtime.resources.toString())
+        addRow("Build Resources", project.build.resources.toString())
+        addRow("Published at", PublishedURLsAsVerticalLayout(project))
+        addRow("Services", project.additionalServices.joinToString() { it.type.toString() })
+    }
+}
+
+@VaadinDsl
+fun (@VaadinDsl HasComponents).projectQuickDetailsTable(project: Project) = init(ProjectQuickDetailsTable(project))
