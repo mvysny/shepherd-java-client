@@ -21,6 +21,7 @@ import com.github.mvysny.shepherd.web.security.getCurrentUser
 import com.github.mvysny.shepherd.web.ui.components.FormDialog
 import com.github.mvysny.shepherd.web.ui.components.confirmDialog
 import com.github.mvysny.shepherd.web.ui.components.iconButtonColumn
+import com.github.mvysny.shepherd.web.ui.components.sheperdStatsTable
 import com.github.mvysny.shepherd.web.ui.components.showInfoNotification
 import com.vaadin.flow.component.Component
 import com.vaadin.flow.component.UI
@@ -42,6 +43,8 @@ class ProjectListRoute : KComposite() {
     private val layout = ui {
         verticalLayout {
             setSizeFull()
+
+            sheperdStatsTable()
 
             horizontalLayout {
                 button("Create New Project") {
