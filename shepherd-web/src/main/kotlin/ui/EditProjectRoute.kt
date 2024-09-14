@@ -108,7 +108,7 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
         h3("Owner") {
             colspan = 2
         }
-        textField("Project Owner Name") {
+        textField("Project Owner Name. Only Shepherd admin can create projects for someone else.") {
             isEnabled = isAdmin
             bind(binder).bind(MutableProject::projectOwnerName)
         }
@@ -119,7 +119,7 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
         h3("Runtime") {
             colspan = 2
         }
-        integerField("how much memory the project needs for running, in MB. Please try to keep the memory requirements as low as possible, so that we can host as many projects as possible. 256MB is a good default, but Spring Boot project may require 350MB or more.") {
+        integerField("How much memory the project needs for running, in MB. Please try to keep the memory requirements as low as possible, so that we can host as many projects as possible. 256MB is a good default, but Spring Boot project may require 350MB or more.") {
             bind(binder)
                 .withValidator(SerializablePredicate { it <= config.maxProjectRuntimeResources.memoryMb }, "Can not be larger than ${config.maxProjectRuntimeResources.memoryMb}")
                 .bind(MutableProject::runtimeMemoryMb)
@@ -130,10 +130,10 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
                 .withValidator(SerializablePredicate { it <= config.maxProjectRuntimeResources.cpu.toBigDecimal() }, "Can not be larger than ${config.maxProjectRuntimeResources.cpu}")
                 .bind(MutableProject::runtimeCpu)
         }
-        namedVarSetField("runtime environment variables, e.g. `SPRING_DATASOURCE_URL` to `jdbc:postgresql://liukuri-postgres:5432/postgres`") {
+        namedVarSetField("Runtime environment variables, e.g. `SPRING_DATASOURCE_URL` to `jdbc:postgresql://liukuri-postgres:5432/postgres`") {
             bind(binder).bind(MutableProject::envVars)
         }
-        namedVarSetField("optional build args, passed as `--build-arg name=\"value\"` to `docker build`. You can e.g. pass Vaadin Offline Key here.") {
+        namedVarSetField("Optional build args, passed as `--build-arg name=\"value\"` to `docker build`. You can e.g. pass Vaadin Offline Key here.") {
             bind(binder).bind(MutableProject::buildArgs)
         }
         textField("If not null, we build off this dockerfile instead of the default `Dockerfile`") {
@@ -146,17 +146,17 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
             bind(binder).bind(MutableProject::publishOnMainDomain)
         }
         checkBox(
-            "Only affects additional domains; if the project is published on the main domain then it always uses https. " +
-                    "Defaults to true. If false, the project is published on additional domains via plain http. " +
+            "Only affects additional domains. If the project is published on the main domain then it always uses https. " +
+                    "If unchecked, the project is published on additional domains via plain http and the https certificate is not obtained from Let's Encrypt. " +
                     "Useful e.g. when CloudFlare unwraps https for us. Ignored if there are no additional domains."
         ) {
             bind(binder).bind(MutableProject::publishAdditionalDomainsHttps)
         }
-        simpleStringSetField("Additional domains to publish to project at. Must not contain the main domain. E.g. `yourproject.com`. You need to configure your domain DNS record to point to v-herd.eu IP address first!") {
+        simpleStringSetField("Additional domains to publish to project at. Must not contain the main domain $host. E.g. `yourproject.com`. You need to configure your domain DNS record to point to $host IP address first!") {
             hint = "Enter your domain and press the PLUS button"
             bind(binder).bind(MutableProject::publishAdditionalDomains)
         }
-        integerField("Max request body size, in megabytes, defaults to 1m. Increase if you intend to upload large files.") {
+        integerField("Max request body size, in megabytes, defaults to 1m. Increase if you intend your project to accept large file uploads.") {
             bind(binder).bind(MutableProject::ingressMaxBodySizeMb)
         }
         integerField("Proxy Read Timeout, in seconds, defaults to 60s. Increase to 6 minutes or more if you use Vaadin Push, otherwise the connection will be dropped out. Alternatively, set this to 3 minutes and set Vaadin heartbeat frequency to 2 minutes.") {
@@ -165,7 +165,7 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
         h3("Additional Services") {
             colspan = 2
         }
-        multiSelectComboBox<ServiceType>("additional services, only accessible by your project. If you enable PostgreSQL, then use the following values to access the database: JDBC URI: `jdbc:postgresql://postgres-service:5432/postgres`, username: `postgres`, password: `mysecretpassword`.") {
+        multiSelectComboBox<ServiceType>("Additional services accessible by your project. If you enable PostgreSQL, then use the following values to access the database: JDBC URI: `jdbc:postgresql://postgres-service:5432/postgres`, username: `postgres`, password: `mysecretpassword`.") {
             setItems(ServiceType.entries)
             bind(binder).bind(MutableProject::additionalServices)
         }
