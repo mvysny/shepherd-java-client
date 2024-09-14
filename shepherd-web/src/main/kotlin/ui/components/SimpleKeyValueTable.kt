@@ -78,7 +78,7 @@ class ProjectQuickDetailsTable(project: Project? = null) : SimpleKeyValueTable(2
         addRow("Runtime", project.runtime.resources.toString())
         addRow("Build Resources", project.build.resources.toString())
         addRow("Published at", PublishedURLsAsVerticalLayout(project))
-        addRow("Services", project.additionalServices.joinToString() { it.type.toString() })
+        addRow("Services", project.additionalServices.joinToString { it.type.toString() })
     }
 }
 

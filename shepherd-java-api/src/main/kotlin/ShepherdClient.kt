@@ -186,6 +186,8 @@ public data class ResourcesUsage(
         @JvmStatic
         public val zero: ResourcesUsage = ResourcesUsage(0, 0f)
     }
+
+    public override fun toString(): String = "Memory: $memoryMb MB; CPU: $cpu cores"
 }
 
 /**

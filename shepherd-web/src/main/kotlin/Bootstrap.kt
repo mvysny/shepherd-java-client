@@ -69,7 +69,7 @@ class MyServiceInitListener : VaadinServiceInitListener {
             log.error("Internal error", it.throwable)
             if (UI.getCurrent() != null) {
                 val n = Notification.show(
-                    "We're sorry, an internal error occurred",
+                    "We're sorry, an internal error occurred: ${it.throwable}",
                     3000,
                     Notification.Position.TOP_CENTER
                 )
