@@ -6,8 +6,6 @@ import com.github.mvysny.shepherd.api.ProjectId
 import com.github.mvysny.shepherd.api.ShepherdClient
 import kotlinx.cli.*
 
-val host = "v-herd.eu"
-
 /**
  * Parsed command-line parameters.
  * @property fake use fake client

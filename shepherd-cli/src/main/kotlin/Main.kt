@@ -25,7 +25,7 @@ enum class Command(val argName: String) {
                 println("${v.project.id.id}: ${v.project.description} (${v.project.owner})")
                 println("   Home Page: ${v.project.resolveWebpage()}")
                 println("   Sources: ${v.project.gitRepo.url} , Branch: '${v.project.gitRepo.branch}'")
-                println("   Published at: ${v.getPublishedURLs(host)}")
+                println("   Published at: ${v.getPublishedURLs(client.getConfig().hostDNS)}")
                 println("   Last Build: ${v.lastBuild?.formatShort()}")
                 println()
             }

@@ -18,6 +18,8 @@ import kotlin.io.path.inputStream
  * can be configured in Jenkins as `# of executors` at `http://localhost:8080/manage/configure`.
  * @property maxProjectRuntimeResources how much memory+cpu a project can ask for its runtime.
  * @property maxProjectBuildResources how much memory+cpu a project can ask for its build.
+ * @property jenkins Jenkins access credentials.
+ * @property hostDNS where Shepherd is running, e.g. "v-herd.eu"
  */
 @Serializable
 public data class Config(
@@ -25,7 +27,8 @@ public data class Config(
     val concurrentJenkinsBuilders: Int,
     val maxProjectRuntimeResources: Resources,
     val maxProjectBuildResources: Resources,
-    val jenkins: JenkinsConfig = JenkinsConfig()
+    val jenkins: JenkinsConfig = JenkinsConfig(),
+    val hostDNS: String = "v-herd.eu",
 ) {
     public companion object {
         /**

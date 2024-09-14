@@ -9,12 +9,12 @@ import kotlin.io.path.*
  * @property kubectl the kubectl binary
  * @property yamlConfigFolder where the kubernetes yaml config files for projects are stored. Shepherd scripts expects
  * this to be `/etc/shepherd/k8s`.
- * @property defaultDNS where the Shepherd is running, defaults to `v-herd.eu`.
+ * @property defaultDNS where the Shepherd is running, e.g. `v-herd.eu`.
  */
 public class SimpleKubernetesClient @JvmOverloads constructor(
     private val kubectl: Array<String> = arrayOf("microk8s", "kubectl"),
     private val yamlConfigFolder: Path = Path("/etc/shepherd/k8s"),
-    private val defaultDNS: String = "v-herd.eu"
+    private val defaultDNS: String
 ) {
     /**
      * Runs `kubectl get pods` and returns all names. May return an empty list

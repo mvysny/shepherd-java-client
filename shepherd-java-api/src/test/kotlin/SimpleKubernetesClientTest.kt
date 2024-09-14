@@ -85,7 +85,7 @@ spec:
                 port:
                   number: 8080
             """.trim()) {
-                SimpleKubernetesClient().getKubernetesYamlConfigFile(fakeProject)
+                SimpleKubernetesClient(defaultDNS = "v-herd.eu").getKubernetesYamlConfigFile(fakeProject)
             }
         }
 
@@ -176,7 +176,7 @@ spec:
                 port:
                   number: 8080
             """.trim()) {
-                SimpleKubernetesClient().getKubernetesYamlConfigFile(p)
+                SimpleKubernetesClient(defaultDNS = "v-herd.eu").getKubernetesYamlConfigFile(p)
             }
         }
 
@@ -319,7 +319,7 @@ spec:
   ports:
     - port: 5432
             """.trim()) {
-                SimpleKubernetesClient().getKubernetesYamlConfigFile(p)
+                SimpleKubernetesClient(defaultDNS = "v-herd.eu").getKubernetesYamlConfigFile(p)
             }
         }
 
@@ -429,7 +429,7 @@ spec:
                 port:
                   number: 8080
             """.trim()) {
-                SimpleKubernetesClient().getKubernetesYamlConfigFile(p)
+                SimpleKubernetesClient(defaultDNS = "v-herd.eu").getKubernetesYamlConfigFile(p)
             }
         }
     }
@@ -460,7 +460,7 @@ spec:
                 name: service
                 port:
                   number: 8080""") {
-                SimpleKubernetesClient().getCustomDomainIngressYaml(
+                SimpleKubernetesClient(defaultDNS = "v-herd.eu").getCustomDomainIngressYaml(
                     "foo.com",
                     true,
                     ProjectId("foo-bar")
@@ -486,7 +486,7 @@ spec:
                 name: service
                 port:
                   number: 8080""") {
-                SimpleKubernetesClient().getCustomDomainIngressYaml(
+                SimpleKubernetesClient(defaultDNS = "v-herd.eu").getCustomDomainIngressYaml(
                     "foo.com",
                     false,
                     ProjectId("foo-bar")

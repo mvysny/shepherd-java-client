@@ -8,7 +8,7 @@ import java.io.FileNotFoundException
  * @property projectConfigFolder Project config JSONs are stored here.
  */
 public class KubernetesShepherdClient @JvmOverloads constructor(
-    private val kubernetes: SimpleKubernetesClient = SimpleKubernetesClient(),
+    private val kubernetes: SimpleKubernetesClient = SimpleKubernetesClient(defaultDNS = Config.load().hostDNS),
     private val projectConfigFolder: ProjectConfigFolder = ProjectConfigFolder.defaultLinux(),
 ) : ShepherdClient {
     private val jenkins: SimpleJenkinsClient = SimpleJenkinsClient(jenkinsUrl = getConfig().jenkins.url, jenkinsUsername = getConfig().jenkins.username, jenkinsPassword = getConfig().jenkins.password)
