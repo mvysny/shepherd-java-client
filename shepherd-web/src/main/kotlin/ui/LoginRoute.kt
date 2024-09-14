@@ -1,7 +1,10 @@
 package com.github.mvysny.shepherd.web.ui
 
+import com.github.mvysny.shepherd.web.devMode
 import com.github.mvysny.shepherd.web.security.UserLoginService
+import com.vaadin.flow.component.AttachEvent
 import com.vaadin.flow.component.ComponentEventListener
+import com.vaadin.flow.component.UI
 import com.vaadin.flow.component.login.AbstractLogin
 import com.vaadin.flow.component.login.LoginForm
 import com.vaadin.flow.component.login.LoginI18n
@@ -12,6 +15,8 @@ import com.vaadin.flow.router.Route
 import com.vaadin.flow.server.auth.AnonymousAllowed
 import org.slf4j.LoggerFactory
 import javax.security.auth.login.LoginException
+
+var devModeAutomaticLogInPerformed = false
 
 @Route("login")
 @PageTitle("Login")
@@ -34,6 +39,13 @@ class LoginRoute : VerticalLayout(), ComponentEventListener<AbstractLogin.LoginE
         loginI18n.form.username = "E-mail"
         login.setI18n(loginI18n)
         add(login)
+
+        if (devMode && !devModeAutomaticLogInPerformed) {
+            devModeAutomaticLogInPerformed = true
+            UI.getCurrent().access {
+                UserLoginService.get().login("mavi@vaadin.com", "admin")
+            }
+        }
     }
 
     override fun onComponentEvent(event: AbstractLogin.LoginEvent) {
