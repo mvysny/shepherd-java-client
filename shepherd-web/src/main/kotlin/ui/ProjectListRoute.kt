@@ -64,7 +64,7 @@ class ProjectListRoute : KComposite() {
 
                 componentColumn({ p ->
                     val pid = p.project.id.id
-                    RouterLink(pid, EditProjectRoute::class.java, pid)
+                    RouterLink(pid, ProjectOverviewRoute::class.java, pid)
                 }) {
                     isExpand = false; isAutoWidth = true; isResizable = true
                     setHeader("Project ID")

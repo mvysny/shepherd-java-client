@@ -46,8 +46,6 @@ class EditProjectRoute : KComposite(), HasUrlParameter<String> {
     private lateinit var project: MutableProject
     private val layout = ui {
         verticalLayout {
-            setSizeFull()
-
             captionComponent = h2()
             form = projectForm(false)
             button("Save & Apply") {
