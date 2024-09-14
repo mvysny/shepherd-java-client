@@ -41,6 +41,9 @@ open class SimpleKeyValueTable(columns: Int = 1) : KComposite() {
         div.strong(header)
         div.add(body)
     }
+    fun removeAll() {
+        div.removeAll()
+    }
 }
 
 @VaadinDsl
@@ -58,8 +61,15 @@ fun (@VaadinDsl HasComponents).shepherdStatsTable() {
     }
 }
 
-class ProjectQuickDetailsTable(project: Project) : SimpleKeyValueTable(2) {
+class ProjectQuickDetailsTable(project: Project? = null) : SimpleKeyValueTable(2) {
     init {
+        if (project != null) {
+            showProject(project)
+        }
+    }
+
+    fun showProject(project: Project) {
+        removeAll()
         addRow("Project ID", project.id.id)
         addRow("Description", project.description)
         addRow("Home Page", project.resolveWebpage())
@@ -73,4 +83,4 @@ class ProjectQuickDetailsTable(project: Project) : SimpleKeyValueTable(2) {
 }
 
 @VaadinDsl
-fun (@VaadinDsl HasComponents).projectQuickDetailsTable(project: Project) = init(ProjectQuickDetailsTable(project))
+fun (@VaadinDsl HasComponents).projectQuickDetailsTable(project: Project? = null) = init(ProjectQuickDetailsTable(project))
