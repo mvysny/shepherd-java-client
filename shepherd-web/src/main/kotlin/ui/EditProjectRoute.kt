@@ -121,13 +121,13 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
         }
         integerField("How much memory the project needs for running, in MB. Please try to keep the memory requirements as low as possible, so that we can host as many projects as possible. 256MB is a good default, but Spring Boot project may require 350MB or more.") {
             bind(binder)
-                .withValidator(SerializablePredicate { it <= config.maxProjectRuntimeResources.memoryMb }, "Can not be larger than ${config.maxProjectRuntimeResources.memoryMb}")
+                .withValidator(SerializablePredicate { it == null || it <= config.maxProjectRuntimeResources.memoryMb }, "Can not be larger than ${config.maxProjectRuntimeResources.memoryMb}")
                 .bind(MutableProject::runtimeMemoryMb)
         }
         bigDecimalField("Max CPU cores to use. 1 means 1 CPU core to be used.") {
             isEnabled = isAdmin
             bind(binder)
-                .withValidator(SerializablePredicate { it <= config.maxProjectRuntimeResources.cpu.toBigDecimal() }, "Can not be larger than ${config.maxProjectRuntimeResources.cpu}")
+                .withValidator(SerializablePredicate { it == null || it <= config.maxProjectRuntimeResources.cpu.toBigDecimal() }, "Can not be larger than ${config.maxProjectRuntimeResources.cpu}")
                 .bind(MutableProject::runtimeCpu)
         }
         namedVarSetField("Runtime environment variables, e.g. `SPRING_DATASOURCE_URL` to `jdbc:postgresql://liukuri-postgres:5432/postgres`") {
