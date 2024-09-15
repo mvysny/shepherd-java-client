@@ -28,5 +28,6 @@ dependencies {
 }
 
 application {
-    mainClass.set("com.github.mvysny.shepherd.web.MainKt")
+    mainClass = "com.github.mvysny.shepherd.web.MainKt"
+    applicationDefaultJvmArgs = listOf("-Xmx200m")
 }
