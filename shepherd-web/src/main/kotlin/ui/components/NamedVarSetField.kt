@@ -96,7 +96,7 @@ data class MutableNamedVar(
     var name: String = "",
     @field:NotNull
     @field:NotBlank
-    @field:Length(max = 255)
+    @field:Length(max = 2048) // should be able to accept offlineVaadinKey which is 1403 chars long
     var value: String = ""
 )
 
