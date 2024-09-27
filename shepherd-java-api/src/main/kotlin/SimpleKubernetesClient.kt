@@ -91,7 +91,7 @@ public class SimpleKubernetesClient @JvmOverloads constructor(
         } catch (e: ExecException) {
             // if the pod is dead, this will fail with:
             // microk8s kubectl top pod deployment-66ff6f8fd8-g6b6t --namespace shepherd-viewing-plan failed with exit code 1: Error from server (NotFound): podmetrics.metrics.k8s.io "shepherd-viewing-plan/deployment-66ff6f8fd8-g6b6t" not found
-            if (e.exitValue == 1 && e.output.contains("Error from server (NotFound)")) {
+            if (e.exitValue == 1 && e.output.contains("Error from server (NotFound): podmetrics.metrics.k8s.io")) {
                 return ResourcesUsage.zero
             }
             throw e
