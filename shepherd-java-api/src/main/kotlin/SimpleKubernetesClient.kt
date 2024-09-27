@@ -86,14 +86,23 @@ public class SimpleKubernetesClient @JvmOverloads constructor(
         //POD                           CPU(cores)   MEMORY(bytes)
         //deployment-59b67fd4c5-2sdmw   2m           126Mi
         // parse and return the second line
-        val stdout = exec(*kubectl, "top", "pod", podName, "--namespace", namespace)
+        val stdout: String = try {
+            exec(*kubectl, "top", "pod", podName, "--namespace", namespace)
+        } catch (e: ExecException) {
+            // if the pod is dead, this will fail with:
+            // microk8s kubectl top pod deployment-66ff6f8fd8-g6b6t --namespace shepherd-viewing-plan failed with exit code 1: Error from server (NotFound): podmetrics.metrics.k8s.io "shepherd-viewing-plan/deployment-66ff6f8fd8-g6b6t" not found
+            if (e.exitValue == 1 && e.output.contains("Error from server (NotFound)")) {
+                return ResourcesUsage.zero
+            }
+            throw e
+        }
         val lastLine = stdout.lines().last { it.isNotBlank() } .trim()
         return parseTopPod(lastLine)
     }
 
     /**
      * Returns the current project CPU/memory usage. Returns zero metrics
-     * if the pod haven't been running yet.
+     * if the pod haven't been running yet, or is currently stopped.
      */
     public fun getMetrics(id: ProjectId): ResourcesUsage {
         val podName = getMainPodName(id) ?: return ResourcesUsage.zero

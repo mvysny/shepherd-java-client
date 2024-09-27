@@ -17,14 +17,24 @@ import kotlin.io.path.outputStream
  * Runs given [command], awaits until the command succeeds, then returns stdout. Fails with an exception on non-zero exit code.
  *
  * Example: `exec("ls", "-la")`
+ * @throws ExecException if the command fails
  */
 internal fun exec(vararg command: String): String {
     val result: ProcessResult = ProcessExecutor().command(*command)
         .readOutput(true)
         .execute()
-    require(result.exitValue == 0) { "${command.joinToString(" ")} failed with exit code ${result.exitValue}: ${result.outputString()}" }
+    if (result.exitValue != 0) {
+        throw ExecException(command.toList(), result.exitValue, result.outputString())
+    }
     return result.outputString()
 }
+
+/**
+ * @property command the command that was run
+ * @property exitValue [ProcessResult.exitValue]
+ * @property output [ProcessResult.outputString]. Will include both stdout and stderr.
+ */
+public class ExecException(public val command: List<String>, public val exitValue: Int, public val output: String) : IOException("${command.joinToString(" ")} failed with exit code $exitValue: $output")
 
 private val whitespaces = "\\s+".toRegex()
 
