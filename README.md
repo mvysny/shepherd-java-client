@@ -167,7 +167,7 @@ Shepherd expects the following from your project:
 
 1. It must have `Dockerfile` at the root of its git repo.
 2. The Docker image can be built via the `docker build --no-cache -t test/xyz:latest .` command;
-   The image can be run via `docker run --rm -ti -p8080:8080 test/xyz` command.
+   The image can be run via `docker run --rm -ti -p8080:8080 -m256m test/xyz` command.
 
 Generally, all you need is to place an appropriate `Dockerfile` to the root of your project's git repository.
 See the following projects for examples:
@@ -180,6 +180,15 @@ See the following projects for examples:
 2. Maven+Embedded Jetty packaged as zip: [vaadin-boot-example-maven](https://github.com/mvysny/vaadin-boot-example-maven)
 3. Maven+Spring Boot packaged as executable jar: [Liukuri](https://github.com/vesanieminen/ElectricityCostDashboard),
    [my-hilla-app](https://github.com/mvysny/my-hilla-app).
+
+Please try building and running the app on your own machine first - debugging
+any Docker-related issues is far easier on dev machine than remotely on Shepherd.
+
+**IMPORTANT**: pay attention to the `-m256m` switch - this sets the hard limit on how much memory
+the container may use.  If JVM asks for more, it will be hard-killed by the Linux OOM-killer,
+without any warning or any log message (only host OS dmesg will log this). Make sure to have your Dockerfile run Java
+with the `-Xmx???m` VM argument; that way the app will crash with OutOfMemoryException which should be visible in the logs.
+The `-Xmx` value should be a bit lower value than the hard limit, to give a bit of room for JVM itself.
 
 ## Private Repositories & Credentials
 
