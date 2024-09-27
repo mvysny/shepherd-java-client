@@ -145,16 +145,17 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
         checkBox("Publish the project on the main domain as well, at `$host/PROJECT_ID`.") {
             bind(binder).bind(MutableProject::publishOnMainDomain)
         }
-        checkBox(
-            "Only affects additional domains. If the project is published on the main domain then it always uses https. " +
-                    "If unchecked, the project is published on additional domains via plain http and the https certificate is not obtained from Let's Encrypt. " +
-                    "Useful e.g. when CloudFlare unwraps https for us. Ignored if there are no additional domains."
-        ) {
-            bind(binder).bind(MutableProject::publishAdditionalDomainsHttps)
-        }
         simpleStringSetField("Additional domains to publish to project at. Must not contain the main domain $host. E.g. `yourproject.com`. You need to configure your domain DNS record to point to $host IP address first!") {
             hint = "Enter your domain and press the PLUS button"
             bind(binder).bind(MutableProject::publishAdditionalDomains)
+        }
+        checkBox(
+            "Use https for additional domains. Only affects additional domains: if the project is published on the main domain ($host) then it always uses https. " +
+                    "If checked, the project is exposed on port 443 as https; https certificate is obtained automatically from Let's Encrypt. Make sure to configure your domain DNS record to point to $host IP address first! " +
+                    "If unchecked, the project is exposed on port 80 as plain http. This is " +
+                    "useful e.g. when CloudFlare unwraps https for us. Ignored if there are no additional domains."
+        ) {
+            bind(binder).bind(MutableProject::publishAdditionalDomainsHttps)
         }
         integerField("Max request body size, in megabytes, defaults to 1m. Increase if you intend your project to accept large file uploads.") {
             bind(binder).bind(MutableProject::ingressMaxBodySizeMb)
