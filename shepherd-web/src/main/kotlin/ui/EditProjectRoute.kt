@@ -119,7 +119,11 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
         h3("Runtime") {
             colspan = 2
         }
-        integerField("How much memory the project needs for running, in MB. Please try to keep the memory requirements as low as possible, so that we can host as many projects as possible. 256MB is a good default, but Spring Boot project may require 350MB or more. WARNING: This is a HARD limit for the app. If JVM asks for more, it will be hard-killed by the Linux OOM-killer, without any warning or any log message (only host OS dmesg will log this). Make sure to use the JVM -Xmx???m as well; the value should be a bit lower value than the hard limit, to give a bit of room for JVM itself. Then the app will crash with OutOfMemoryException which should be visible in the logs.") {
+        integerField("How much memory the project needs for running, in MB. Please try to keep the memory requirements as low as possible, " +
+                "so that we can host as many projects as possible. 256MB is a good default, but Spring Boot project may require 350MB or more. " +
+                "WARNING: This is a HARD limit for the app. If JVM asks for more, it will be hard-killed by the Linux OOM-killer, " +
+                "without any warning or any log message (only host OS dmesg will log this). Make sure to have your Dockerfile run Java with the -Xmx???m VM argument; that way the app will crash with OutOfMemoryException which should be visible in the logs. " +
+                "The -Xmx value should be a bit lower value than the hard limit, to give a bit of room for JVM itself.") {
             bind(binder)
                 .withValidator(SerializablePredicate { it == null || it <= config.maxProjectRuntimeResources.memoryMb }, "Can not be larger than ${config.maxProjectRuntimeResources.memoryMb}")
                 .bind(MutableProject::runtimeMemoryMb)
