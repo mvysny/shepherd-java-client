@@ -1,5 +1,6 @@
 package com.github.mvysny.shepherd.web.ui.components
 
+import com.github.mvysny.karibudsl.v10.StringNotBlankValidator
 import com.github.mvysny.karibudsl.v10.VaadinDsl
 import com.github.mvysny.karibudsl.v10.componentColumn
 import com.github.mvysny.shepherd.api.containsWhitespaces
@@ -10,6 +11,7 @@ import com.vaadin.flow.component.grid.Grid
 import com.vaadin.flow.component.icon.VaadinIcon
 import com.vaadin.flow.component.notification.Notification
 import com.vaadin.flow.component.notification.NotificationVariant
+import com.vaadin.flow.data.binder.Binder
 import com.vaadin.flow.data.binder.ValidationResult
 import com.vaadin.flow.data.binder.Validator
 import com.vaadin.flow.data.binder.ValueContext
@@ -65,14 +67,19 @@ data class CompositeValidator<T>(val validators: List<Validator<in T?>>) : Valid
 
 fun <T> Validator<T?>.and(other: Validator<T?>): Validator<T?> = CompositeValidator(listOf(this, other))
 
-class StringContainsNoWhitespacesValidator : Validator<String?> {
+class StringContainsNoWhitespacesValidator(val errorMessage: String = "must not contain whitespaces") : Validator<String?> {
     override fun apply(
         value: String?,
         context: ValueContext?
     ): ValidationResult {
         if (value != null && value.containsWhitespaces()) {
-            return ValidationResult.error("May not contain whitespaces")
+            return ValidationResult.error(errorMessage)
         }
         return ValidationResult.ok()
     }
 }
+
+fun <BEAN> Binder.BindingBuilder<BEAN, String?>.validateNoWhitespaces(
+    errorMessage: String = "must not contain whitespaces"
+): Binder.BindingBuilder<BEAN, String?> =
+    withValidator(StringContainsNoWhitespacesValidator(errorMessage))
