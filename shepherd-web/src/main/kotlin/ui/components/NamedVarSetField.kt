@@ -10,6 +10,7 @@ import com.github.mvysny.karibudsl.v10.grid
 import com.github.mvysny.karibudsl.v10.init
 import com.github.mvysny.karibudsl.v10.onClick
 import com.github.mvysny.karibudsl.v10.textField
+import com.github.mvysny.karibudsl.v10.trimmingConverter
 import com.github.mvysny.shepherd.web.ui.NamedVar
 import com.vaadin.flow.component.HasComponents
 import com.vaadin.flow.component.customfield.CustomField
@@ -106,11 +107,12 @@ private class NamedVarForm(val existingNames: Set<String>, val creating: Boolean
         textField("Name") {
             isReadOnly = !creating
             bind(binder)
+                .trimmingConverter()
                 .withValidator(SerializablePredicate { it -> !existingNames.contains(it) }, "This name is already present")
                 .bind(MutableNamedVar::name)
         }
         textField("Value") {
-            bind(binder).bind(MutableNamedVar::value)
+            bind(binder).trimmingConverter().bind(MutableNamedVar::value)
         }
     }
 }

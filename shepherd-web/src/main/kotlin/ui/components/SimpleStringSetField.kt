@@ -1,5 +1,6 @@
 package com.github.mvysny.shepherd.web.ui.components
 
+import com.github.mvysny.karibudsl.v10.StringNotBlankValidator
 import com.github.mvysny.karibudsl.v10.VaadinDsl
 import com.github.mvysny.karibudsl.v10.button
 import com.github.mvysny.karibudsl.v10.init
@@ -16,6 +17,8 @@ import com.vaadin.flow.component.icon.VaadinIcon
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout
 import com.vaadin.flow.component.textfield.TextField
 import com.vaadin.flow.component.textfield.TextFieldVariant
+import com.vaadin.flow.data.binder.Validator
+import com.vaadin.flow.data.binder.ValueContext
 
 /**
  * A simple field which allows the user to edit a set of short strings.
@@ -25,6 +28,8 @@ class SimpleStringSetField(label: String? = null) : CustomField<Set<String>>() {
     private val addItemTextField: TextField
     private val addItemButton: Button
     private var value = mutableSetOf<String>()
+    var newValueValidator: Validator<String?> = Validator.alwaysPass()
+    private fun calculateNewValueValidator(): Validator<String?> = StringNotBlankValidator().and(newValueValidator)
     init {
         this.label = label
         add(HorizontalLayout().apply {
@@ -41,13 +46,18 @@ class SimpleStringSetField(label: String? = null) : CustomField<Set<String>>() {
 
         addItemButton.onClick {
             val newString = addItemTextField.value.trim()
-            if (!newString.isBlank()) {
+            val validationResult = calculateNewValueValidator().apply(newString, ValueContext())
+            addItemTextField.isInvalid = validationResult.isError
+            if (!validationResult.isError) {
+                addItemTextField.errorMessage = null
                 value = value.toMutableSet()
                 value.add(newString)
                 comboBox.setItems(this.value.toMutableSet())
-                comboBox.setValue(this.value.toMutableSet())
+                comboBox.value = this.value.toMutableSet()
+                addItemTextField.value = ""
+            } else {
+                addItemTextField.errorMessage = validationResult.errorMessage
             }
-            addItemTextField.value = ""
         }
         comboBox.addValueChangeListener { e ->
             if (e.isFromClient) {
@@ -62,7 +72,7 @@ class SimpleStringSetField(label: String? = null) : CustomField<Set<String>>() {
     override fun setPresentationValue(value: Set<String>?) {
         this.value = value.orEmpty().toMutableSet()
         comboBox.setItems(this.value.toMutableSet())
-        comboBox.setValue(this.value.toMutableSet())
+        comboBox.value = this.value.toMutableSet()
     }
 
     var hint: String

@@ -12,6 +12,7 @@ import com.github.mvysny.karibudsl.v10.grid
 import com.github.mvysny.karibudsl.v10.onClick
 import com.github.mvysny.karibudsl.v10.passwordField
 import com.github.mvysny.karibudsl.v10.textField
+import com.github.mvysny.karibudsl.v10.trimmingConverter
 import com.github.mvysny.karibudsl.v10.verticalLayout
 import com.github.mvysny.karibudsl.v23.multiSelectComboBox
 import com.github.mvysny.shepherd.web.security.User
@@ -94,11 +95,11 @@ private class UserForm(val isCreating: Boolean) : KFormLayout(), Form<User> {
     init {
         emailField("E-mail") {
             isEnabled = isCreating
-            bind(binder).bind(User::email)
+            bind(binder).trimmingConverter().bind(User::email)
         }
         textField("Name") {
             placeholder = "Full name, e.g. Martin Vysny"
-            bind(binder).bind(User::name)
+            bind(binder).trimmingConverter().bind(User::name)
         }
         multiSelectComboBox<UserRoles>("Roles") {
             setItems(UserRoles.entries)

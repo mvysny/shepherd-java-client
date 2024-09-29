@@ -15,6 +15,7 @@ import com.github.mvysny.karibudsl.v10.init
 import com.github.mvysny.karibudsl.v10.integerField
 import com.github.mvysny.karibudsl.v10.onClick
 import com.github.mvysny.karibudsl.v10.textField
+import com.github.mvysny.karibudsl.v10.trimmingConverter
 import com.github.mvysny.karibudsl.v10.verticalLayout
 import com.github.mvysny.karibudsl.v23.multiSelectComboBox
 import com.github.mvysny.kaributools.navigateTo
@@ -84,37 +85,37 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
 
         textField("The project ID, must be unique. The project will be published and running at https://$host/PROJECT_ID") {
             isEnabled = creatingNew // can't change project ID
-            bind(binder).bind(MutableProject::id)
+            bind(binder).trimmingConverter().bind(MutableProject::id)
         }
         textField("Description: Any additional vital information about the project") {
-            bind(binder).bind(MutableProject::description)
+            bind(binder).trimmingConverter().bind(MutableProject::description)
         }
         textField("WebPage: the project home page. May be empty, in such case GitRepo URL is considered the home page.") {
-            bind(binder).bind(MutableProject::webpage)
+            bind(binder).trimmingConverter().bind(MutableProject::webpage)
         }
         h3("Git Repository") {
             colspan = 2
         }
         textField("GIT Repository URL: the git repository from where the project comes from, e.g. https://github.com/mvysny/vaadin-boot-example-gradle") {
-            bind(binder).bind(MutableProject::gitRepoURL)
+            bind(binder).trimmingConverter().bind(MutableProject::gitRepoURL)
         }
         textField("GIT Repository branch: usually `master` or `main`") {
-            bind(binder).bind(MutableProject::gitRepoBranch)
+            bind(binder).trimmingConverter().bind(MutableProject::gitRepoBranch)
         }
         textField("GIT Repository Credentials ID") {
             isVisible = isAdmin
-            bind(binder).bind(MutableProject::gitRepoCredentialsID)
+            bind(binder).trimmingConverter().bind(MutableProject::gitRepoCredentialsID)
         }
         h3("Owner") {
             colspan = 2
         }
         textField("Project Owner Name. Only Shepherd admin can create projects for someone else.") {
             isEnabled = isAdmin
-            bind(binder).bind(MutableProject::projectOwnerName)
+            bind(binder).trimmingConverter().bind(MutableProject::projectOwnerName)
         }
         emailField("How to reach the project owner in case the project needs to be modified/misbehaves. Jenkins will send notification emails about the failed builds here.") {
             isEnabled = isAdmin
-            bind(binder).bind(MutableProject::projectOwnerEmail)
+            bind(binder).trimmingConverter().bind(MutableProject::projectOwnerEmail)
         }
         h3("Runtime") {
             colspan = 2
@@ -141,7 +142,7 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
             bind(binder).bind(MutableProject::buildArgs)
         }
         textField("If not null, we build off this dockerfile instead of the default `Dockerfile`") {
-            bind(binder).bind(MutableProject::buildDockerFile)
+            bind(binder).trimmingConverter().bind(MutableProject::buildDockerFile)
         }
         h3("Publishing") {
             colspan = 2

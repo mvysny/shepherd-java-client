@@ -9,6 +9,9 @@ import com.vaadin.flow.component.grid.Grid
 import com.vaadin.flow.component.icon.VaadinIcon
 import com.vaadin.flow.component.notification.Notification
 import com.vaadin.flow.component.notification.NotificationVariant
+import com.vaadin.flow.data.binder.ValidationResult
+import com.vaadin.flow.data.binder.Validator
+import com.vaadin.flow.data.binder.ValueContext
 
 @VaadinDsl
 fun <T> (@VaadinDsl Grid<T>).iconButtonColumn(
@@ -46,3 +49,17 @@ fun showInfoNotification(message: String) {
     n.duration = 5000
     n.open()
 }
+
+class CompositeValidator<T>(val validators: List<Validator<in T?>>) : Validator<T?> {
+    override fun apply(
+        value: T?,
+        context: ValueContext?
+    ): ValidationResult {
+        val firstError = validators.asSequence()
+            .map { it.apply(value, context) }
+            .firstOrNull { it.isError } ?: ValidationResult.ok()
+        return firstError
+    }
+}
+
+fun <T> Validator<T?>.and(other: Validator<T?>): Validator<T?> = CompositeValidator(listOf(this, other))
