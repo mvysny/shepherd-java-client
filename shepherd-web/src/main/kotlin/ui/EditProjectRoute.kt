@@ -97,13 +97,16 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
             colspan = 2
         }
         textField("GIT Repository URL: the git repository from where the project comes from, e.g. https://github.com/mvysny/vaadin-boot-example-gradle") {
+            isEnabled = creatingNew // can't change git repo atm
             bind(binder).trimmingConverter().bind(MutableProject::gitRepoURL)
         }
         textField("GIT Repository branch: usually `master` or `main`") {
+            isEnabled = creatingNew // can't change git repo atm
             bind(binder).trimmingConverter().bind(MutableProject::gitRepoBranch)
         }
         textField("GIT Repository Credentials ID") {
             isVisible = isAdmin
+            isEnabled = creatingNew // can't change git repo atm
             bind(binder).trimmingConverter().bind(MutableProject::gitRepoCredentialsID)
         }
         h3("Owner") {

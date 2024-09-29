@@ -74,3 +74,5 @@ public object JsonUtils {
     public inline fun <reified T> toJson(obj: T, prettyPrint: Boolean = true): String =
         getJson(prettyPrint).encodeToString<T>(obj)
 }
+
+public fun String.containsWhitespaces(): Boolean = any { it.isWhitespace() }

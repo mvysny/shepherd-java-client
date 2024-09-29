@@ -109,6 +109,7 @@ private class NamedVarForm(val existingNames: Set<String>, val creating: Boolean
             bind(binder)
                 .trimmingConverter()
                 .withValidator(SerializablePredicate { it -> !existingNames.contains(it) }, "This name is already present")
+                .withValidator(StringContainsNoWhitespacesValidator())
                 .bind(MutableNamedVar::name)
         }
         textField("Value") {

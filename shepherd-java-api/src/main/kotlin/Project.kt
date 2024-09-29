@@ -8,15 +8,10 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.decodeFromStream
-import kotlinx.serialization.json.encodeToStream
 import java.nio.file.Path
-import kotlin.io.path.inputStream
-import kotlin.io.path.outputStream
 
 /**
  * The Project ID must:
@@ -116,7 +111,13 @@ public data class GitRepo(
     val url: String,
     val branch: String,
     val credentialsID: String? = null
-)
+) {
+    init {
+        require(!url.containsWhitespaces()) { "url '$url' must not contain whitespaces" }
+        require(!branch.containsWhitespaces()) { "branch '$branch' must not contain whitespaces" }
+        require(credentialsID == null || !credentialsID.containsWhitespaces()) { "credentialsID '$credentialsID' must not contain whitespaces" }
+    }
+}
 
 /**
  * Runtime project config.
@@ -127,7 +128,13 @@ public data class GitRepo(
 public data class ProjectRuntime @JvmOverloads constructor(
     val resources: Resources,
     val envVars: Map<String, String> = mapOf()
-)
+) {
+    init {
+        envVars.keys.forEach { key ->
+            require(!key.containsWhitespaces()) { "key $key: must not contain whitespaces" }
+        }
+    }
+}
 
 /**
  * @property id the project ID, must be unique.

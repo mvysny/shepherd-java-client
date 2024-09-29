@@ -2,6 +2,7 @@ package com.github.mvysny.shepherd.web.ui.components
 
 import com.github.mvysny.karibudsl.v10.VaadinDsl
 import com.github.mvysny.karibudsl.v10.componentColumn
+import com.github.mvysny.shepherd.api.containsWhitespaces
 import com.vaadin.flow.component.button.Button
 import com.vaadin.flow.component.button.ButtonVariant
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog
@@ -50,7 +51,7 @@ fun showInfoNotification(message: String) {
     n.open()
 }
 
-class CompositeValidator<T>(val validators: List<Validator<in T?>>) : Validator<T?> {
+data class CompositeValidator<T>(val validators: List<Validator<in T?>>) : Validator<T?> {
     override fun apply(
         value: T?,
         context: ValueContext?
@@ -63,3 +64,15 @@ class CompositeValidator<T>(val validators: List<Validator<in T?>>) : Validator<
 }
 
 fun <T> Validator<T?>.and(other: Validator<T?>): Validator<T?> = CompositeValidator(listOf(this, other))
+
+class StringContainsNoWhitespacesValidator : Validator<String?> {
+    override fun apply(
+        value: String?,
+        context: ValueContext?
+    ): ValidationResult {
+        if (value != null && value.containsWhitespaces()) {
+            return ValidationResult.error("May not contain whitespaces")
+        }
+        return ValidationResult.ok()
+    }
+}
