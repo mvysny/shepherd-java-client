@@ -70,13 +70,16 @@ public class SimpleKubernetesClient @JvmOverloads constructor(
         if (f.exists()) {
             log.info("Deleting kubernetes objects for $f, please wait. May take up to 1 minute.")
             try {
+                // todo mavi: this could fail if the config.yaml doesn't list all resources, e.g. if a database was removed from the project.
+                // the reason is that the file also includes the creation of the namespace; but the namespace can't probably be deleted if it's not empty?
+                // needs testing.
                 exec(*kubectl, "delete", "-f", f.toString())
                 log.info("Deleting Kubernetes config yaml file $f")
                 f.deleteExisting()
             } catch (e: Exception) {
                 throw RuntimeException("Failed to delete project $id from Kubernetes: ${e.message}", e)
             }
-            // todo mavi: we should nuke everything in the namespace - what if the database was removed and is left around running?
+            // todo mavi: we should maybe nuke everything in the namespace - what if the database was removed and is left around running?
             // see https://stackoverflow.com/questions/47128586/how-to-delete-all-resources-from-kubernetes-one-time#55838844 for more details.
             // run: kubectl delete all --all -n {id.kubernetesNamespace}
             // and: kubectl delete namespace {id.kubernetesNamespace}
