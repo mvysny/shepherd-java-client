@@ -74,7 +74,7 @@ public class SimpleKubernetesClient @JvmOverloads constructor(
                 log.info("Deleting Kubernetes config yaml file $f")
                 f.deleteExisting()
             } catch (e: Exception) {
-                log.error("Failed to mkctl delete ${id.id}", e)
+                throw RuntimeException("Failed to delete project $id from Kubernetes: ${e.message}", e)
             }
         } else {
             log.warn("$f doesn't exist, not deleting project objects from Kubernetes")

@@ -12,6 +12,10 @@ import java.net.http.HttpResponse.BodyHandlers
 import java.time.Duration
 import java.time.Instant
 
+/**
+ * The Jenkins API documentation is offered by Jenkins itself: go to the running
+ * Jenkins instance and search the "REST API" link at the bottom of the screen.
+ */
 internal class SimpleJenkinsClient @JvmOverloads constructor(
     private val jenkinsUrl: String = "http://localhost:8080",
     private val jenkinsUsername: String = "admin",
@@ -205,12 +209,18 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
     /**
      * Deletes Jenkins job for given project. Does nothing if the job doesn't exist - logs
      * a warning log instead.
+     *
+     * All ongoing builds of the project are automatically canceled.
+     *
+     * The function returns only after all the builds are canceled and the project is deleted.
      */
     fun deleteJobIfExists(id: ProjectId) {
         if (!hasJob(id)) {
             log.warn("Jenkins job ${id.jenkinsJobName} doesn't exist, not deleting Jenkins job")
             return
         }
+
+        // @todo mavi do we need to cancel the ongoing builds?
 
         log.info("Deleting Jenkins job ${id.jenkinsJobName}")
         val url = URI("$jenkinsUrl/job/${id.jenkinsJobName}/doDelete/api/json")

@@ -94,7 +94,7 @@ class ProjectListRoute : KComposite() {
     }
 
     private fun delete(id: ProjectId) {
-        confirmDialog("Delete project ${id.id}? This action can not be reverted!") {
+        confirmDialog("Delete project ${id.id}? This action can not be reverted! Please wait patiently - this action can take up to 1 minute.") {
             Bootstrap.getClient().deleteProject(id)
             showInfoNotification("Project ${id.id} deleted successfully")
         }

@@ -74,6 +74,7 @@ public interface ShepherdClient : Closeable {
      * cleanup of Kubernetes objects is a lengthy operation.
      *
      * Does nothing if the project doesn't exist.
+     * @throws Exception if the deletion fails.
      */
     public fun deleteProject(id: ProjectId)
 
