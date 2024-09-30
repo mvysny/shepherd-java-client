@@ -69,6 +69,8 @@ public class SimpleKubernetesClient @JvmOverloads constructor(
         val f = getConfigYamlFile(id)
         if (f.exists()) {
             log.info("Deleting kubernetes objects for $f, please wait. May take up to 1 minute.")
+            // documentation for kubectl delete:
+            // https://kubernetes.io/docs/reference/kubectl/generated/kubectl_delete/
             try {
                 // todo mavi: this could fail if the config.yaml doesn't list all resources, e.g. if a database was removed from the project.
                 // the reason is that the file also includes the creation of the namespace; but the namespace can't probably be deleted if it's not empty?
