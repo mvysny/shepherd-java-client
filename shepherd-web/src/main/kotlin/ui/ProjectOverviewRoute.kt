@@ -12,6 +12,7 @@ import com.github.mvysny.shepherd.web.Bootstrap
 import com.github.mvysny.shepherd.web.security.checkProjectId
 import com.github.mvysny.shepherd.web.ui.components.ProjectQuickDetailsTable
 import com.github.mvysny.shepherd.web.ui.components.projectQuickDetailsTable
+import com.vaadin.flow.component.button.ButtonVariant
 import com.vaadin.flow.component.html.Anchor
 import com.vaadin.flow.router.BeforeEvent
 import com.vaadin.flow.router.HasUrlParameter
@@ -47,6 +48,10 @@ class ProjectOverviewRoute : KComposite(), HasUrlParameter<String> {
                     }
                 }
                 downloadRuntimeLogs = anchor(text = "Runtime Logs")
+                button("Delete Project") {
+                    addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR)
+                    onClick { deleteProject(project.id) }
+                }
             }
         }
     }

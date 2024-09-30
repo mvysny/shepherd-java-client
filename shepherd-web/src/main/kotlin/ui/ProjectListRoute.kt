@@ -15,7 +15,6 @@ import com.github.mvysny.karibudsl.v10.verticalLayout
 import com.github.mvysny.shepherd.api.Project
 import com.github.mvysny.shepherd.api.ProjectId
 import com.github.mvysny.shepherd.api.ProjectView
-import com.github.mvysny.shepherd.api.Publication
 import com.github.mvysny.shepherd.web.Bootstrap
 import com.github.mvysny.shepherd.web.host
 import com.github.mvysny.shepherd.web.security.getCurrentUser
@@ -23,7 +22,6 @@ import com.github.mvysny.shepherd.web.ui.components.FormDialog
 import com.github.mvysny.shepherd.web.ui.components.ProjectQuickDetailsTable
 import com.github.mvysny.shepherd.web.ui.components.confirmDialog
 import com.github.mvysny.shepherd.web.ui.components.iconButtonColumn
-import com.github.mvysny.shepherd.web.ui.components.projectQuickDetailsTable
 import com.github.mvysny.shepherd.web.ui.components.shepherdStatsTable
 import com.github.mvysny.shepherd.web.ui.components.showInfoNotification
 import com.vaadin.flow.component.Component
@@ -85,18 +83,11 @@ class ProjectListRoute : KComposite() {
                     setHeader("Builds")
                 }
                 iconButtonColumn(VaadinIcon.TRASH) {
-                    delete(it.project.id)
+                    deleteProject(it.project.id)
                 }
 
                 setItemDetailsRenderer(ComponentRenderer { p -> ProjectQuickDetailsTable(p.project) })
             }
-        }
-    }
-
-    private fun delete(id: ProjectId) {
-        confirmDialog("Delete project ${id.id}? This action can not be reverted! Please wait patiently - this action can take up to 1 minute.") {
-            Bootstrap.getClient().deleteProject(id)
-            showInfoNotification("Project ${id.id} deleted successfully")
         }
     }
 
@@ -132,5 +123,12 @@ class PublishedURLsAsVerticalLayout(project: Project) : VerticalLayout() {
         isPadding = false
         isSpacing = false
         project.getPublishedURLs(host).map { it -> Anchor(it, it) } .forEach { add(it) }
+    }
+}
+
+fun deleteProject(id: ProjectId) {
+    confirmDialog("Delete project ${id.id}? This action can not be reverted! Please wait patiently - this action can take up to 1 minute.") {
+        Bootstrap.getClient().deleteProject(id)
+        showInfoNotification("Project ${id.id} deleted successfully")
     }
 }
