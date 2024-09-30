@@ -1,7 +1,6 @@
 [versions]
-vaadin = "24.4.11"
+vaadin = "24.4.12"
 kotlin = "2.0.20"
-dynatest = "0.25"
 slf4j = "2.0.13"
 
 [libraries]
