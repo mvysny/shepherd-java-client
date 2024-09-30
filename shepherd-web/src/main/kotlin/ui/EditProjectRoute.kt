@@ -105,8 +105,7 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
                 .validateNoWhitespaces()
                 .bind(MutableProject::gitRepoURL)
         }
-        textField("GIT Repository branch: usually `master` or `main`. WARN: this can not be changed later") {
-            isEnabled = creatingNew // can't change git repo atm
+        textField("GIT Repository branch: usually `master` or `main`") {
             bind(binder)
                 .trimmingConverter()
                 .validateNoWhitespaces()

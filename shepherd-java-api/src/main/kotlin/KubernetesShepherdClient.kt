@@ -52,7 +52,8 @@ public class KubernetesShepherdClient @JvmOverloads constructor(
 
     override fun updateProject(project: Project) {
         val oldProject = projectConfigFolder.getProjectInfo(project.id)
-        require(oldProject.gitRepo == project.gitRepo) { "gitRepo is not allowed to be changed: new ${project.gitRepo} old ${project.gitRepo}" }
+        // temporarily relax requirement that the branch can be changed.
+        require(oldProject.gitRepo.url == project.gitRepo.url) { "gitRepo is not allowed to be changed: new ${project.gitRepo} old ${project.gitRepo}" }
 
         checkMemoryUsage(project)
 
