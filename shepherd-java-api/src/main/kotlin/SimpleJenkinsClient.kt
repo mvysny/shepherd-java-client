@@ -246,7 +246,8 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
          */
         fun needsProjectRebuild(newProject: Project, oldProject: Project): Boolean =
             newProject.build.buildArgs != oldProject.build.buildArgs ||
-                    newProject.build.dockerFile != oldProject.build.dockerFile
+                    newProject.build.dockerFile != oldProject.build.dockerFile ||
+                    newProject.gitRepo != oldProject.gitRepo
 
         private val json = Json { ignoreUnknownKeys = true; coerceInputValues = true }
     }
