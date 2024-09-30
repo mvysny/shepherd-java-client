@@ -72,15 +72,15 @@ public class SimpleKubernetesClient @JvmOverloads constructor(
             // documentation for kubectl delete:
             // https://kubernetes.io/docs/reference/kubectl/generated/kubectl_delete/
             try {
-                // todo mavi: this could fail if the config.yaml doesn't list all resources, e.g. if a database was removed from the project.
+                // this command could (probably) fail if the config.yaml doesn't list all resources, e.g. if a database was removed from the project.
                 // the reason is that the file also includes the creation of the namespace; but the namespace can't probably be deleted if it's not empty?
                 // needs testing.
-                // todo mavi: we should maybe nuke everything in the namespace - what if the database was removed and is left around running?
+//                exec(*kubectl, "delete", "-f", f.toString())
+
+                // I guess easier is to nuke everything in the namespace - what if the database was removed and is left around running?
                 // see https://stackoverflow.com/questions/47128586/how-to-delete-all-resources-from-kubernetes-one-time#55838844 for more details.
                 // run: kubectl delete all --all -n {id.kubernetesNamespace}
                 // and: kubectl delete namespace {id.kubernetesNamespace}
-
-//                exec(*kubectl, "delete", "-f", f.toString())
                 exec(*kubectl, "delete", "all", "--all", "-n", id.kubernetesNamespace)
                 exec(*kubectl, "delete", "namespace", id.kubernetesNamespace)
 
