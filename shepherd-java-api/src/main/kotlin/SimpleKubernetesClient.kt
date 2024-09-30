@@ -76,6 +76,10 @@ public class SimpleKubernetesClient @JvmOverloads constructor(
             } catch (e: Exception) {
                 throw RuntimeException("Failed to delete project $id from Kubernetes: ${e.message}", e)
             }
+            // todo mavi: we should nuke everything in the namespace - what if the database was removed and is left around running?
+            // see https://stackoverflow.com/questions/47128586/how-to-delete-all-resources-from-kubernetes-one-time#55838844 for more details.
+            // run: kubectl delete all --all -n {id.kubernetesNamespace}
+            // and: kubectl delete namespace {id.kubernetesNamespace}
         } else {
             log.warn("$f doesn't exist, not deleting project objects from Kubernetes")
         }
