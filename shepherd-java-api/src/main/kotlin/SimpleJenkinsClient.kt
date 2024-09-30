@@ -220,9 +220,8 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
             return
         }
 
-        // @todo mavi do we need to cancel the ongoing builds?
-
-        log.info("Deleting Jenkins job ${id.jenkinsJobName}")
+        log.info("Deleting Jenkins job ${id.jenkinsJobName}. This also cancels all ongoing builds of this project.")
+        // deletes the job (=project in Jenkins terminology), canceling any ongoing builds of this job.
         val url = URI("$jenkinsUrl/job/${id.jenkinsJobName}/doDelete/api/json")
         val request = url.buildRequest {
             POST(BodyPublishers.noBody())
