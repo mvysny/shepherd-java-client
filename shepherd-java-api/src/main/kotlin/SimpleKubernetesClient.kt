@@ -152,6 +152,10 @@ public class SimpleKubernetesClient @JvmOverloads constructor(
 
         // proxy-read-timeout, proxy-send-timeout: https://stackoverflow.com/questions/53592545/increase-proxy-send-timeout-and-proxy-read-timeout-ingress-nginx
         // the value is just 1800, NOT 1800s or "1800s". Also https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/#proxy-read-timeout
+        //
+        // Actually, microk8s rejects number: error: unable to decode "/tmp/poll.yaml": json: cannot unmarshal number into Go struct field ObjectMeta.metadata.annotations of type string
+        // I'll pass in "1800"
+
         // client-max-body-size: it's named proxy-body-size: https://stackoverflow.com/a/51904367/377320
         // also: https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#custom-max-body-size
 
@@ -215,8 +219,8 @@ metadata:
       rewrite ^(/$projectId)${'$'} ${'$'}1/ permanent;
     nginx.ingress.kubernetes.io/proxy-redirect-from: https://$defaultDNS/  # Spring Security redirects to /login
     nginx.ingress.kubernetes.io/proxy-redirect-to: https://$defaultDNS/${'$'}1/
-    nginx.ingress.kubernetes.io/proxy-read-timeout: ${project.publication.ingressConfig.proxyReadTimeoutSeconds}
-    nginx.ingress.kubernetes.io/proxy-send-timeout: ${project.publication.ingressConfig.proxyReadTimeoutSeconds}
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "${project.publication.ingressConfig.proxyReadTimeoutSeconds}"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "${project.publication.ingressConfig.proxyReadTimeoutSeconds}"
     nginx.ingress.kubernetes.io/proxy-body-size: ${project.publication.ingressConfig.maxBodySizeMb}m
 spec:
   tls:
