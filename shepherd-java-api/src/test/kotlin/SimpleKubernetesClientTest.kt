@@ -67,8 +67,9 @@ metadata:
       rewrite ^(/vaadin-boot-example-gradle)${'$'} ${'$'}1/ permanent;
     nginx.ingress.kubernetes.io/proxy-redirect-from: https://v-herd.eu/  # Spring Security redirects to /login
     nginx.ingress.kubernetes.io/proxy-redirect-to: https://v-herd.eu/${'$'}1/
-    nginx.ingress.kubernetes.io/proxy-read-timeout: 60s
-    nginx.ingress.kubernetes.io/client-max-body-size: 1m
+    nginx.ingress.kubernetes.io/proxy-read-timeout: 60
+    nginx.ingress.kubernetes.io/proxy-send-timeout: 60
+    nginx.ingress.kubernetes.io/proxy-body-size: 1m
 spec:
   tls:
   - hosts:
@@ -158,8 +159,9 @@ metadata:
       rewrite ^(/vaadin-boot-example-gradle)${'$'} ${'$'}1/ permanent;
     nginx.ingress.kubernetes.io/proxy-redirect-from: https://v-herd.eu/  # Spring Security redirects to /login
     nginx.ingress.kubernetes.io/proxy-redirect-to: https://v-herd.eu/${'$'}1/
-    nginx.ingress.kubernetes.io/proxy-read-timeout: 60s
-    nginx.ingress.kubernetes.io/client-max-body-size: 1m
+    nginx.ingress.kubernetes.io/proxy-read-timeout: 60
+    nginx.ingress.kubernetes.io/proxy-send-timeout: 60
+    nginx.ingress.kubernetes.io/proxy-body-size: 1m
 spec:
   tls:
   - hosts:
@@ -244,8 +246,9 @@ metadata:
       rewrite ^(/vaadin-boot-example-gradle)${'$'} ${'$'}1/ permanent;
     nginx.ingress.kubernetes.io/proxy-redirect-from: https://v-herd.eu/  # Spring Security redirects to /login
     nginx.ingress.kubernetes.io/proxy-redirect-to: https://v-herd.eu/${'$'}1/
-    nginx.ingress.kubernetes.io/proxy-read-timeout: 60s
-    nginx.ingress.kubernetes.io/client-max-body-size: 1m
+    nginx.ingress.kubernetes.io/proxy-read-timeout: 60
+    nginx.ingress.kubernetes.io/proxy-send-timeout: 60
+    nginx.ingress.kubernetes.io/proxy-body-size: 1m
 spec:
   tls:
   - hosts:
@@ -387,8 +390,9 @@ metadata:
       rewrite ^(/vaadin-boot-example-gradle)${'$'} ${'$'}1/ permanent;
     nginx.ingress.kubernetes.io/proxy-redirect-from: https://v-herd.eu/  # Spring Security redirects to /login
     nginx.ingress.kubernetes.io/proxy-redirect-to: https://v-herd.eu/${'$'}1/
-    nginx.ingress.kubernetes.io/proxy-read-timeout: 60s
-    nginx.ingress.kubernetes.io/client-max-body-size: 1m
+    nginx.ingress.kubernetes.io/proxy-read-timeout: 60
+    nginx.ingress.kubernetes.io/proxy-send-timeout: 60
+    nginx.ingress.kubernetes.io/proxy-body-size: 1m
 spec:
   tls:
   - hosts:
