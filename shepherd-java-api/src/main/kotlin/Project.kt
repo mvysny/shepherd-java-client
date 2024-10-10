@@ -119,12 +119,19 @@ public data class GitRepo(
         require(url.contains(':'))  { "url '$url' must contain colon (can not be a local path)" }
         if (url.contains("://")) {
             URI.create(url) // don't convert to URL otherwise this would fail: unknown protocol: ssh
+        } else {
+            require(scpLikeSyntaxRegex.matches(url)) { "url '$url' doesn't have valid scp-like syntax" }
         }
         require(!branch.containsWhitespaces()) { "branch '$branch' must not contain whitespaces" }
         require(credentialsID == null || !credentialsID.containsWhitespaces()) { "credentialsID '$credentialsID' must not contain whitespaces" }
         if (credentialsID != null) {
             UUID.fromString(credentialsID) // make sure it's a UUID
         }
+    }
+
+    private companion object {
+        // https://mirrors.edge.kernel.org/pub/software/scm/git/docs/git-clone.html#URLS
+        private val scpLikeSyntaxRegex = "([A-Za-z][A-Za-z0-9+.-]*@)?[A-Za-z][A-Za-z0-9+.-]*:[A-Za-z0-9+.\\-/~]*".toRegex()
     }
 }
 
