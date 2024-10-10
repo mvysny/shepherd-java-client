@@ -82,3 +82,65 @@ class ProjectTest {
         expect(fakeProject2) { Project.fromJson(serializedJson2) }
     }
 }
+
+class GitRepoTest {
+    @Test
+    fun validation() {
+        // valid repos
+        GitRepo(
+            "https://github.com/mvysny/shepherd-java-client",
+            "master",
+            null
+        )
+        GitRepo(
+            "git@github.com:mvysny/shepherd-java-client.git",
+            "master",
+            "dbe7586a-86f2-11ef-ad36-bb31ef1eb1e7"
+        )
+
+        // https://stackoverflow.com/q/31801271/377320
+        listOf(
+            "https://github.com/mvysny/shepherd-java-client",
+            "git@github.com:mvysny/shepherd-java-client.git",
+            "ssh://user@host.xz:port/path/to/repo.git/",
+            "ssh://user@host.xz/path/to/repo.git/",
+            "ssh://host.xz:port/path/to/repo.git/",
+            "ssh://host.xz/path/to/repo.git/",
+            "ssh://user@host.xz/path/to/repo.git/",
+            "ssh://host.xz/path/to/repo.git/",
+            "ssh://user@host.xz/~user/path/to/repo.git/",
+            "ssh://host.xz/~user/path/to/repo.git/",
+            "ssh://user@host.xz/~/path/to/repo.git",
+            "ssh://host.xz/~/path/to/repo.git",
+            "user@host.xz:/path/to/repo.git/",
+            "host.xz:/path/to/repo.git/",
+            "user@host.xz:~user/path/to/repo.git/",
+            "host.xz:~user/path/to/repo.git/",
+            "user@host.xz:path/to/repo.git",
+            "host.xz:path/to/repo.git",
+            "rsync://host.xz/path/to/repo.git/",
+            "git://host.xz/path/to/repo.git/",
+            "git://host.xz/~user/path/to/repo.git/",
+            "http://host.xz/path/to/repo.git/",
+            "https://host.xz/path/to/repo.git/",
+        ).forEach { GitRepo(it, "master") }
+
+        // invalid repos
+        assertThrows<IllegalArgumentException> {
+            GitRepo("foo", "master")
+        }
+        assertThrows<IllegalArgumentException> {
+            GitRepo(
+                "foo git@github.com:mvysny/shepherd-java-client.git",
+                "master"
+            )
+        }
+        assertThrows<IllegalArgumentException> {
+            GitRepo(
+                "git@github.com:mvysny/shepherd-java-client.git",
+                "master",
+                "abc"
+            )
+        }
+    }
+}

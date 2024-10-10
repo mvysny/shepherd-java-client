@@ -28,6 +28,7 @@ import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Pattern
 import org.hibernate.validator.constraints.Length
 import org.hibernate.validator.constraints.URL
+import org.hibernate.validator.constraints.UUID
 import java.math.BigDecimal
 
 /**
@@ -83,6 +84,7 @@ data class MutableProject(
     @field:Length(max = 255)
     var gitRepoBranch: String?,
     @field:Length(max = 255)
+    @field:UUID
     var gitRepoCredentialsID: String?,
     @field:NotNull
     @field:NotBlank

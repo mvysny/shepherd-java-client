@@ -11,7 +11,9 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
+import java.net.URI
 import java.nio.file.Path
+import java.util.UUID
 
 /**
  * The Project ID must:
@@ -114,8 +116,15 @@ public data class GitRepo(
 ) {
     init {
         require(!url.containsWhitespaces()) { "url '$url' must not contain whitespaces" }
+        require(url.contains(':'))  { "url '$url' must contain colon (can not be a local path)" }
+        if (url.contains("://")) {
+            URI.create(url) // don't convert to URL otherwise this would fail: unknown protocol: ssh
+        }
         require(!branch.containsWhitespaces()) { "branch '$branch' must not contain whitespaces" }
         require(credentialsID == null || !credentialsID.containsWhitespaces()) { "credentialsID '$credentialsID' must not contain whitespaces" }
+        if (credentialsID != null) {
+            UUID.fromString(credentialsID) // make sure it's a UUID
+        }
     }
 }
 
