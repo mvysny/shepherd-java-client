@@ -16,6 +16,8 @@ import com.vaadin.flow.component.dialog.Dialog
 class FormDialog<B>(val form: Form<B>, private val bean: B, val onSave: (B) -> Unit) : Dialog() {
     init {
         isModal = true
+        isCloseOnEsc = false
+        isCloseOnOutsideClick = false
 
         verticalLayout {
             content { align(right, middle) }
