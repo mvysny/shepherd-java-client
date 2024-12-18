@@ -130,6 +130,29 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
             isEnabled = isAdmin
             bind(binder).trimmingConverter().bind(MutableProject::projectOwnerEmail)
         }
+        h3("Build") {
+            colspan = 2
+        }
+        integerField("How much memory the project needs for running, in MB. 2048MB is a good default. If you see OutOfMemoryErrors in the build log, increase this value.") {
+            bind(binder)
+                .withValidator(SerializablePredicate { it == null || it <= config.maxProjectBuildResources.memoryMb }, "Can not be larger than ${config.maxProjectBuildResources.memoryMb}")
+                .bind(MutableProject::buildResourcesMemoryMb)
+        }
+        bigDecimalField("Max CPU cores to use. 1 means 1 CPU core to be used. 2.0 is a good default.") {
+            isEnabled = isAdmin
+            bind(binder)
+                .withValidator(SerializablePredicate { it == null || it <= config.maxProjectBuildResources.cpu.toBigDecimal() }, "Can not be larger than ${config.maxProjectBuildResources.cpu}")
+                .bind(MutableProject::buildResourcesCpu)
+        }
+        namedVarSetField("Optional build args, passed as `--build-arg name=\"value\"` to `docker build`. You can e.g. pass Vaadin Offline Key here.") {
+            bind(binder).bind(MutableProject::buildArgs)
+        }
+        textField("If not null, we build off this dockerfile instead of the default `Dockerfile`") {
+            bind(binder)
+                .trimmingConverter()
+                .validateNoWhitespaces()
+                .bind(MutableProject::buildDockerFile)
+        }
         h3("Runtime") {
             colspan = 2
         }
@@ -142,7 +165,7 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
                 .withValidator(SerializablePredicate { it == null || it <= config.maxProjectRuntimeResources.memoryMb }, "Can not be larger than ${config.maxProjectRuntimeResources.memoryMb}")
                 .bind(MutableProject::runtimeMemoryMb)
         }
-        bigDecimalField("Max CPU cores to use. 1 means 1 CPU core to be used.") {
+        bigDecimalField("Max CPU cores to use. 1 means 1 CPU core to be used. 1.0 is a good default.") {
             isEnabled = isAdmin
             bind(binder)
                 .withValidator(SerializablePredicate { it == null || it <= config.maxProjectRuntimeResources.cpu.toBigDecimal() }, "Can not be larger than ${config.maxProjectRuntimeResources.cpu}")
@@ -150,15 +173,6 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
         }
         namedVarSetField("Runtime environment variables, e.g. `SPRING_DATASOURCE_URL` to `jdbc:postgresql://liukuri-postgres:5432/postgres`") {
             bind(binder).bind(MutableProject::envVars)
-        }
-        namedVarSetField("Optional build args, passed as `--build-arg name=\"value\"` to `docker build`. You can e.g. pass Vaadin Offline Key here.") {
-            bind(binder).bind(MutableProject::buildArgs)
-        }
-        textField("If not null, we build off this dockerfile instead of the default `Dockerfile`") {
-            bind(binder)
-                .trimmingConverter()
-                .validateNoWhitespaces()
-                .bind(MutableProject::buildDockerFile)
         }
         h3("Publishing") {
             colspan = 2

@@ -11,14 +11,10 @@ import com.github.mvysny.shepherd.api.Publication
 import com.github.mvysny.shepherd.api.Resources
 import com.github.mvysny.shepherd.api.Service
 import com.github.mvysny.shepherd.api.ServiceType
-import com.github.mvysny.shepherd.web.Bootstrap
 import com.github.mvysny.shepherd.web.host
 import com.github.mvysny.shepherd.web.jsr303Validate
 import com.github.mvysny.shepherd.web.security.User
-import jakarta.validation.Validation
 import jakarta.validation.ValidationException
-import jakarta.validation.Validator
-import jakarta.validation.constraints.DecimalMax
 import jakarta.validation.constraints.DecimalMin
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.Max
@@ -97,13 +93,20 @@ data class MutableProject(
     var projectOwnerEmail: String?,
     @field:NotNull
     @field:Min(64)
+//    @field:Max(1024)  // defined in maxProjectRuntimeResources
     var runtimeMemoryMb: Int,
     @field:NotNull
     @field:DecimalMin("0.1")
     var runtimeCpu: BigDecimal,
     @field:NotNull
     var envVars: Set<NamedVar>,
-    var buildResources: Resources,
+    @field:NotNull
+    @field:Min(64)
+//    @field:Max(3096)  // defined in Config.maxProjectBuildResources
+    var buildResourcesMemoryMb: Int,
+    @field:NotNull
+    @field:DecimalMin("0.1")
+    var buildResourcesCpu: BigDecimal,
     @field:NotNull
     var buildArgs: Set<NamedVar>,
     @field:Length(max = 255)
@@ -138,7 +141,8 @@ data class MutableProject(
             runtimeMemoryMb = Resources.defaultRuntimeResources.memoryMb,
             runtimeCpu = Resources.defaultRuntimeResources.cpu.toBigDecimal(),
             envVars = setOf(),
-            buildResources = Resources.defaultBuildResources,
+            buildResourcesMemoryMb = Resources.defaultBuildResources.memoryMb,
+            buildResourcesCpu = Resources.defaultBuildResources.cpu.toBigDecimal(),
             buildArgs = setOf(),
             buildDockerFile = null,
             publishOnMainDomain = true,
@@ -182,7 +186,7 @@ data class MutableProject(
                     runtimeCpu.toFloat()
                 ), envVars = envVars.associate { it.name to it.value }),
             build = BuildSpec(
-                buildResources,
+                Resources(buildResourcesMemoryMb, buildResourcesCpu.toFloat()),
                 buildArgs.associate { it.name to it.value },
                 dockerFile = buildDockerFile
             ),
@@ -220,7 +224,8 @@ fun Project.toMutable(): MutableProject = MutableProject(
     runtimeMemoryMb = runtime.resources.memoryMb,
     runtimeCpu = runtime.resources.cpu.toBigDecimal(),
     envVars = runtime.envVars.map { NamedVar(it.key, it.value) } .toSet(),
-    buildResources = build.resources,
+    buildResourcesMemoryMb = build.resources.memoryMb,
+    buildResourcesCpu = build.resources.cpu.toBigDecimal(),
     buildArgs = build.buildArgs.map { NamedVar(it.key, it.value) } .toSet(),
     buildDockerFile = build.dockerFile,
     publishOnMainDomain = publication.publishOnMainDomain,
