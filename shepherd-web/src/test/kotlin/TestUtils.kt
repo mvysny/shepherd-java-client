@@ -6,7 +6,8 @@ fun charSetOf(vararg range: CharRange): Set<Char> =
 private val offlineKeyAllowedChars = charSetOf('a'..'z', 'A'..'Z', '0'..'9') + setOf('_', '.', '-')
 
 /**
- * Generates a string of length [stringLength], consisting of given [chars].
+ * Generates a string of length [stringLength]. Every character of the string
+ * is randomly picked from given set of [chars].
  */
 fun generateString(chars: Set<Char>, stringLength: Int): String = buildString(stringLength) {
     repeat(stringLength) {
