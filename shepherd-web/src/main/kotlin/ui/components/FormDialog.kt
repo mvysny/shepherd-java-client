@@ -10,10 +10,11 @@ import com.vaadin.flow.component.Component
 import com.vaadin.flow.component.dialog.Dialog
 
 /**
+ * A dialog, editing given [form].
  * @param bean the bean to edit.
- * @param onSave when Save is pressed and validation passes.
+ * @param onSave when Save is pressed and validation passes. When this doesn't throw, the dialog is closed automatically.
  */
-class FormDialog<B>(val form: Form<B>, private val bean: B, val onSave: (B) -> Unit) : Dialog() {
+class FormDialog<B: Any>(val form: Form<B>, private val bean: B, val onSave: (B) -> Unit) : Dialog() {
     init {
         isModal = true
         isCloseOnEsc = false
@@ -35,7 +36,7 @@ class FormDialog<B>(val form: Form<B>, private val bean: B, val onSave: (B) -> U
             }
         }
 
-        form.binder.readBean(bean!!)
+        form.read(bean)
     }
 
     private fun save() {

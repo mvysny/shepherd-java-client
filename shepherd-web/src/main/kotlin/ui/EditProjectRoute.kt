@@ -61,7 +61,7 @@ class EditProjectRoute : KComposite(), HasUrlParameter<String> {
         val project = checkProjectId(parameter)
         captionComponent.text = project.id.id
         this.project = project.toMutable()
-        form.binder.readBean(this.project)
+        form.read(this.project)
     }
 
     private fun save() {

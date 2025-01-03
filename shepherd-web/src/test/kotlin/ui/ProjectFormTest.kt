@@ -11,10 +11,10 @@ class ProjectFormTest : AbstractAppTest() {
     @Test fun smoke() {
         login()
         var form = ProjectForm(false)
-        form.binder.bean = fakeProject.toMutable()
-        form.binder.bean = fakeProject.toMutable()
+        form.binder.readBean(fakeProject.toMutable())
+        form.binder.readBean(fakeProject.toMutable())
         form = ProjectForm(true)
-        form.binder.bean = fakeProject.toMutable()
-        form.binder.bean = fakeProject.toMutable()
+        form.binder.readBean(fakeProject.toMutable())
+        form.binder.readBean(fakeProject.toMutable())
     }
 }

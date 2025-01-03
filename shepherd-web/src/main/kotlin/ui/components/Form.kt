@@ -3,13 +3,28 @@ package com.github.mvysny.shepherd.web.ui.components
 import com.vaadin.flow.data.binder.Binder
 
 /**
- * A form, editing given bean [B].
+ * A form, editing given bean [B]. At the moment only the buffered mode is supported.
+ *
+ * The way this works:
+ * * Call [read] to populate the form.
+ * * Call [writeIfValid] to save new data to given bean.
+ *
+ * WARNING: the buffered mode isn't completely buffered:
+ * [writeIfValid] calls [additionalValidation] after the data has been written to the bean.
+ * If the function fails, the data is not reverted back, which is quite strange - I need to revisit this.
  */
-interface Form<B> {
+interface Form<B: Any> {
     /**
-     * Binds Vaadin fields to bean fields. Always in buffered mode!
+     * Binds Vaadin fields to bean fields.
      */
     val binder: Binder<B>
+
+    /**
+     * Populates the form with data from given [bean].
+     */
+    fun read(bean: B) {
+        binder.readBean(bean)
+    }
 
     /**
      * @throws Exception if validation fails.
@@ -18,6 +33,9 @@ interface Form<B> {
 
     /**
      * Validates everything and writes the data to given bean. If all went okay, returns true.
+     *
+     * WARNING: calls [additionalValidation] after the data has been written to the bean.
+     * If the function fails, the data is not reverted back, which is quite strange - I need to revisit this.
      * @param toBean writes changes to this bean.
      */
     fun writeIfValid(toBean: B): Boolean {

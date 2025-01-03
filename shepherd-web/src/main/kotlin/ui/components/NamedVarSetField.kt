@@ -25,6 +25,10 @@ import org.hibernate.validator.constraints.Length
 
 /**
  * Edits a set of [NamedVar].
+ *
+ * The set is not mutated in-place: Whenever a [NamedVar] is added, removed
+ * or changed, a new set is constructed and set as an underlying value.
+ * That means that the field works with buffered forms as well.
  */
 class NamedVarSetField(label: String? = null) : CustomField<Set<NamedVar>>() {
     private var value = setOf<NamedVar>()
@@ -97,7 +101,7 @@ data class MutableNamedVar(
     var name: String = "",
     @field:NotNull
     @field:NotBlank
-    @field:Length(max = 2048) // should be able to accept offlineVaadinKey which is 1403 chars long
+    @field:Length(max = 2500) // should be able to accept offlineVaadinKey which is 2267 chars long
     var value: String = ""
 )
 

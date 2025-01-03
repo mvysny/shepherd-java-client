@@ -11,4 +11,7 @@ operator fun Set<Char>.times(count: Int): String = buildString(count) {
     }
 }
 
-fun generateRandomOfflineKey(): String = offlineKeyAllowedChars * 1403
+/**
+ * Previously the offline key size was 1403 characters; new one is 2267.
+ */
+fun generateRandomOfflineKey(): String = offlineKeyAllowedChars * 2267

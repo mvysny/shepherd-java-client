@@ -22,6 +22,10 @@ import com.vaadin.flow.data.binder.ValueContext
 
 /**
  * A simple field which allows the user to edit a set of short strings.
+ *
+ * The set is not mutated in-place: Whenever a string is added, removed
+ * or changed, a new set is constructed and set as an underlying value.
+ * That means that this field works with buffered forms as well.
  */
 class SimpleStringSetField(label: String? = null) : CustomField<Set<String>>() {
     private val comboBox: MultiSelectComboBox<String>
