@@ -171,7 +171,7 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
                 .withValidator(SerializablePredicate { it == null || it <= config.maxProjectRuntimeResources.cpu.toBigDecimal() }, "Can not be larger than ${config.maxProjectRuntimeResources.cpu}")
                 .bind(MutableProject::runtimeCpu)
         }
-        namedVarSetField("Runtime environment variables, e.g. `SPRING_DATASOURCE_URL` to `jdbc:postgresql://liukuri-postgres:5432/postgres`") {
+        namedVarSetField("Runtime environment variables, e.g. `SPRING_DATASOURCE_URL` to `jdbc:postgresql://postgres-service:5432/postgres`") {
             bind(binder).bind(MutableProject::envVars)
         }
         h3("Publishing") {
