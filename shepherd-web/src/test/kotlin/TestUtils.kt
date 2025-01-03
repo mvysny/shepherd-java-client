@@ -5,13 +5,16 @@ fun charSetOf(vararg range: CharRange): Set<Char> =
 
 private val offlineKeyAllowedChars = charSetOf('a'..'z', 'A'..'Z', '0'..'9') + setOf('_', '.', '-')
 
-operator fun Set<Char>.times(count: Int): String = buildString(count) {
-    repeat(count) {
-        append(this@times.random())
+/**
+ * Generates a string of length [stringLength], consisting of given [chars].
+ */
+fun generateString(chars: Set<Char>, stringLength: Int): String = buildString(stringLength) {
+    repeat(stringLength) {
+        append(chars.random())
     }
 }
 
 /**
  * Previously the offline key size was 1403 characters; new one is 2267.
  */
-fun generateRandomOfflineKey(): String = offlineKeyAllowedChars * 2267
+fun generateRandomOfflineKey(): String = generateString(offlineKeyAllowedChars, 2267)
