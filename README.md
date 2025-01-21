@@ -218,7 +218,9 @@ Adding a persistent postgresql database is easy:
 1. Add the `Postgres` additional service to the project descriptor JSON: `"additionalServices": [{"type": "Postgres"}]`
 2. Configure your app to connect to the `jdbc:postgresql://postgres:5432/postgres` URL, with the `postgres` username and `mysecretpassword` password.
 
-### Vaadin Offline Key
+# Tips and Tricks
+
+## Vaadin Offline Key
 
 For Vaadin Pro/Prime components you'll need a Vaadin License.
 
@@ -238,4 +240,16 @@ ENV VAADIN_OFFLINE_KEY=$offlinekey
 To test, build your app via
 ```bash
 $ docker build -t test/xyz:latest --build-arg offlinekey=the_license_key .
+```
+
+## Build Cache
+
+To speed up your build, you can cache your local Maven repository and the contents of the `~/.vaadin` folder.
+Edit your `Dockerfile` and update your Maven build command to mount the cache:
+```dockerfile
+RUN --mount=type=cache,target=/root/.m2 --mount=type=cache,target=/root/.vaadin ./mvnw -C -e clean package -Pproduction
+```
+Gradle:
+```dockerfile
+RUN --mount=type=cache,target=/root/.gradle --mount=type=cache,target=/root/.vaadin ./gradlew clean build -Pvaadin.productionMode --no-daemon --info --stacktrace
 ```
