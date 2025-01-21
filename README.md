@@ -217,3 +217,25 @@ Adding a persistent postgresql database is easy:
 
 1. Add the `Postgres` additional service to the project descriptor JSON: `"additionalServices": [{"type": "Postgres"}]`
 2. Configure your app to connect to the `jdbc:postgresql://postgres:5432/postgres` URL, with the `postgres` username and `mysecretpassword` password.
+
+### Vaadin Offline Key
+
+For Vaadin Pro/Prime components you'll need a Vaadin License.
+
+The license can be obtained at [My Licenses](https://vaadin.com/myaccount/licenses). You'll need the "Server license key",
+NOT the "Offline development license key" since the Machine ID changes unpredictably in CI/CD Docker environment.
+
+Once you have the key, edit the project in v-herd admin console and add the build argument
+`offlinekey` with the value of the license key itself.
+
+> Note: the name of the build argument can be anything, but you need to correctly refer to it in your `Dockerfile.`
+
+Then, in your `Dockerfile`, you'll fetch the license key from the build argument into an environment variable:
+```dockerfile
+ARG offlinekey
+ENV VAADIN_OFFLINE_KEY=$offlinekey
+```
+To test, build your app via
+```bash
+$ docker build -t test/xyz:latest --build-arg offlinekey=the_license_key .
+```
