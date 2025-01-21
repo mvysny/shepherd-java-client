@@ -511,4 +511,21 @@ spec:
             SimpleKubernetesClient.parseTopPod("deployment-59b67fd4c5-2sdmw   2m           126Mi     ")
         }
     }
+
+    @Test fun parseNamespaces() {
+        val ns = SimpleKubernetesClient.parseNamespaces("""NAME                                           STATUS   AGE
+cert-manager                                   Active   708d
+container-registry                             Active   708d
+default                                        Active   708d
+ingress                                        Active   708d
+kube-node-lease                                Active   708d
+kube-public                                    Active   708d
+kube-system                                    Active   708d
+shepherd-akdb-component-demos                  Active   279d
+shepherd-artur-aiaiai                          Active   600d
+shepherd-beverage-buddy-jooq                   Active   476d
+shepherd-beverage-buddy-vok                    Active   602d
+""")
+        expect(setOf("cert-manager", "container-registry", "default", "ingress", "kube-node-lease", "kube-public", "kube-system", "shepherd-akdb-component-demos", "shepherd-artur-aiaiai", "shepherd-beverage-buddy-jooq", "shepherd-beverage-buddy-vok")) { ns }
+    }
 }

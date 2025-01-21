@@ -103,10 +103,7 @@ public class SimpleKubernetesClient @JvmOverloads constructor(
 
     private fun listNamespaces(): Set<String> {
         val stdout = exec(*kubectl, "get", "ns")
-        return stdout.lines()
-            .drop(1)
-            .map { it.splitByWhitespaces()[0] }
-            .toSet()
+        return parseNamespaces(stdout)
     }
 
     private fun kubeCtlTopPod(podName: String, namespace: String): ResourcesUsage {
@@ -422,5 +419,11 @@ spec:$tls
                 cpu = values[1].removeSuffix("m").toFloat() / 1000
             )
         }
+
+        internal fun parseNamespaces(stdout: String): Set<String> = stdout.lines()
+            .drop(1)
+            .filter { it.isNotBlank() }
+            .map { it.splitByWhitespaces()[0] }
+            .toSet()
     }
 }
