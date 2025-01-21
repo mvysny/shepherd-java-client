@@ -81,8 +81,13 @@ public class SimpleKubernetesClient @JvmOverloads constructor(
                 // see https://stackoverflow.com/questions/47128586/how-to-delete-all-resources-from-kubernetes-one-time#55838844 for more details.
                 // run: kubectl delete all --all -n {id.kubernetesNamespace}
                 // and: kubectl delete namespace {id.kubernetesNamespace}
-                exec(*kubectl, "delete", "all", "--all", "-n", id.kubernetesNamespace)
-                exec(*kubectl, "delete", "namespace", id.kubernetesNamespace)
+
+                if (existsNamespace(id.kubernetesNamespace)) {
+                    exec(*kubectl, "delete", "all", "--all", "-n", id.kubernetesNamespace)
+                    exec(*kubectl, "delete", "namespace", id.kubernetesNamespace)
+                } else {
+                    log.warn("Namespace ${id.kubernetesNamespace} does not exist, not deleting objects from it. This may happen if the project hasn't had a successful build yet.")
+                }
 
                 log.info("Deleting Kubernetes config yaml file $f")
                 f.deleteExisting()
@@ -92,6 +97,16 @@ public class SimpleKubernetesClient @JvmOverloads constructor(
         } else {
             log.warn("$f doesn't exist, not deleting project objects from Kubernetes")
         }
+    }
+
+    private fun existsNamespace(namespace: String) = listNamespaces().contains(namespace)
+
+    private fun listNamespaces(): Set<String> {
+        val stdout = exec(*kubectl, "get", "ns")
+        return stdout.lines()
+            .drop(1)
+            .map { it.splitByWhitespaces()[0] }
+            .toSet()
     }
 
     private fun kubeCtlTopPod(podName: String, namespace: String): ResourcesUsage {
