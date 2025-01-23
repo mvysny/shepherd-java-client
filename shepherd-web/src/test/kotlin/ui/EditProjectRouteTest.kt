@@ -17,6 +17,7 @@ import com.vaadin.flow.component.dialog.Dialog
 import com.vaadin.flow.component.textfield.TextField
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import kotlin.test.expect
 
 class EditProjectRouteTest : AbstractAppTest() {
     private val fakeProject: Project = Bootstrap.getClient().getAllProjects(null)[0].project
@@ -57,5 +58,10 @@ class EditProjectRouteTest : AbstractAppTest() {
         _get<ProjectForm>().binder._expectValid()
         _get<Button> { text = "Save" } ._click()
         _expectNone<Dialog>()
+
+        val allProjects = Bootstrap.getClient().getAllProjects(null)
+        expect(true) {
+            allProjects.any { it.project.id.id == "my-project" }
+        }
     }
 }
