@@ -222,7 +222,8 @@ Adding a persistent postgresql database is easy:
 
 ## Vaadin Offline Key
 
-For Vaadin Pro/Prime components you'll need a Vaadin License.
+For Vaadin Pro/Prime components you'll need a Vaadin License. The license must be present during
+the **build time**; adding `VAADIN_OFFLINE_KEY` to runtime environment variables is not enough.
 
 The license can be obtained at [My Licenses](https://vaadin.com/myaccount/licenses). You'll need the "Server license key",
 NOT the "Offline development license key" since the Machine ID changes unpredictably in CI/CD Docker environment.
