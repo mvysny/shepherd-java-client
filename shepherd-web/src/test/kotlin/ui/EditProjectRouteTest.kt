@@ -17,6 +17,7 @@ import com.vaadin.flow.component.dialog.Dialog
 import com.vaadin.flow.component.textfield.TextField
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.util.UUID
 import kotlin.test.expect
 
 class EditProjectRouteTest : AbstractAppTest() {
@@ -34,8 +35,21 @@ class EditProjectRouteTest : AbstractAppTest() {
     @Test fun cantChangeStuffWhenEditingProject() {
         _get<TextField> { id = "projectid" } ._expectDisabled()
         _get<TextField> { id = "gitRepoURL" } ._expectDisabled()
-        _get<TextField> { id = "gitRepoBranch" } ._expectDisabled()
-        _get<TextField> { id = "gitRepoCredentialsID" } ._expectDisabled()
+        _get<TextField> { id = "gitRepoBranch" } ._expectEnabled()
+        _get<TextField> { id = "gitRepoCredentialsID" } ._expectEnabled()
+    }
+
+    @Test fun changeGitBranchAndCreds() {
+        _get<TextField> { id = "gitRepoBranch" } ._setValue("foobar")
+        val cid = UUID.randomUUID().toString()
+        _get<TextField> { id = "gitRepoCredentialsID" } ._setValue(cid)
+
+        _get<ProjectForm>().binder._expectValid()
+        _get<Button> { text = "Save & Apply" } ._click()
+        _expectNone<Dialog>()
+        val project = Bootstrap.getClient().getAllProjects(null)[0].project
+        expect("foobar") { project.gitRepo.branch }
+        expect(cid) { project.gitRepo.credentialsID }
     }
 
     @Test fun createProjectAllFieldsEnabled() {

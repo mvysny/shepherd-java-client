@@ -104,7 +104,7 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
         }
         textField("GIT Repository URL: the git repository from where the project comes from, e.g. https://github.com/mvysny/vaadin-boot-example-gradle . For private repos, use the ssh-like link e.g. git@github.com:mvysny/shepherd-java-client.git . WARN: this can not be changed later.") {
             setId("gitRepoURL")
-            isEnabled = creatingNew // can't change git repo atm
+            isEnabled = creatingNew // can't change git repo URL atm
             bind(binder)
                 .trimmingConverter()
                 .validateNoWhitespaces()
@@ -113,7 +113,6 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
         }
         textField("GIT Repository branch: usually `master` or `main`") {
             setId("gitRepoBranch")
-            isEnabled = creatingNew // can't change git repo atm
             bind(binder)
                 .trimmingConverter()
                 .validateNoWhitespaces()
@@ -122,7 +121,6 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
         textField("GIT Repository Credentials ID. WARN: this can not be changed later") {
             setId("gitRepoCredentialsID")
             isVisible = isAdmin
-            isEnabled = creatingNew // can't change git repo atm
             bind(binder)
                 .trimmingConverter()
                 .validateNoWhitespaces()
