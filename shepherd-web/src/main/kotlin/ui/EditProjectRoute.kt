@@ -22,6 +22,7 @@ import com.github.mvysny.kaributools.navigateTo
 import com.github.mvysny.shepherd.api.ProjectId
 import com.github.mvysny.shepherd.api.ServiceType
 import com.github.mvysny.shepherd.web.Bootstrap
+import com.github.mvysny.shepherd.web.GitUrlValidator
 import com.github.mvysny.shepherd.web.host
 import com.github.mvysny.shepherd.web.security.checkProjectId
 import com.github.mvysny.shepherd.web.security.getCurrentUser
@@ -101,12 +102,13 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
         h3("Git Repository") {
             colspan = 2
         }
-        textField("GIT Repository URL: the git repository from where the project comes from, e.g. https://github.com/mvysny/vaadin-boot-example-gradle . WARN: this can not be changed later") {
+        textField("GIT Repository URL: the git repository from where the project comes from, e.g. https://github.com/mvysny/vaadin-boot-example-gradle . For private repos, use the ssh-like link e.g. git@github.com:mvysny/shepherd-java-client.git . WARN: this can not be changed later.") {
             setId("gitRepoURL")
             isEnabled = creatingNew // can't change git repo atm
             bind(binder)
                 .trimmingConverter()
                 .validateNoWhitespaces()
+                .withValidator(GitUrlValidator)
                 .bind(MutableProject::gitRepoURL)
         }
         textField("GIT Repository branch: usually `master` or `main`") {
