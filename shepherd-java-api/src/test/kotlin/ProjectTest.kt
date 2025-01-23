@@ -121,6 +121,7 @@ class GitRepoTest {
             "rsync://host.xz/path/to/repo.git/",
             "git://host.xz/path/to/repo.git/",
             "git://host.xz/~user/path/to/repo.git/",
+            "git@github.com:onuridrisoglu/mtk-ballpark.git",
             "http://host.xz/path/to/repo.git/",
             "https://host.xz/path/to/repo.git/",
         ).forEach { GitRepo(it, "master") }

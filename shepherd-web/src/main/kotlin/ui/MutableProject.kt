@@ -72,7 +72,6 @@ data class MutableProject(
     var webpage: String?,
     @field:NotNull
     @field:NotBlank
-    @field:URL
     @field:Length(max = 255)
     var gitRepoURL: String?,
     @field:NotNull

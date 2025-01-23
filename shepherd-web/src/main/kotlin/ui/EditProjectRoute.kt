@@ -86,19 +86,23 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
         val isAdmin = getCurrentUser().isAdmin
 
         textField("The project ID, must be unique. The project will be published and running at https://$host/PROJECT_ID") {
+            setId("projectid")
             isEnabled = creatingNew // can't change project ID
             bind(binder).trimmingConverter().bind(MutableProject::id)
         }
         textField("Description: Any additional vital information about the project") {
+            setId("description")
             bind(binder).trimmingConverter().bind(MutableProject::description)
         }
         textField("WebPage: the project home page. May be empty, in such case GitRepo URL is considered the home page.") {
+            setId("webpage")
             bind(binder).trimmingConverter().bind(MutableProject::webpage)
         }
         h3("Git Repository") {
             colspan = 2
         }
         textField("GIT Repository URL: the git repository from where the project comes from, e.g. https://github.com/mvysny/vaadin-boot-example-gradle . WARN: this can not be changed later") {
+            setId("gitRepoURL")
             isEnabled = creatingNew // can't change git repo atm
             bind(binder)
                 .trimmingConverter()
@@ -106,12 +110,15 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
                 .bind(MutableProject::gitRepoURL)
         }
         textField("GIT Repository branch: usually `master` or `main`") {
+            setId("gitRepoBranch")
+            isEnabled = creatingNew // can't change git repo atm
             bind(binder)
                 .trimmingConverter()
                 .validateNoWhitespaces()
                 .bind(MutableProject::gitRepoBranch)
         }
         textField("GIT Repository Credentials ID. WARN: this can not be changed later") {
+            setId("gitRepoCredentialsID")
             isVisible = isAdmin
             isEnabled = creatingNew // can't change git repo atm
             bind(binder)
@@ -123,10 +130,12 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
             colspan = 2
         }
         textField("Project Owner Name. Only Shepherd admin can create projects for someone else.") {
+            setId("projectOwnerName")
             isEnabled = isAdmin
             bind(binder).trimmingConverter().bind(MutableProject::projectOwnerName)
         }
         emailField("How to reach the project owner in case the project needs to be modified/misbehaves. Jenkins will send notification emails about the failed builds here.") {
+            setId("projectOwnerEmail")
             isEnabled = isAdmin
             bind(binder).trimmingConverter().bind(MutableProject::projectOwnerEmail)
         }
@@ -134,20 +143,24 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
             colspan = 2
         }
         integerField("How much memory the project needs for running, in MB. 2048MB is a good default. If you see OutOfMemoryErrors in the build log, increase this value.") {
+            setId("buildResourcesMemoryMb")
             bind(binder)
                 .withValidator(SerializablePredicate { it == null || it <= config.maxProjectBuildResources.memoryMb }, "Can not be larger than ${config.maxProjectBuildResources.memoryMb}")
                 .bind(MutableProject::buildResourcesMemoryMb)
         }
         bigDecimalField("Max CPU cores to use. 1 means 1 CPU core to be used. 2.0 is a good default.") {
+            setId("buildResourcesCpu")
             isEnabled = isAdmin
             bind(binder)
                 .withValidator(SerializablePredicate { it == null || it <= config.maxProjectBuildResources.cpu.toBigDecimal() }, "Can not be larger than ${config.maxProjectBuildResources.cpu}")
                 .bind(MutableProject::buildResourcesCpu)
         }
         namedVarSetField("Optional build args, passed as `--build-arg name=\"value\"` to `docker build`. You can e.g. pass Vaadin Offline Key here.") {
+            setId("buildArgs")
             bind(binder).bind(MutableProject::buildArgs)
         }
         textField("If not null, we build off this dockerfile instead of the default `Dockerfile`") {
+            setId("buildDockerFile")
             bind(binder)
                 .trimmingConverter()
                 .validateNoWhitespaces()
@@ -161,26 +174,31 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
                 "WARNING: This is a HARD limit for the app. If JVM asks for more, it will be hard-killed by the Linux OOM-killer, " +
                 "without any warning or any log message (only host OS dmesg will log this). Make sure to have your Dockerfile run Java with the -Xmx???m VM argument; that way the app will crash with OutOfMemoryException which should be visible in the logs. " +
                 "The -Xmx value should be a bit lower value than the hard limit, to give a bit of room for JVM itself.") {
+            setId("runtimeMemoryMb")
             bind(binder)
                 .withValidator(SerializablePredicate { it == null || it <= config.maxProjectRuntimeResources.memoryMb }, "Can not be larger than ${config.maxProjectRuntimeResources.memoryMb}")
                 .bind(MutableProject::runtimeMemoryMb)
         }
         bigDecimalField("Max CPU cores to use. 1 means 1 CPU core to be used. 1.0 is a good default.") {
+            setId("runtimeCpu")
             isEnabled = isAdmin
             bind(binder)
                 .withValidator(SerializablePredicate { it == null || it <= config.maxProjectRuntimeResources.cpu.toBigDecimal() }, "Can not be larger than ${config.maxProjectRuntimeResources.cpu}")
                 .bind(MutableProject::runtimeCpu)
         }
         namedVarSetField("Runtime environment variables, e.g. `SPRING_DATASOURCE_URL` to `jdbc:postgresql://postgres-service:5432/postgres`") {
+            setId("envVars")
             bind(binder).bind(MutableProject::envVars)
         }
         h3("Publishing") {
             colspan = 2
         }
-        checkBox("Publish the project on the main domain as well, at `$host/PROJECT_ID`.") {
+        checkBox("Publish the project on the main domain, at `$host/PROJECT_ID`.") {
+            setId("publishOnMainDomain")
             bind(binder).bind(MutableProject::publishOnMainDomain)
         }
         simpleStringSetField("Additional domains to publish to project at. Must not contain the main domain $host. E.g. `yourproject.com`. You need to configure your domain DNS record to point to $host IP address first!") {
+            setId("publishAdditionalDomains")
             hint = "Enter your domain and press the PLUS button"
             newValueValidator = StringContainsNoWhitespacesValidator()
             bind(binder).bind(MutableProject::publishAdditionalDomains)
@@ -191,18 +209,22 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
                     "If unchecked, the project is exposed on port 80 as plain http. This is " +
                     "useful e.g. when CloudFlare unwraps https for us. Ignored if there are no additional domains."
         ) {
+            setId("publishAdditionalDomainsHttps")
             bind(binder).bind(MutableProject::publishAdditionalDomainsHttps)
         }
         integerField("Max request body size, in megabytes, defaults to 1m. Increase if you intend your project to accept large file uploads.") {
+            setId("ingressMaxBodySizeMb")
             bind(binder).bind(MutableProject::ingressMaxBodySizeMb)
         }
         integerField("Proxy Read Timeout, in seconds, defaults to 60s. Increase to 6 minutes or more if you use Vaadin Push, otherwise the connection will be dropped out. Alternatively, set this to 3 minutes and set Vaadin heartbeat frequency to 2 minutes.") {
+            setId("ingressProxyReadTimeoutSeconds")
             bind(binder).bind(MutableProject::ingressProxyReadTimeoutSeconds)
         }
         h3("Additional Services") {
             colspan = 2
         }
         multiSelectComboBox<ServiceType>("Additional services accessible by your project. If you enable PostgreSQL, then use the following values to access the database: JDBC URI: `jdbc:postgresql://postgres-service:5432/postgres`, username: `postgres`, password: `mysecretpassword`.") {
+            setId("additionalServices")
             setItems(ServiceType.entries)
             bind(binder).bind(MutableProject::additionalServices)
         }
