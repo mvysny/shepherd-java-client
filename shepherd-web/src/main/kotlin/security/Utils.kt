@@ -6,6 +6,10 @@ import com.github.mvysny.shepherd.api.ProjectId
 import com.github.mvysny.shepherd.web.Bootstrap
 import com.vaadin.flow.router.NotFoundException
 
+/**
+ * Checks that given [id] is a valid project ID, and the current user has access to the project.
+ * @throws NotFoundException on any issue
+ */
 fun checkProjectId(id: String): Project {
     if (!ProjectId.isValid(id)) {
         throw NotFoundException()
