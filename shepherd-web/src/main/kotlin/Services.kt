@@ -11,8 +11,6 @@ import kotlin.io.path.div
 
 var services: Services? = null
 
-val ConfigFolder.userRegistryFolder: Path get() = rootFolder / "java" / "webadmin-users.json"
-
 data class Services(
     val client: ShepherdClient,
     val userRegistry: UserRegistry
@@ -22,6 +20,7 @@ data class Services(
     }
 
     companion object {
+        private val ConfigFolder.userRegistryFolder: Path get() = rootFolder / "java" / "webadmin-users.json"
         fun fake(): Services {
             val client = FakeShepherdClient().withFakeProject()
             return Services(client, UserRegistry(client.configFolder.userRegistryFolder))
