@@ -8,6 +8,7 @@ import com.github.mvysny.karibudsl.v10.isExpand
 import com.github.mvysny.karibudsl.v10.onClick
 import com.github.mvysny.karibudsl.v10.textField
 import com.github.mvysny.karibudsl.v23.multiSelectComboBox
+import com.github.mvysny.shepherd.web.validate
 import com.vaadin.flow.component.HasComponents
 import com.vaadin.flow.component.button.Button
 import com.vaadin.flow.component.button.ButtonVariant
@@ -50,7 +51,7 @@ class SimpleStringSetField(label: String? = null) : CustomField<Set<String>>() {
 
         addItemButton.onClick {
             val newString = addItemTextField.value.trim()
-            val validationResult = calculateNewValueValidator().apply(newString, ValueContext())
+            val validationResult = calculateNewValueValidator().validate(newString)
             addItemTextField.isInvalid = validationResult.isError
             if (!validationResult.isError) {
                 addItemTextField.errorMessage = null

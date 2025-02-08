@@ -29,3 +29,6 @@ object GitUrlValidator : com.vaadin.flow.data.binder.Validator<String?> {
             ValidationResult.error(ex.message)
         }
 }
+
+@Suppress("DEPRECATION")
+fun <V> com.vaadin.flow.data.binder.Validator<V>.validate(obj: V): ValidationResult = apply(obj, ValueContext())
