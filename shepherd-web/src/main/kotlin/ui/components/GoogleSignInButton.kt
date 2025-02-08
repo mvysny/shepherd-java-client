@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory
 @Tag("google-signin-button")
 @JsModule("./src/google-signin-button.js")
 @JavaScript(value = "https://accounts.google.com/gsi/client")
-class GoogleSignInButton(val clientId: String) : Div() {
+class GoogleSignInButton(val clientId: String, val ssoOnlyAllowEmailsEndingWith: String?) : Div() {
     init {
         getElement().setProperty("clientId", clientId)
     }
@@ -35,6 +35,9 @@ class GoogleSignInButton(val clientId: String) : Div() {
             val idToken = verifier.verify(credential)
             require(idToken != null) { "Failed to verify credentials" }
             val email = idToken.payload.email!!
+            if (ssoOnlyAllowEmailsEndingWith != null) {
+                require(email.endsWith(ssoOnlyAllowEmailsEndingWith)) { "Only $ssoOnlyAllowEmailsEndingWith emails allowed" }
+            }
             val name = idToken.payload.get("name") as String
             UserLoginService.get().loginViaGoogleSSO(email, name)
         } catch (ex: Exception) {

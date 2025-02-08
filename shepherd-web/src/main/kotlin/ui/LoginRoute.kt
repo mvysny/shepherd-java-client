@@ -40,9 +40,9 @@ class LoginRoute : VerticalLayout(), ComponentEventListener<AbstractLogin.LoginE
         login.setI18n(loginI18n)
         add(login)
 
-        val googleSSOClientId = Services.get().client.getConfig().googleSSOClientId
-        if (googleSSOClientId != null) {
-            val googleSSOButton = GoogleSignInButton(googleSSOClientId)
+        val config = Services.get().client.getConfig()
+        if (config.googleSSOClientId != null) {
+            val googleSSOButton = GoogleSignInButton(config.googleSSOClientId!!, config.ssoOnlyAllowEmailsEndingWith)
             add(googleSSOButton)
         }
 
