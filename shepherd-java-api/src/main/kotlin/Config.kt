@@ -7,7 +7,6 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import java.nio.file.Path
-import kotlin.io.path.Path
 import kotlin.io.path.inputStream
 
 /**
@@ -20,6 +19,7 @@ import kotlin.io.path.inputStream
  * @property maxProjectBuildResources how much memory+cpu a project can ask for its build.
  * @property jenkins Jenkins access credentials.
  * @property hostDNS where Shepherd is running, e.g. "v-herd.eu"
+ * @property googleSSOClientId (Shepherd-Web only): enable Google SSO login and use this client ID. See https://mvysny.github.io/vaadin-google-oauth/ for more details.
  */
 @Serializable
 public data class Config(
@@ -29,6 +29,7 @@ public data class Config(
     val maxProjectBuildResources: Resources,
     val jenkins: JenkinsConfig = JenkinsConfig(),
     val hostDNS: String = "v-herd.eu",
+    val googleSSOClientId: String? = null,
 ) {
     public companion object {
         /**

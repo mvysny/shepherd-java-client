@@ -1,7 +1,6 @@
 package com.github.mvysny.shepherd.web
 
 import com.github.mvysny.shepherd.api.ConfigFolder
-import com.github.mvysny.shepherd.api.KubernetesShepherdClient
 import com.github.mvysny.shepherd.api.ShepherdClient
 import com.github.mvysny.shepherd.web.security.UserLoginService
 import com.github.mvysny.shepherd.web.ui.LoginRoute
@@ -28,15 +27,14 @@ class Bootstrap : ServletContextListener {
         fun getClient(): ShepherdClient = Services.get().client
     }
     override fun contextInitialized(sce: ServletContextEvent?) {
-        if (services == null) {
-            services = Services.real(ConfigFolder())
+        if (!Services.initialized) {
+            Services.newReal(ConfigFolder())
         }
         host = getClient().getConfig().hostDNS
     }
 
     override fun contextDestroyed(sce: ServletContextEvent?) {
-        services?.close()
-        services = null
+        Services.destroy()
     }
 }
 

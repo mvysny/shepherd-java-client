@@ -9,8 +9,6 @@ import java.io.Closeable
 import java.nio.file.Path
 import kotlin.io.path.div
 
-var services: Services? = null
-
 data class Services(
     val client: ShepherdClient,
     val userRegistry: UserRegistry
@@ -20,15 +18,23 @@ data class Services(
     }
 
     companion object {
+        private var services: Services? = null
         private val ConfigFolder.userRegistryFolder: Path get() = rootFolder / "java" / "webadmin-users.json"
-        fun fake(): Services {
+        fun newFake() {
+            destroy()
             val client = FakeShepherdClient().withFakeProject()
-            return Services(client, UserRegistry(client.configFolder.userRegistryFolder))
+            services = Services(client, UserRegistry(client.configFolder.userRegistryFolder))
         }
-        fun real(configFolder: ConfigFolder): Services {
+        fun newReal(configFolder: ConfigFolder) {
+            destroy()
             val client = KubernetesShepherdClient(configFolder)
-            return Services(client, UserRegistry(configFolder.userRegistryFolder))
+            services = Services(client, UserRegistry(configFolder.userRegistryFolder))
         }
+        val initialized: Boolean get() = services != null
         fun get(): Services = checkNotNull(services) { "App not initialized" }
+        fun destroy() {
+            services?.close()
+            services = null
+        }
     }
 }

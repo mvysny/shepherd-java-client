@@ -1,6 +1,5 @@
 package com.github.mvysny.shepherd.web
 
-import com.github.mvysny.shepherd.api.FakeShepherdClient
 import com.github.mvysny.vaadinboot.VaadinBoot
 
 var devMode = false
@@ -10,7 +9,7 @@ fun main(args: Array<String>) {
         // perfect for development
         println("!!!!!! RUNNING IN DEVELOPMENT MODE !!!!!")
         devMode = true
-        services = Services.fake()
+        Services.newFake()
     }
     VaadinBoot().run()
 }

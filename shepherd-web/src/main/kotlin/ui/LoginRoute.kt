@@ -1,7 +1,9 @@
 package com.github.mvysny.shepherd.web.ui
 
+import com.github.mvysny.shepherd.web.Services
 import com.github.mvysny.shepherd.web.devMode
 import com.github.mvysny.shepherd.web.security.UserLoginService
+import com.github.mvysny.shepherd.web.ui.components.GoogleSignInButton
 import com.vaadin.flow.component.ComponentEventListener
 import com.vaadin.flow.component.login.AbstractLogin
 import com.vaadin.flow.component.login.LoginForm
@@ -37,6 +39,12 @@ class LoginRoute : VerticalLayout(), ComponentEventListener<AbstractLogin.LoginE
         loginI18n.form.username = "E-mail"
         login.setI18n(loginI18n)
         add(login)
+
+        val googleSSOClientId = Services.get().client.getConfig().googleSSOClientId
+        if (googleSSOClientId != null) {
+            val googleSSOButton = GoogleSignInButton(googleSSOClientId)
+            add(googleSSOButton)
+        }
 
         if (devMode && !devModeAutomaticLogInPerformed) {
             devModeAutomaticLogInPerformed = true

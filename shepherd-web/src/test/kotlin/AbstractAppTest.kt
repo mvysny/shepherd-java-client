@@ -4,7 +4,6 @@ import com.github.mvysny.kaributesting.v10.MockVaadin
 import com.github.mvysny.kaributesting.v10.Routes
 import com.github.mvysny.kaributesting.v10._expectOne
 import com.github.mvysny.kaributools.navigateTo
-import com.github.mvysny.shepherd.api.FakeShepherdClient
 import com.github.mvysny.shepherd.web.security.UserLoginService
 import com.github.mvysny.shepherd.web.security.UserRegistry
 import com.github.mvysny.shepherd.web.ui.ProjectListRoute
@@ -24,7 +23,7 @@ abstract class AbstractAppTest {
         }
 
         @BeforeAll @JvmStatic fun bootstrap() {
-            services = Services.fake()
+            Services.newFake()
             UserRegistry.get().deleteAll()
             Bootstrap().contextInitialized(null)
         }

@@ -1,14 +1,11 @@
 package com.github.mvysny.shepherd.web.security
 
 import com.github.mvysny.shepherd.api.JsonUtils
-import com.github.mvysny.shepherd.api.ProjectConfigFolder
 import com.github.mvysny.shepherd.web.Services
-import com.github.mvysny.shepherd.web.services
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import java.util.concurrent.CopyOnWriteArraySet
 import kotlin.io.path.deleteIfExists
-import kotlin.io.path.div
 import kotlin.io.path.exists
 
 /**
