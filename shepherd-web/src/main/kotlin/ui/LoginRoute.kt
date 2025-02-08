@@ -2,9 +2,7 @@ package com.github.mvysny.shepherd.web.ui
 
 import com.github.mvysny.shepherd.web.devMode
 import com.github.mvysny.shepherd.web.security.UserLoginService
-import com.vaadin.flow.component.AttachEvent
 import com.vaadin.flow.component.ComponentEventListener
-import com.vaadin.flow.component.UI
 import com.vaadin.flow.component.login.AbstractLogin
 import com.vaadin.flow.component.login.LoginForm
 import com.vaadin.flow.component.login.LoginI18n
