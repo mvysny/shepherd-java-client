@@ -1,6 +1,5 @@
 package com.github.mvysny.shepherd.api
 
-import java.nio.file.Files
 import java.time.Duration
 import java.time.Instant
 import kotlin.io.path.*
@@ -28,14 +27,8 @@ public class FakeShepherdClient @JvmOverloads constructor(
     )
 ) : ShepherdClient {
     private val rootFolder = createTempDirectory("shepherd-fake-client")
-
-    /**
-     * Stores projects as json files named `projectid.json`.
-     */
-    private val projectConfigFolder = ProjectConfigFolder(rootFolder / "java" / "projects")
-    init {
-        Files.createDirectories(projectConfigFolder.folder)
-    }
+    public val configFolder: ConfigFolder = ConfigFolder(rootFolder)
+    private val projectConfigFolder = configFolder.projects
 
     public fun withFakeProject(): FakeShepherdClient = apply {
         createProject(fakeProject)

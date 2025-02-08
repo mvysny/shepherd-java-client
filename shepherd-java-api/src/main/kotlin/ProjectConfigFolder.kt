@@ -76,9 +76,21 @@ public class ProjectConfigFolder(public val folder: Path) {
     public companion object {
         @JvmStatic
         private val log = LoggerFactory.getLogger(ProjectConfigFolder::class.java)
+    }
+}
 
-        public val LINUX_ROOT_FOLDER: Path = Path("/etc/shepherd")
-
-        public fun defaultLinux(rootFolder: Path = LINUX_ROOT_FOLDER) : ProjectConfigFolder = ProjectConfigFolder(rootFolder / "java" / "projects")
+/**
+ * The configuration folder, defaults to [LINUX_ROOT_FOLDER].
+ */
+public class ConfigFolder(public val rootFolder: Path = LINUX_ROOT_FOLDER) {
+    /**
+     * Stores projects as json files named `projectid.json`.
+     */
+    public val projects: ProjectConfigFolder = ProjectConfigFolder(rootFolder / "java" / "projects")
+    init {
+        Files.createDirectories(projects.folder)
+    }
+    public companion object {
+        private val LINUX_ROOT_FOLDER: Path = Path("/etc/shepherd")
     }
 }

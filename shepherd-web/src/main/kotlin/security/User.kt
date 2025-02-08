@@ -24,8 +24,6 @@ data class User(
     var name: String,
     @field:NotNull
     var roles: Set<UserRoles>,
-    @field:NotNull
-    @field:NotEmpty
     private var hashedPassword: String,
 ): java.io.Serializable, HasPassword {
     val isAdmin: Boolean get() = roles.contains(UserRoles.ADMIN)

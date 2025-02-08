@@ -18,6 +18,7 @@ dependencies {
     implementation(libs.vaadin.boot)
     implementation(libs.karibu.dsl)
     implementation(libs.vaadin.simplesecurity)
+    implementation(libs.google.api.client)
 
     implementation(libs.kotlinx.serialization.json)
 

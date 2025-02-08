@@ -1,5 +1,6 @@
 package com.github.mvysny.shepherd.web
 
+import com.github.mvysny.shepherd.api.ConfigFolder
 import com.github.mvysny.shepherd.api.KubernetesShepherdClient
 import com.github.mvysny.shepherd.api.ShepherdClient
 import com.github.mvysny.shepherd.web.security.UserLoginService
@@ -24,20 +25,18 @@ lateinit var host: String
 @WebListener
 class Bootstrap : ServletContextListener {
     companion object {
-        @JvmField
-        var client: ShepherdClient? = null
-        fun getClient(): ShepherdClient = checkNotNull(client) { "shepherd client is not initialized" }
+        fun getClient(): ShepherdClient = Services.get().client
     }
     override fun contextInitialized(sce: ServletContextEvent?) {
-        if (client == null) {
-            client = KubernetesShepherdClient()
+        if (services == null) {
+            services = Services.real(ConfigFolder())
         }
         host = getClient().getConfig().hostDNS
     }
 
     override fun contextDestroyed(sce: ServletContextEvent?) {
-        client?.close()
-        client = null
+        services?.close()
+        services = null
     }
 }
 

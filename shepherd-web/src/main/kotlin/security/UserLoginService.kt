@@ -1,10 +1,9 @@
 package com.github.mvysny.shepherd.web.security
 
-import com.github.mvysny.kaributools.navigateTo
-import com.github.mvysny.shepherd.web.ui.ProjectListRoute
 import com.github.mvysny.vaadinsimplesecurity.AbstractLoginService
 import com.github.mvysny.vaadinsimplesecurity.SimpleUserWithRoles
 import javax.security.auth.login.FailedLoginException
+import kotlin.random.Random
 
 /**
  * Session-scoped service which gives access to the currently logged-in user.
@@ -18,14 +17,24 @@ class UserLoginService : AbstractLoginService<User>() {
      * on failure.
      */
     fun login(email: String, password: String) {
-        val user = UserRegistry.findByEmail(email) ?: throw FailedLoginException(
+        val user = UserRegistry.get().findByEmail(email) ?: throw FailedLoginException(
             "Invalid email or password"
         )
         if (!user.passwordMatches(password)) {
             throw FailedLoginException("Invalid username or password")
         }
         login(user)
-        navigateTo<ProjectListRoute>()
+    }
+
+    @OptIn(ExperimentalStdlibApi::class)
+    fun loginViaGoogleSSO(email: String, name: String) {
+        var user = UserRegistry.get().findByEmail(email)
+        if (user == null) {
+            val generatedPassword = Random.nextBytes(16).toHexString()
+            user = User(email, name, setOf(UserRoles.USER), generatedPassword)
+            UserRegistry.get().create(user)
+        }
+        login(user)
     }
 
     companion object {

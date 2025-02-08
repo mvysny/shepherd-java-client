@@ -6,7 +6,6 @@ import com.github.mvysny.karibudsl.v10.beanValidationBinder
 import com.github.mvysny.karibudsl.v10.bind
 import com.github.mvysny.karibudsl.v10.button
 import com.github.mvysny.karibudsl.v10.columnFor
-import com.github.mvysny.karibudsl.v10.componentColumn
 import com.github.mvysny.karibudsl.v10.emailField
 import com.github.mvysny.karibudsl.v10.grid
 import com.github.mvysny.karibudsl.v10.onClick
@@ -24,7 +23,6 @@ import com.github.mvysny.shepherd.web.ui.components.confirmDialog
 import com.github.mvysny.shepherd.web.ui.components.iconButtonColumn
 import com.github.mvysny.shepherd.web.ui.components.showErrorNotification
 import com.github.mvysny.shepherd.web.ui.components.showInfoNotification
-import com.vaadin.flow.component.button.Button
 import com.vaadin.flow.component.grid.Grid
 import com.vaadin.flow.component.icon.VaadinIcon
 import com.vaadin.flow.component.textfield.PasswordField
@@ -63,26 +61,26 @@ class UsersRoute : KComposite() {
     }
 
     private fun refresh() {
-        userGrid.setItems(UserRegistry.getUsers())
+        userGrid.setItems(UserRegistry.get().getUsers())
     }
 
     private fun createUser() {
         FormDialog(UserForm(true), User("", "", setOf(UserRoles.USER), "")) { user ->
-            UserRegistry.create(user)
+            UserRegistry.get().create(user)
             refresh()
         } .open()
     }
 
     private fun edit(user: User) {
         FormDialog(UserForm(false), user) {
-            UserRegistry.update(user)
+            UserRegistry.get().update(user)
             refresh()
         } .open()
     }
 
     private fun delete(user: User) {
         confirmDialog("Delete user ${user.email}? This action can not be reverted, but you can re-create the user easily. The user won't be able to log in but his projects will remain.") {
-            UserRegistry.delete(user.email)
+            UserRegistry.get().delete(user.email)
             refresh()
             showInfoNotification("User ${user.email} deleted successfully")
         }

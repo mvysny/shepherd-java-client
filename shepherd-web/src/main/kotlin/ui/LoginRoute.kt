@@ -42,9 +42,7 @@ class LoginRoute : VerticalLayout(), ComponentEventListener<AbstractLogin.LoginE
 
         if (devMode && !devModeAutomaticLogInPerformed) {
             devModeAutomaticLogInPerformed = true
-            UI.getCurrent().access {
-                UserLoginService.get().login("mavi@vaadin.com", "admin")
-            }
+            UserLoginService.get().login("mavi@vaadin.com", "admin")
         }
     }
 

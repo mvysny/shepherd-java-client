@@ -1,5 +1,6 @@
 @file:OptIn(ExperimentalCli::class)
 
+import com.github.mvysny.shepherd.api.ConfigFolder
 import com.github.mvysny.shepherd.api.FakeShepherdClient
 import com.github.mvysny.shepherd.api.KubernetesShepherdClient
 import com.github.mvysny.shepherd.api.ProjectId
@@ -22,7 +23,9 @@ data class Args(
     val buildLogSubcommand: BuildLogSubcommand
 ) {
 
-    fun createClient(): ShepherdClient = if (fake) FakeShepherdClient() else KubernetesShepherdClient()
+    fun createClient(): ShepherdClient = if (fake) FakeShepherdClient() else KubernetesShepherdClient(
+        projectConfigFolder = ConfigFolder().projects
+    )
 
     companion object {
         fun parse(args: Array<String>): Args {
@@ -37,7 +40,7 @@ data class Args(
             parser.subcommands(ListProjectSubcommand(), ShowProjectSubcommand(), LogsSubcommand(), createSubcommand, deleteSubcommand, MetricsSubcommand(), updateSubcommand, BuildsSubcommand(), buildLogSubcommand, StatsSubcommand())
             val parserResult = parser.parse(args)
             val commandName = parserResult.commandName.takeUnless { it == parser.programName }
-            val cmd = Command.values().firstOrNull { it.argName == commandName }
+            val cmd = Command.entries.firstOrNull { it.argName == commandName }
             require(cmd != null) { "Invalid command '$commandName'. Please run with -h to learn the proper usage" }
 
             return Args(

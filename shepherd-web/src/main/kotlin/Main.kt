@@ -10,7 +10,7 @@ fun main(args: Array<String>) {
         // perfect for development
         println("!!!!!! RUNNING IN DEVELOPMENT MODE !!!!!")
         devMode = true
-        Bootstrap.client = FakeShepherdClient().withFakeProject()
+        services = Services.fake()
     }
     VaadinBoot().run()
 }

@@ -24,8 +24,8 @@ abstract class AbstractAppTest {
         }
 
         @BeforeAll @JvmStatic fun bootstrap() {
-            UserRegistry.deleteAll()
-            Bootstrap.client = FakeShepherdClient().withFakeProject()
+            services = Services.fake()
+            UserRegistry.get().deleteAll()
             Bootstrap().contextInitialized(null)
         }
         @AfterAll @JvmStatic fun shutdown() {

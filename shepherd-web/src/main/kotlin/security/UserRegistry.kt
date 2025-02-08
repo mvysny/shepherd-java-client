@@ -2,7 +2,10 @@ package com.github.mvysny.shepherd.web.security
 
 import com.github.mvysny.shepherd.api.JsonUtils
 import com.github.mvysny.shepherd.api.ProjectConfigFolder
+import com.github.mvysny.shepherd.web.Services
+import com.github.mvysny.shepherd.web.services
 import org.slf4j.LoggerFactory
+import java.nio.file.Path
 import java.util.concurrent.CopyOnWriteArraySet
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.div
@@ -11,10 +14,12 @@ import kotlin.io.path.exists
 /**
  * Manages list of users. The list of users is persisted as a JSON file at `/etc/shepherd/java/webadmin-users.json`.
  */
-object UserRegistry {
-    @JvmStatic
-    private val log = LoggerFactory.getLogger(UserRegistry::class.java)
-    private val configFile = ProjectConfigFolder.Companion.LINUX_ROOT_FOLDER / "java" / "webadmin-users.json"
+class UserRegistry(val configFile: Path) {
+    companion object {
+        @JvmStatic
+        private val log = LoggerFactory.getLogger(UserRegistry::class.java)
+        fun get() = Services.get().userRegistry
+    }
     private fun loadUsers(): Users {
         var users: Users
         if (configFile.exists()) {
