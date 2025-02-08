@@ -7,7 +7,6 @@ import kotlin.test.expect
 class ConfigTest {
     @Test fun load() {
         val temp = File.createTempFile("testconfig", "json")
-        Config.location = temp.toPath()
         temp.writeText("""{
         "memoryQuotaMb": 14102,
         "concurrentJenkinsBuilders": 2,
@@ -27,10 +26,10 @@ class ConfigTest {
 }
 """)
         expect("secretpassword") {
-            Config.load().jenkins.password
+            Config.load(temp.toPath()).jenkins.password
         }
         expect("http://localhost:8080/jenkins") {
-            Config.load().jenkins.url
+            Config.load(temp.toPath()).jenkins.url
         }
         temp.delete()
     }

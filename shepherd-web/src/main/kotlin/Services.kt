@@ -26,7 +26,7 @@ data class Services(
             return Services(client, UserRegistry(client.configFolder.userRegistryFolder))
         }
         fun real(configFolder: ConfigFolder): Services {
-            val client = KubernetesShepherdClient(projectConfigFolder = configFolder.projects)
+            val client = KubernetesShepherdClient(configFolder)
             return Services(client, UserRegistry(configFolder.userRegistryFolder))
         }
         fun get(): Services = checkNotNull(services) { "App not initialized" }

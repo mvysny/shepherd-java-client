@@ -80,7 +80,7 @@ public class ProjectConfigFolder(public val folder: Path) {
 }
 
 /**
- * The configuration folder, defaults to [LINUX_ROOT_FOLDER].
+ * The Shepherd configuration folder, defaults to [LINUX_ROOT_FOLDER].
  */
 public class ConfigFolder(public val rootFolder: Path = LINUX_ROOT_FOLDER) {
     /**
@@ -92,5 +92,10 @@ public class ConfigFolder(public val rootFolder: Path = LINUX_ROOT_FOLDER) {
     }
     public companion object {
         private val LINUX_ROOT_FOLDER: Path = Path("/etc/shepherd")
+    }
+
+    public fun loadConfig(): Config {
+        val configLocation = rootFolder / "java" / "config.json"
+        return Config.load(configLocation)
     }
 }

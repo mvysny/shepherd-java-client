@@ -23,9 +23,7 @@ data class Args(
     val buildLogSubcommand: BuildLogSubcommand
 ) {
 
-    fun createClient(): ShepherdClient = if (fake) FakeShepherdClient() else KubernetesShepherdClient(
-        projectConfigFolder = ConfigFolder().projects
-    )
+    fun createClient(): ShepherdClient = if (fake) FakeShepherdClient() else KubernetesShepherdClient(ConfigFolder())
 
     companion object {
         fun parse(args: Array<String>): Args {

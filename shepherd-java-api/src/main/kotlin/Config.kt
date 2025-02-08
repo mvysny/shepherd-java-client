@@ -32,14 +32,9 @@ public data class Config(
 ) {
     public companion object {
         /**
-         * Location of the config file on the filesystem.
+         * Loads the current config file from the filesystem (from [file]).
          */
-        public var location: Path = Path("/etc/shepherd/java/config.json")
-
-        /**
-         * Loads the current config file from the filesystem (from [location]).
-         */
-        public fun load(): Config = location.inputStream().buffered().use { Json.decodeFromStream(it) }
+        public fun load(file: Path): Config = file.inputStream().buffered().use { Json.decodeFromStream(it) }
     }
 }
 

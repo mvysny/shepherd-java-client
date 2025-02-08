@@ -5,13 +5,13 @@ import java.io.FileNotFoundException
 
 /**
  * Interacts with the actual shepherd system.
- * @property projectConfigFolder Project config JSONs are stored here. Defaults to [ProjectConfigFolder.defaultLinux].
  */
 public class KubernetesShepherdClient @JvmOverloads constructor(
-    private val kubernetes: SimpleKubernetesClient = SimpleKubernetesClient(defaultDNS = Config.load().hostDNS),
-    private val projectConfigFolder: ProjectConfigFolder,
+    private val configFolder: ConfigFolder,
+    private val kubernetes: SimpleKubernetesClient = SimpleKubernetesClient(defaultDNS = configFolder.loadConfig().hostDNS),
 ) : ShepherdClient {
     private val jenkins: SimpleJenkinsClient = SimpleJenkinsClient(jenkinsUrl = getConfig().jenkins.url, jenkinsUsername = getConfig().jenkins.username, jenkinsPassword = getConfig().jenkins.password)
+    private val projectConfigFolder get() = configFolder.projects
 
     override fun getAllProjectIDs(): List<ProjectId> = projectConfigFolder.getAllProjects()
 
@@ -107,7 +107,7 @@ public class KubernetesShepherdClient @JvmOverloads constructor(
     }
 
     override fun getBuildLog(id: ProjectId, buildNumber: Int): String = jenkins.getBuildConsoleText(id, buildNumber)
-    override fun getConfig(): Config = Config.load()
+    override fun getConfig(): Config = configFolder.loadConfig()
 
     override fun close() {}
 
