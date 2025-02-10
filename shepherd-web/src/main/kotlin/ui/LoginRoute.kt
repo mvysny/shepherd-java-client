@@ -42,8 +42,9 @@ class LoginRoute : VerticalLayout(), ComponentEventListener<AbstractLogin.LoginE
         add(login)
 
         val config = Services.get().client.getConfig()
-        if (config.googleSSOClientId != null) {
-            val googleSSOButton = GoogleSignInButton(config.googleSSOClientId!!)
+        val googleSSOClientId = config.googleSSOClientId
+        if (googleSSOClientId != null) {
+            val googleSSOButton = GoogleSignInButton(googleSSOClientId)
             googleSSOButton.buttonTheme = GoogleSignInButton.Theme.Filled_Black
             if (config.ssoOnlyAllowEmailsEndingWith != null) {
                 googleSSOButton.hd = config.ssoOnlyAllowEmailsEndingWith!!.dropWhile { it == '@' }
