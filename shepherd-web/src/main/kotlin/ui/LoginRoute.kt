@@ -3,7 +3,8 @@ package com.github.mvysny.shepherd.web.ui
 import com.github.mvysny.shepherd.web.Services
 import com.github.mvysny.shepherd.web.devMode
 import com.github.mvysny.shepherd.web.security.UserLoginService
-import com.github.mvysny.shepherd.web.ui.components.GoogleSignInButton
+import com.github.mvysny.shepherd.web.ui.components.showErrorNotification
+import com.github.mvysny.vaadinsimplesecurity.externalauth.google.GoogleSignInButton
 import com.vaadin.flow.component.ComponentEventListener
 import com.vaadin.flow.component.login.AbstractLogin
 import com.vaadin.flow.component.login.LoginForm
@@ -42,7 +43,26 @@ class LoginRoute : VerticalLayout(), ComponentEventListener<AbstractLogin.LoginE
 
         val config = Services.get().client.getConfig()
         if (config.googleSSOClientId != null) {
-            val googleSSOButton = GoogleSignInButton(config.googleSSOClientId!!, config.ssoOnlyAllowEmailsEndingWith)
+            val googleSSOButton = GoogleSignInButton(config.googleSSOClientId!!)
+            googleSSOButton.buttonTheme = GoogleSignInButton.Theme.Filled_Black
+            if (config.ssoOnlyAllowEmailsEndingWith != null) {
+                googleSSOButton.hd = config.ssoOnlyAllowEmailsEndingWith!!.dropWhile { it == '@' }
+            }
+            googleSSOButton.addSignInListener { e ->
+                try {
+                    if (e.failure != null) {
+                        throw e.failure!!
+                    }
+                    val userInfo = e.userInfo!!
+                    if (config.ssoOnlyAllowEmailsEndingWith != null && !userInfo.email.endsWith(config.ssoOnlyAllowEmailsEndingWith!!, true)) {
+                        throw RuntimeException("Only ${config.ssoOnlyAllowEmailsEndingWith} e-mails accepted")
+                    }
+                    UserLoginService.get().loginViaGoogleSSO(userInfo.email, userInfo.name)
+                } catch (e: Exception) {
+                    log.warn("Google Login failed", e)
+                    showErrorNotification("Google Login failed")
+                }
+            }
             add(googleSSOButton)
         }
 

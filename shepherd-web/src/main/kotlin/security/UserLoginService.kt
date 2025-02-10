@@ -30,8 +30,7 @@ class UserLoginService : AbstractLoginService<User>() {
     fun loginViaGoogleSSO(email: String, name: String) {
         var user = UserRegistry.get().findByEmail(email)
         if (user == null) {
-            val generatedPassword = Random.nextBytes(16).toHexString()
-            user = User(email, name, setOf(UserRoles.USER), generatedPassword)
+            user = User(email, name, setOf(UserRoles.USER), null)
             UserRegistry.get().create(user)
         }
         login(user)
