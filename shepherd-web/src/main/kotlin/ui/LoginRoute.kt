@@ -15,6 +15,7 @@ import com.vaadin.flow.router.PageTitle
 import com.vaadin.flow.router.Route
 import com.vaadin.flow.server.auth.AnonymousAllowed
 import org.slf4j.LoggerFactory
+import javax.security.auth.login.FailedLoginException
 import javax.security.auth.login.LoginException
 
 var devModeAutomaticLogInPerformed = false
@@ -65,7 +66,7 @@ class LoginRoute : VerticalLayout(), ComponentEventListener<AbstractLogin.LoginE
                     }
                     val userInfo = e.userInfo!!
                     if (config.ssoOnlyAllowEmailsEndingWith != null && !userInfo.email.endsWith(config.ssoOnlyAllowEmailsEndingWith!!, true)) {
-                        throw RuntimeException("Only ${config.ssoOnlyAllowEmailsEndingWith} e-mails accepted")
+                        throw FailedLoginException("Only ${config.ssoOnlyAllowEmailsEndingWith} e-mails accepted")
                     }
                     UserLoginService.get().loginViaGoogleSSO(userInfo.email, userInfo.name)
                 } catch (e: Exception) {
