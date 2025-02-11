@@ -41,6 +41,15 @@ class LoginRoute : VerticalLayout(), ComponentEventListener<AbstractLogin.LoginE
         login.setI18n(loginI18n)
         add(login)
 
+        maybeAddGoogleSignInButton()
+
+        if (devMode && !devModeAutomaticLogInPerformed) {
+            devModeAutomaticLogInPerformed = true
+            UserLoginService.get().login("mavi@vaadin.com", "admin")
+        }
+    }
+
+    private fun maybeAddGoogleSignInButton() {
         val config = Services.get().client.getConfig()
         val googleSSOClientId = config.googleSSOClientId
         if (googleSSOClientId != null) {
@@ -65,11 +74,6 @@ class LoginRoute : VerticalLayout(), ComponentEventListener<AbstractLogin.LoginE
                 }
             }
             add(googleSSOButton)
-        }
-
-        if (devMode && !devModeAutomaticLogInPerformed) {
-            devModeAutomaticLogInPerformed = true
-            UserLoginService.get().login("mavi@vaadin.com", "admin")
         }
     }
 
