@@ -9,6 +9,7 @@ class UserRegistryTest : AbstractAppTest() {
         val user = User("foo@bar.baz", "John Doe", setOf(UserRoles.USER))
         UserRegistry.get().create(user)
         UserRegistry.get().delete("mavi@vaadin.com")
+        UserRegistry.get().delete("user@vaadin.com")
         expect(listOf(user)) { UserRegistry.get().getUsers() }
         expect(user) { UserRegistry.get().findByEmail("foo@bar.baz") }
     }
