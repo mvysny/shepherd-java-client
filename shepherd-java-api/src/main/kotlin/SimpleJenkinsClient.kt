@@ -249,7 +249,9 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
                     newProject.build.dockerFile != oldProject.build.dockerFile ||
                     // also this: if e.g. build memory increases from 1024 to 2048, we want a full rebuild: the old project might have failed to build because there was not enough memory
                     newProject.build.resources.memoryMb != oldProject.build.resources.memoryMb ||
-                    newProject.gitRepo != oldProject.gitRepo
+                    newProject.gitRepo != oldProject.gitRepo ||
+                    // if the project fails to build, new owner needs to know.
+                    newProject.owner != oldProject.owner
 
         private val json = Json { ignoreUnknownKeys = true; coerceInputValues = true }
     }
