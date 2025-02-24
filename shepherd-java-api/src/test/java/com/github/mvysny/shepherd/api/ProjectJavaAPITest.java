@@ -17,7 +17,7 @@ public class ProjectJavaAPITest {
                 new ProjectOwner("Foo", "foo@bar.baz"),
                 new ProjectRuntime(Resources.getDefaultRuntimeResources()),
                 new BuildSpec(Resources.getDefaultRuntimeResources()),
-                new Publication(), new HashSet<>());
+                new Publication(), new HashSet<>(), null);
         System.out.println(project);
     }
 }

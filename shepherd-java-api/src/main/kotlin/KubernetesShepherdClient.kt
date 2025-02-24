@@ -19,7 +19,7 @@ public class KubernetesShepherdClient @JvmOverloads constructor(
         var projects = getAllProjectIDs()
             .map { getProjectInfo(it) }
         if (ownerEmail != null) {
-            projects = projects.filter { it.owner.email == ownerEmail }
+            projects = projects.filter { it.canEdit(ownerEmail) }
         }
         val jobs: Map<ProjectId, JenkinsJob> = jenkins.getJobsOverview().associateBy { ProjectId(it.name) }
         return projects.map { project ->

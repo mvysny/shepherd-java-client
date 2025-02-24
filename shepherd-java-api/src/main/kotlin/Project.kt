@@ -44,9 +44,7 @@ private object ProjectIdAsStringSerializer : KSerializer<ProjectId> {
         encoder.encodeString(value.id)
     }
 
-    override fun deserialize(decoder: Decoder): ProjectId {
-        return ProjectId(decoder.decodeString())
-    }
+    override fun deserialize(decoder: Decoder): ProjectId = ProjectId(decoder.decodeString())
 }
 
 /**
@@ -163,6 +161,8 @@ public data class ProjectRuntime @JvmOverloads constructor(
  * Useful to have if [GitRepo.url] points to a private Git repo which is not browseable by the browser.
  * @property gitRepo the git repository from where the project comes from
  * @property owner the project owner: a contact person responsible for the project.
+ * @property additionalAdmins if not null, lists e-mails of additional project admins. These users are also allowed
+ * to fully manage the project, and are also notified of build failures.
  * @property runtime what resources the project needs for running
  * @property build build info
  * @property publication how to publish project over http/https
@@ -178,7 +178,8 @@ public data class Project(
     val runtime: ProjectRuntime,
     val build: BuildSpec,
     val publication: Publication = Publication(),
-    val additionalServices: Set<Service> = setOf()
+    val additionalServices: Set<Service> = setOf(),
+    var additionalAdmins: Set<String>? = null,
 ) {
     /**
      * Returns URLs on which this project runs (can be browsed to). E.g. for `vaadin-boot-example-gradle`
@@ -212,6 +213,18 @@ public data class Project(
 
     @JvmOverloads
     public fun toJson(prettyPrint: Boolean = false): String = JsonUtils.toJson(this, prettyPrint)
+
+    /**
+     * Checks if given user can manage this project: if he can change the project settings, view the project logs
+     * and even delete the project.
+     */
+    public fun canEdit(userEmail: String): Boolean =
+        owner.email == userEmail || (additionalAdmins != null && additionalAdmins!!.contains(userEmail))
+
+    public val emailNotificationSendTo: Set<String> get() = when {
+        additionalAdmins == null -> setOf(owner.email)
+        else -> setOf(owner.email) + additionalAdmins!!
+    }
 }
 
 @Serializable

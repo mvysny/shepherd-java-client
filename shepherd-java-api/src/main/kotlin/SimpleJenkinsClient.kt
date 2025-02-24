@@ -62,7 +62,7 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
     }
 
     internal fun getJobXml(project: Project): String {
-        val emailNotificationSendTo = setOf("mavi@vaadin.com", project.owner.email).joinToString(" ")
+        val emailNotificationSendTo = project.emailNotificationSendTo.joinToString(" ")
         val envVars = mutableListOf(
             "export BUILD_MEMORY=${project.build.resources.memoryMb}m",
             "export CPU_QUOTA=${(project.build.resources.cpu.toDouble() * 100000).toInt()}"
