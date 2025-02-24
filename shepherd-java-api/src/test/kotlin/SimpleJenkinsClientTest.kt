@@ -137,7 +137,7 @@ export DOCKERFILE=vherd.Dockerfile
   </builders>
   <publishers>
     <hudson.tasks.Mailer plugin="mailer">
-      <recipients>mavi@vaadin.com</recipients>
+      <recipients>mavi@vaadin.com someone.else@foo.eu foo@bar.baz</recipients>
       <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
       <sendToIndividuals>false</sendToIndividuals>
     </hudson.tasks.Mailer>

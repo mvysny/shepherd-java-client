@@ -39,9 +39,10 @@ val fakeProject2 = Project(
         publishOnMainDomain = false,
         additionalDomains = setOf("demo.jdbiorm.eu")
     ),
-    additionalServices = setOf(Service(ServiceType.Postgres))
+    additionalServices = setOf(Service(ServiceType.Postgres)),
+    additionalAdmins = setOf("someone.else@foo.eu", "foo@bar.baz")
 )
-private val serializedJson2 = """{"id":"jdbi-orm-vaadin-crud-demo","description":"JDBI-ORM example project","gitRepo":{"url":"https://github.com/mvysny/jdbi-orm-vaadin-crud-demo","branch":"master","credentialsID":"c4d257ce-0048-11ee-a0b5-ffedf9ffccf4"},"owner":{"name":"Martin Vysny","email":"mavi@vaadin.com"},"runtime":{"resources":{"memoryMb":256,"cpu":1.0},"envVars":{"JDBC_URL":"jdbc:postgresql://postgres-service:5432/postgres","JDBC_USERNAME":"postgres","JDBC_PASSWORD":"mysecretpassword"}},"build":{"resources":{"memoryMb":2048,"cpu":2.0},"buildArgs":{"offlinekey":"q3984askdjalkd9823"},"dockerFile":"vherd.Dockerfile"},"publication":{"publishOnMainDomain":false,"additionalDomains":["demo.jdbiorm.eu"]},"additionalServices":[{"type":"Postgres"}]}"""
+private val serializedJson2 = """{"id":"jdbi-orm-vaadin-crud-demo","description":"JDBI-ORM example project","gitRepo":{"url":"https://github.com/mvysny/jdbi-orm-vaadin-crud-demo","branch":"master","credentialsID":"c4d257ce-0048-11ee-a0b5-ffedf9ffccf4"},"owner":{"name":"Martin Vysny","email":"mavi@vaadin.com"},"runtime":{"resources":{"memoryMb":256,"cpu":1.0},"envVars":{"JDBC_URL":"jdbc:postgresql://postgres-service:5432/postgres","JDBC_USERNAME":"postgres","JDBC_PASSWORD":"mysecretpassword"}},"build":{"resources":{"memoryMb":2048,"cpu":2.0},"buildArgs":{"offlinekey":"q3984askdjalkd9823"},"dockerFile":"vherd.Dockerfile"},"publication":{"publishOnMainDomain":false,"additionalDomains":["demo.jdbiorm.eu"]},"additionalServices":[{"type":"Postgres"}],"additionalAdmins":["someone.else@foo.eu","foo@bar.baz"]}"""
 
 
 class ProjectIdTest {
@@ -80,6 +81,17 @@ class ProjectTest {
     @Test fun `json deserialization`() {
         expect(fakeProject) { Project.fromJson(serializedJson) }
         expect(fakeProject2) { Project.fromJson(serializedJson2) }
+    }
+    @Test fun basicProperties() {
+        expect(setOf("mavi@vaadin.com")) { fakeProject.allAdmins }
+        expect(setOf("mavi@vaadin.com")) { fakeProject.emailNotificationSendTo }
+        expect(true) { fakeProject.canEdit("mavi@vaadin.com") }
+        expect(false) { fakeProject.canEdit("foo@bar.baz") }
+
+        expect(setOf("mavi@vaadin.com", "someone.else@foo.eu", "foo@bar.baz")) { fakeProject2.allAdmins }
+        expect(setOf("mavi@vaadin.com", "someone.else@foo.eu", "foo@bar.baz")) { fakeProject2.emailNotificationSendTo }
+        expect(true) { fakeProject2.canEdit("mavi@vaadin.com") }
+        expect(true) { fakeProject2.canEdit("foo@bar.baz") }
     }
 }
 
