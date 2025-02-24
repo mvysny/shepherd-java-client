@@ -19,7 +19,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout
 import com.vaadin.flow.component.textfield.TextField
 import com.vaadin.flow.component.textfield.TextFieldVariant
 import com.vaadin.flow.data.binder.Validator
-import com.vaadin.flow.data.binder.ValueContext
 
 /**
  * A simple field which allows the user to edit a set of short strings.
@@ -32,19 +31,22 @@ class SimpleStringSetField(label: String? = null) : CustomField<Set<String>>() {
     private val comboBox: MultiSelectComboBox<String>
     private val addItemTextField: TextField
     private val addItemButton: Button
-    private var value = mutableSetOf<String>()
+    private var internalValue = mutableSetOf<String>()
     var newValueValidator: Validator<String?> = Validator.alwaysPass()
     private fun calculateNewValueValidator(): Validator<String?> = StringNotBlankValidator().and(newValueValidator)
     init {
         this.label = label
         add(HorizontalLayout().apply {
             comboBox = multiSelectComboBox {
+                setId("stringSetComboBox")
                 isExpand = true
             }
             addItemTextField = textField {
+                setId("addItemTextField")
                 addThemeVariants(TextFieldVariant.LUMO_SMALL)
             }
             addItemButton = button(icon = VaadinIcon.PLUS_CIRCLE.create()) {
+                setId("addItemButton")
                 addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ICON)
             }
         })
@@ -55,29 +57,30 @@ class SimpleStringSetField(label: String? = null) : CustomField<Set<String>>() {
             addItemTextField.isInvalid = validationResult.isError
             if (!validationResult.isError) {
                 addItemTextField.errorMessage = null
-                value = value.toMutableSet()
-                value.add(newString)
-                comboBox.setItems(this.value.toMutableSet())
-                comboBox.value = this.value.toMutableSet()
+                internalValue = internalValue.toMutableSet()
+                internalValue.add(newString)
+                comboBox.setItems(internalValue.toMutableSet())
+                comboBox.value = internalValue.toMutableSet()
                 addItemTextField.value = ""
+                updateValue()
             } else {
                 addItemTextField.errorMessage = validationResult.errorMessage
             }
         }
         comboBox.addValueChangeListener { e ->
             if (e.isFromClient) {
-                value = e.value.toMutableSet()
+                internalValue = e.value.toMutableSet()
                 updateValue()
             }
         }
     }
 
-    override fun generateModelValue(): Set<String> = value.toMutableSet()
+    override fun generateModelValue(): Set<String> = internalValue.toMutableSet()
 
     override fun setPresentationValue(value: Set<String>?) {
-        this.value = value.orEmpty().toMutableSet()
-        comboBox.setItems(this.value.toMutableSet())
-        comboBox.value = this.value.toMutableSet()
+        this.internalValue = value.orEmpty().toMutableSet()
+        comboBox.setItems(internalValue.toMutableSet())
+        comboBox.value = internalValue.toMutableSet()
     }
 
     var hint: String

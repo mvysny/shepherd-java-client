@@ -34,6 +34,7 @@ import com.github.mvysny.shepherd.web.ui.components.validateNoWhitespaces
 import com.vaadin.flow.component.HasComponents
 import com.vaadin.flow.component.html.H2
 import com.vaadin.flow.data.binder.Binder
+import com.vaadin.flow.data.validator.EmailValidator
 import com.vaadin.flow.function.SerializablePredicate
 import com.vaadin.flow.router.BeforeEvent
 import com.vaadin.flow.router.HasUrlParameter
@@ -141,6 +142,7 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
         }
         simpleStringSetField("Additional project admins; will also receive notifications in case of failed builds") {
             setId("additionalAdmins")
+            newValueValidator = EmailValidator("Must be a valid e-mail address")
             isEnabled = isAdmin
             bind(binder).bind(MutableProject::projectAdmins)
         }
