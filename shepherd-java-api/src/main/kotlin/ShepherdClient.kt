@@ -16,7 +16,7 @@ public interface ShepherdClient : Closeable {
 
     /**
      * Gets all projects, including metadata.
-     * @param ownerEmail if not null, return only projects owned by given owner (e-mail address, refers to [ProjectOwner.email].
+     * @param ownerEmail if not null, return only projects owned/administrated by given owner (e-mail address, refers to [ProjectOwner.email].
      */
     public fun getAllProjects(ownerEmail: String? = null): List<ProjectView>
 
