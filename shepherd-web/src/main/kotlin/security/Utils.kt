@@ -21,10 +21,8 @@ fun checkProjectId(id: String): Project {
     } catch (_: NoSuchProjectException) {
         throw NotFoundException()
     }
-    if (!currentUser.isAdmin) {
-        if (project.owner.email != currentUser.email) {
-            throw NotFoundException()
-        }
+    if (!currentUser.isAdmin && !project.canEdit(currentUser.email)) {
+        throw NotFoundException()
     }
     return project
 }
