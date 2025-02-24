@@ -91,6 +91,8 @@ data class MutableProject(
     @field:Length(max = 255)
     var projectOwnerEmail: String?,
     @field:NotNull
+    var projectAdmins: Set<String>,
+    @field:NotNull
     @field:Min(64)
 //    @field:Max(1024)  // defined in maxProjectRuntimeResources
     var runtimeMemoryMb: Int,
@@ -137,6 +139,7 @@ data class MutableProject(
             gitRepoCredentialsID = null,
             projectOwnerName = owner.name,
             projectOwnerEmail = owner.email,
+            projectAdmins = mutableSetOf(),
             runtimeMemoryMb = Resources.defaultRuntimeResources.memoryMb,
             runtimeCpu = Resources.defaultRuntimeResources.cpu.toBigDecimal(),
             envVars = setOf(),
@@ -195,7 +198,8 @@ data class MutableProject(
                 additionalDomains = publishAdditionalDomains.toSet(),
                 ingressConfig = IngressConfig(ingressMaxBodySizeMb, ingressProxyReadTimeoutSeconds)
             ),
-            additionalServices = additionalServices.map { Service(it) } .toSet()
+            additionalServices = additionalServices.map { Service(it) } .toSet(),
+            additionalAdmins = if (projectAdmins.isEmpty()) null else projectAdmins.toSet(),
         )
     }
 }
@@ -220,6 +224,7 @@ fun Project.toMutable(): MutableProject = MutableProject(
     gitRepoCredentialsID = gitRepo.credentialsID,
     projectOwnerName = owner.name,
     projectOwnerEmail = owner.email,
+    projectAdmins = additionalAdmins?.toMutableSet() ?: setOf(),
     runtimeMemoryMb = runtime.resources.memoryMb,
     runtimeCpu = runtime.resources.cpu.toBigDecimal(),
     envVars = runtime.envVars.map { NamedVar(it.key, it.value) } .toSet(),

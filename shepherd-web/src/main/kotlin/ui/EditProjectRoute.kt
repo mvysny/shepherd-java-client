@@ -126,10 +126,10 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
                 .validateNoWhitespaces()
                 .bind(MutableProject::gitRepoCredentialsID)
         }
-        h3("Owner") {
+        h3("Owner & Project Admins") {
             colspan = 2
         }
-        textField("Project Owner Name. Only Shepherd admin can create projects for someone else.") {
+        textField("Project Owner Name. Note: Only Shepherd admin can create projects for someone else.") {
             setId("projectOwnerName")
             isEnabled = isAdmin
             bind(binder).trimmingConverter().bind(MutableProject::projectOwnerName)
@@ -138,6 +138,11 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
             setId("projectOwnerEmail")
             isEnabled = isAdmin
             bind(binder).trimmingConverter().bind(MutableProject::projectOwnerEmail)
+        }
+        simpleStringSetField("Additional project admins; will also receive notifications in case of failed builds") {
+            setId("additionalAdmins")
+            isEnabled = isAdmin
+            bind(binder).bind(MutableProject::projectAdmins)
         }
         h3("Build") {
             colspan = 2

@@ -5,13 +5,16 @@ import com.github.mvysny.kaributesting.v10._expect
 import com.github.mvysny.kaributesting.v10._expectDisabled
 import com.github.mvysny.kaributesting.v10._expectEnabled
 import com.github.mvysny.kaributesting.v10._expectNone
+import com.github.mvysny.kaributesting.v10._expectOne
 import com.github.mvysny.kaributesting.v10._expectValid
 import com.github.mvysny.kaributesting.v10._get
 import com.github.mvysny.kaributesting.v10._setValue
 import com.github.mvysny.kaributools.navigateTo
+import com.github.mvysny.shepherd.api.GitRepo
 import com.github.mvysny.shepherd.api.Project
 import com.github.mvysny.shepherd.web.AbstractAppTest
 import com.github.mvysny.shepherd.web.Bootstrap
+import com.github.mvysny.shepherd.web.ui.components.SimpleStringSetField
 import com.vaadin.flow.component.button.Button
 import com.vaadin.flow.component.dialog.Dialog
 import com.vaadin.flow.component.textfield.TextField
@@ -61,9 +64,11 @@ class EditProjectRouteTest : AbstractAppTest() {
         _get<TextField> { id = "gitRepoCredentialsID" } ._expectEnabled()
     }
 
-    @Test fun createProject() {
+    @Test fun createBasicProject() {
         navigateTo<ProjectListRoute>()
+        _expectNone<Dialog>()
         _get<Button> { text = "Create New Project" } ._click()
+        _expectOne<Dialog>()
         _get<TextField> { id = "projectid" } ._setValue("my-project")
         _get<TextField> { id = "description" } ._setValue("A cool project")
         _get<TextField> { id = "gitRepoURL" } ._setValue("git@github.com:mvysny/shepherd-java-client.git")
@@ -77,5 +82,9 @@ class EditProjectRouteTest : AbstractAppTest() {
         expect(true) {
             allProjects.any { it.project.id.id == "my-project" }
         }
+        val myproject = allProjects.first { it.project.id.id == "my-project" } .project
+        expect("my-project") { myproject.id.id }
+        expect("A cool project") { myproject.description }
+        expect(GitRepo("git@github.com:mvysny/shepherd-java-client.git", "main")) { myproject.gitRepo }
     }
 }
