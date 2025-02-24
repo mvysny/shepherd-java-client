@@ -6,7 +6,7 @@ import kotlin.test.expect
 
 class UserRegistryTest : AbstractAppTest() {
     @Test fun createPasswordlessUserWorks() {
-        val user = User("foo@bar.baz", "John Doe", setOf(UserRoles.USER), null)
+        val user = User("foo@bar.baz", "John Doe", setOf(UserRoles.USER))
         UserRegistry.get().create(user)
         UserRegistry.get().delete("mavi@vaadin.com")
         expect(listOf(user)) { UserRegistry.get().getUsers() }

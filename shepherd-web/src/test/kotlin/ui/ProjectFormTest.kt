@@ -17,4 +17,6 @@ class ProjectFormTest : AbstractAppTest() {
         form.binder.readBean(fakeProject.toMutable())
         form.binder.readBean(fakeProject.toMutable())
     }
+
+    // more tests in the EditProjectRouteTest
 }
