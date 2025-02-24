@@ -66,8 +66,9 @@ class UserRegistry(val configFile: Path) {
      * Deletes user with given [email] from the registry.
      */
     fun delete(email: String) {
-        users.removeIf { it.email == email }
-        save()
+        if (users.removeIf { it.email == email }) {
+            save()
+        }
     }
 
     fun update(user: User) {
