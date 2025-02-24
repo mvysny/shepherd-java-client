@@ -3,12 +3,14 @@ package com.github.mvysny.shepherd.web.ui
 import com.github.mvysny.kaributesting.v10._expect
 import com.github.mvysny.kaributools.navigateTo
 import com.github.mvysny.shepherd.api.Project
+import com.github.mvysny.shepherd.api.ProjectId
 import com.github.mvysny.shepherd.web.AbstractAppTest
 import com.github.mvysny.shepherd.web.Bootstrap
 import com.vaadin.flow.router.NotFoundException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import kotlin.test.expect
 
 class ProjectOverviewRouteTest : AbstractAppTest() {
     private val adminsProject: Project = Bootstrap.getClient().getAllProjects(null)
@@ -46,6 +48,13 @@ class ProjectOverviewRouteTest : AbstractAppTest() {
     @Test fun navigateToNonExistingProject() {
         assertThrows<NotFoundException> {
             navigateTo(ProjectOverviewRoute::class, "non-existing-project")
+        }
+    }
+
+    @Test fun navigateToURLWithInvalidProjectID() {
+        expect(false) { ProjectId.isValid("---invalid") }
+        assertThrows<NotFoundException> {
+            navigateTo(ProjectOverviewRoute::class, "---invalid")
         }
     }
 }
