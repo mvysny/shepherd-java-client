@@ -39,7 +39,7 @@ public class FakeShepherdClient @JvmOverloads constructor(
     override fun getAllProjects(ownerEmail: String?): List<ProjectView> {
         var projects = getAllProjectIDs().map { getProjectInfo(it) }
         if (ownerEmail != null) {
-            projects = projects.filter { it.owner.email == ownerEmail }
+            projects = projects.filter { it.canEdit(ownerEmail) }
         }
         return projects.map { ProjectView(it, Build(1, Duration.ofMinutes(3), Duration.ofMinutes(5), Instant.now(), BuildResult.BUILDING)) }
     }

@@ -25,13 +25,6 @@ class ProjectListRouteTest : AbstractAppTest() {
         grid.expectRow(1, "RouterLink[text='vaadin-boot-example-gradle']", "Martin Vysny <mavi@vaadin.com>", "Anchor[text='https://github.com/mvysny/vaadin-boot-example-gradle', href='https://github.com/mvysny/vaadin-boot-example-gradle']", "PublishedURLsAsVerticalLayout[@style='width:100%']", "BuildLinks[]", "Button[icon='vaadin:trash', @theme='small tertiary-inline icon']")
     }
 
-    @Test fun userDoesntSeeAdminProjects() {
-        loginUser()
-        _expect<ProjectListRoute>()
-        val grid = _get<Grid<ProjectView>>()
-        grid.expectRows(0)
-    }
-
     @Test fun userSeesProjectForWhichItIsAdditionalAdmin() {
         loginUser()
         _expect<ProjectListRoute>()
