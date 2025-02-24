@@ -18,4 +18,8 @@ class UserTest {
         user.setPassword("foobar")
         expect(false) { JsonUtils.toJson(user, false).contains("foobar") }
     }
+    @Test fun noPassword() {
+        val user = User("foo", "bar", setOf(UserRoles.ADMIN, UserRoles.USER))
+        expect("""{"email":"foo","name":"bar","roles":["ADMIN","USER"]}""") { JsonUtils.toJson(user, false) }
+    }
 }

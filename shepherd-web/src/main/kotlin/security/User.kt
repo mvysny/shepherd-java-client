@@ -24,7 +24,7 @@ data class User(
     var name: String,
     @field:NotNull
     var roles: Set<UserRoles>,
-    private var hashedPassword: String?,
+    private var hashedPassword: String? = null,
 ): java.io.Serializable, HasPassword {
     val isAdmin: Boolean get() = roles.contains(UserRoles.ADMIN)
     override fun getHashedPassword(): String? = hashedPassword
