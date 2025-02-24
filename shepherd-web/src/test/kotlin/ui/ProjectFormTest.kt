@@ -33,7 +33,7 @@ class ProjectFormTest : AbstractAppTest() {
         val project = MutableProject.newEmpty(getCurrentUser())
         form.binder.readBean(project)
         UI.getCurrent().add(form)
-        _get<TextField> { id = "projectid" }._setValue("my-project")
+        _get<TextField> { id = "projectid" }._setValue("my-project-2")
         _get<TextField> { id = "description" } ._setValue("A cool project")
         _get<TextField> { id = "gitRepoURL" } ._setValue("git@github.com:mvysny/shepherd-java-client.git")
         _get<TextField> { id = "gitRepoBranch" } ._setValue("main")
@@ -43,7 +43,7 @@ class ProjectFormTest : AbstractAppTest() {
         expect(true) { form.writeIfValid(project) }
 
         val myproject = project.toProject()
-        expect("my-project") { myproject.id.id }
+        expect("my-project-2") { myproject.id.id }
         expect("A cool project") { myproject.description }
         expect(GitRepo("git@github.com:mvysny/shepherd-java-client.git", "main")) { myproject.gitRepo }
         expect(setOf("mavi@vaadin.com", "foo", "bar", "baz")) { myproject.allAdmins }

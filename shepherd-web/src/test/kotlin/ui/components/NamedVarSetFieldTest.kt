@@ -1,5 +1,6 @@
 package com.github.mvysny.shepherd.web.ui.components
 
+import com.github.mvysny.kaributesting.v10.MockVaadin
 import com.github.mvysny.kaributesting.v10._click
 import com.github.mvysny.kaributesting.v10._expectNone
 import com.github.mvysny.kaributesting.v10._expectOne
@@ -11,10 +12,15 @@ import com.github.mvysny.shepherd.web.ui.NamedVar
 import com.vaadin.flow.component.UI
 import com.vaadin.flow.component.button.Button
 import com.vaadin.flow.component.textfield.TextField
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.expect
 
-class NamedVarSetFieldTest : AbstractAppTest() {
+class NamedVarSetFieldTest {
+    @BeforeEach fun setupVaadin() { MockVaadin.setup() }
+    @AfterEach fun teardownVaadin() { MockVaadin.tearDown() }
+
     @Test fun smoke() {
         UI.getCurrent().add(NamedVarSetField())
         UI.getCurrent().add(NamedVarSetField("Foo"))
