@@ -221,6 +221,9 @@ public data class Project(
     public fun canEdit(userEmail: String): Boolean =
         owner.email == userEmail || (additionalAdmins != null && additionalAdmins!!.contains(userEmail))
 
+    /**
+     * Lists e-mails of people that needs to be contacted if the project fails to build.
+     */
     public val emailNotificationSendTo: Set<String> get() = when {
         additionalAdmins == null -> setOf(owner.email)
         else -> setOf(owner.email) + additionalAdmins!!
