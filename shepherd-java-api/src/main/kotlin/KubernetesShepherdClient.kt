@@ -7,7 +7,8 @@ import java.io.FileNotFoundException
  * Interacts with the actual shepherd system.
  */
 public class KubernetesShepherdClient @JvmOverloads constructor(
-    private val configFolder: ConfigFolder,
+    private val fs: LocalFS,
+    private val configFolder: ConfigFolder = fs.configFolder,
     private val kubernetes: SimpleKubernetesClient = SimpleKubernetesClient(defaultDNS = configFolder.loadConfig().hostDNS),
 ) : ShepherdClient {
     private val jenkins: SimpleJenkinsClient = SimpleJenkinsClient(jenkinsUrl = getConfig().jenkins.url, jenkinsUsername = getConfig().jenkins.username, jenkinsPassword = getConfig().jenkins.password)
@@ -84,6 +85,7 @@ public class KubernetesShepherdClient @JvmOverloads constructor(
 
     override fun deleteProject(id: ProjectId) {
         jenkins.deleteJobIfExists(id)
+        fs.cacheFolder.deleteCacheIfExists(id)
         kubernetes.deleteIfExists(id)
         projectConfigFolder.deleteIfExists(id)
     }

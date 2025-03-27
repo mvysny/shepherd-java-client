@@ -3,6 +3,7 @@
 import com.github.mvysny.shepherd.api.ConfigFolder
 import com.github.mvysny.shepherd.api.FakeShepherdClient
 import com.github.mvysny.shepherd.api.KubernetesShepherdClient
+import com.github.mvysny.shepherd.api.LocalFS
 import com.github.mvysny.shepherd.api.ProjectId
 import com.github.mvysny.shepherd.api.ShepherdClient
 import kotlinx.cli.*
@@ -23,7 +24,7 @@ data class Args(
     val buildLogSubcommand: BuildLogSubcommand
 ) {
 
-    fun createClient(): ShepherdClient = if (fake) FakeShepherdClient() else KubernetesShepherdClient(ConfigFolder())
+    fun createClient(): ShepherdClient = if (fake) FakeShepherdClient() else KubernetesShepherdClient(LocalFS())
 
     companion object {
         fun parse(args: Array<String>): Args {

@@ -3,6 +3,7 @@ package com.github.mvysny.shepherd.web
 import com.github.mvysny.shepherd.api.ConfigFolder
 import com.github.mvysny.shepherd.api.FakeShepherdClient
 import com.github.mvysny.shepherd.api.KubernetesShepherdClient
+import com.github.mvysny.shepherd.api.LocalFS
 import com.github.mvysny.shepherd.api.ShepherdClient
 import com.github.mvysny.shepherd.web.security.UserRegistry
 import java.io.Closeable
@@ -25,10 +26,10 @@ data class Services(
             val client = FakeShepherdClient().withFakeProject()
             services = Services(client, UserRegistry(client.configFolder.userRegistryFolder))
         }
-        fun newReal(configFolder: ConfigFolder) {
+        fun newReal(fs: LocalFS) {
             destroy()
-            val client = KubernetesShepherdClient(configFolder)
-            services = Services(client, UserRegistry(configFolder.userRegistryFolder))
+            val client = KubernetesShepherdClient(fs)
+            services = Services(client, UserRegistry(fs.configFolder.userRegistryFolder))
         }
         val initialized: Boolean get() = services != null
         fun get(): Services = checkNotNull(services) { "App not initialized" }

@@ -1,6 +1,6 @@
 package com.github.mvysny.shepherd.web
 
-import com.github.mvysny.shepherd.api.ConfigFolder
+import com.github.mvysny.shepherd.api.LocalFS
 import com.github.mvysny.shepherd.api.ShepherdClient
 import com.github.mvysny.shepherd.web.security.UserLoginService
 import com.github.mvysny.shepherd.web.ui.LoginRoute
@@ -28,7 +28,7 @@ class Bootstrap : ServletContextListener {
     }
     override fun contextInitialized(sce: ServletContextEvent?) {
         if (!Services.initialized) {
-            Services.newReal(ConfigFolder())
+            Services.newReal(LocalFS())
         }
         host = getClient().getConfig().hostDNS
     }

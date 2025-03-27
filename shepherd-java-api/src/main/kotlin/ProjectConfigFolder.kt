@@ -80,9 +80,9 @@ public class ProjectConfigFolder(public val folder: Path) {
 }
 
 /**
- * The Shepherd configuration folder, defaults to [LINUX_ROOT_FOLDER].
+ * The Shepherd configuration folder, defaults to [ETC_SHEPHERD].
  */
-public class ConfigFolder(public val rootFolder: Path = LINUX_ROOT_FOLDER) {
+public class ConfigFolder(public val rootFolder: Path = ETC_SHEPHERD) {
     /**
      * Stores projects as json files named `projectid.json`.
      */
@@ -91,7 +91,7 @@ public class ConfigFolder(public val rootFolder: Path = LINUX_ROOT_FOLDER) {
         Files.createDirectories(projects.folder)
     }
     public companion object {
-        private val LINUX_ROOT_FOLDER: Path = Path("/etc/shepherd")
+        private val ETC_SHEPHERD: Path = Path("/etc/shepherd")
     }
 
     public fun loadConfig(): Config {
@@ -99,3 +99,23 @@ public class ConfigFolder(public val rootFolder: Path = LINUX_ROOT_FOLDER) {
         return Config.load(configLocation)
     }
 }
+
+public class CacheFolder(
+    public val rootFolder: Path = VAR_CACHE_SHEPHERD
+) {
+    public val docker: Path = rootFolder / "docker"
+    public companion object {
+        private val VAR_CACHE_SHEPHERD = Path("/var/cache/shepherd")
+    }
+    public fun getDockerCachePath(id: ProjectId): Path = docker / id.id
+
+    @OptIn(ExperimentalPathApi::class)
+    public fun deleteCacheIfExists(id: ProjectId) {
+        getDockerCachePath(id).deleteRecursively()
+    }
+}
+
+public class LocalFS(
+    public val configFolder: ConfigFolder = ConfigFolder(),
+    public val cacheFolder: CacheFolder = CacheFolder()
+)
