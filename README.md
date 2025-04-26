@@ -27,21 +27,21 @@ Requires a configuration file to be placed in `/etc/shepherd/java/config.json`, 
 
 ```json
 {
-        "memoryQuotaMb": 14102,
-        "concurrentJenkinsBuilders": 2,
-        "maxProjectRuntimeResources": {
-                "memoryMb": 512,
-                "cpu": 1
-        },
-        "maxProjectBuildResources": {
-                "memoryMb": 2500,
-                "cpu": 2
-        },
-        "jenkins": {
-          "url": "http://localhost:8080",
-          "username": "admin",
-          "password": "admin"
-        }
+  "memoryQuotaMb": 14102,
+  "concurrentJenkinsBuilders": 2,
+  "maxProjectRuntimeResources": {
+    "memoryMb": 512,
+    "cpu": 1
+  },
+  "maxProjectBuildResources": {
+    "memoryMb": 2500,
+    "cpu": 2
+  },
+  "jenkins": {
+    "url": "http://localhost:8080",
+    "username": "admin",
+    "password": "admin"
+  }
 }
 ```
 
@@ -50,6 +50,13 @@ Every project's runtime memory + the build memory is guaranteed by Shepherd; if 
 that overflows this quota, the project creation is prohibited. Calculate the quota value
 as follows: Take the total host machine memory, subtract memory for Jenkins usage (by default 512mb), for Kubernetes itself (say 1000mb),
 possibly 500mb for the future shepherd-ui project, and finally subtract memory for OS usage (say 200mb).
+
+Additional configuration options:
+
+* `hostDNS`: where Shepherd is running, e.g. "v-herd.eu"
+* `googleSSOClientId` (Shepherd-Web only): enable Google SSO login and use this client ID. See [vaadin-google-oauth](https://mvysny.github.io/vaadin-google-oauth/) for more details.
+* `ssoOnlyAllowEmailsEndingWith` (Shepherd-Web only): if not null, only e-mails ending with this string are allowed. Example: `@vaadin.com`. If null or empty, all e-mails are allowed.
+* `shepherdHome` Shepherd home, `/opt/shepherd` for [Shepherd Kubernetes](https://github.com/mvysny/shepherd), `/opt/shepherd-traefik` for [Shepherd Traefik](https://github.com/mvysny/shepherd-traefik).
 
 ## shepherd-cli
 

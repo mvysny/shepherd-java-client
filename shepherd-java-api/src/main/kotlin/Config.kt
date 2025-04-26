@@ -21,6 +21,7 @@ import kotlin.io.path.inputStream
  * @property hostDNS where Shepherd is running, e.g. "v-herd.eu"
  * @property googleSSOClientId (Shepherd-Web only): enable Google SSO login and use this client ID. See https://mvysny.github.io/vaadin-google-oauth/ for more details.
  * @property ssoOnlyAllowEmailsEndingWith (Shepherd-Web only): if not null, only e-mails ending with this string are allowed. Example: `@vaadin.com`. If null or empty, all e-mails are allowed.
+ * @property shepherdHome Shepherd home, `/opt/shepherd` for Shepherd Kubernetes, `/opt/shepherd-traefik` for Shepherd Traefik.
  */
 @Serializable
 public data class Config(
@@ -32,6 +33,7 @@ public data class Config(
     val hostDNS: String = "v-herd.eu",
     val googleSSOClientId: String? = null,
     val ssoOnlyAllowEmailsEndingWith: String? = null,
+    val shepherdHome: String = "/opt/shepherd",
 ) {
     public companion object {
         /**

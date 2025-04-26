@@ -11,7 +11,14 @@ public class KubernetesShepherdClient @JvmOverloads constructor(
     private val configFolder: ConfigFolder = fs.configFolder,
     private val kubernetes: SimpleKubernetesClient = SimpleKubernetesClient(defaultDNS = configFolder.loadConfig().hostDNS),
 ) : ShepherdClient {
-    private val jenkins: SimpleJenkinsClient = SimpleJenkinsClient(jenkinsUrl = getConfig().jenkins.url, jenkinsUsername = getConfig().jenkins.username, jenkinsPassword = getConfig().jenkins.password)
+    private val jenkins: SimpleJenkinsClient = getConfig().let { config ->
+        SimpleJenkinsClient(
+            jenkinsUrl = config.jenkins.url,
+            jenkinsUsername = config.jenkins.username,
+            jenkinsPassword = config.jenkins.password,
+            shepherdHome = config.shepherdHome
+        )
+    }
     private val projectConfigFolder get() = configFolder.projects
 
     override fun getAllProjectIDs(): List<ProjectId> = projectConfigFolder.getAllProjects()

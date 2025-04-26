@@ -15,11 +15,16 @@ import java.time.Instant
 /**
  * The Jenkins API documentation is offered by Jenkins itself: go to the running
  * Jenkins instance and search the "REST API" link at the bottom of the screen.
+ * @property jenkinsUrl the URL where Jenkins can be controlled
+ * @property jenkinsUsername username
+ * @property jenkinsPassword password
+ * @property shepherdHome where Shepherd is installed, `/opt/shepherd` for [Shepherd Kubernetes](https://github.com/mvysny/shepherd), `/opt/shepherd-traefik` for [Shepherd Traefik](https://github.com/mvysny/shepherd-traefik).
  */
 internal class SimpleJenkinsClient @JvmOverloads constructor(
     private val jenkinsUrl: String = "http://localhost:8080",
     private val jenkinsUsername: String = "admin",
-    private val jenkinsPassword: String = "admin"
+    private val jenkinsPassword: String = "admin",
+    private val shepherdHome: String = "/opt/shepherd"
 ) {
     private val ProjectId.jenkinsJobName: String get() = id
     private val Project.jenkinsJobName: String get() = id.jenkinsJobName
@@ -129,7 +134,7 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
   <builders>
     <hudson.tasks.Shell>
       <command>${envVars.joinToString("\n").escapeXml()}
-/opt/shepherd/shepherd-build ${project.id.id.escapeXml()}</command>
+${shepherdHome}/shepherd-build ${project.id.id.escapeXml()}</command>
       <configuredLocalRules/>
     </hudson.tasks.Shell>
   </builders>
