@@ -9,7 +9,7 @@ import java.io.FileNotFoundException
 public class KubernetesShepherdClient @JvmOverloads constructor(
     private val fs: LocalFS,
     private val configFolder: ConfigFolder = fs.configFolder,
-    private val kubernetes: SimpleKubernetesClient = SimpleKubernetesClient(defaultDNS = configFolder.loadConfig().hostDNS),
+    private val kubernetes: SimpleKubernetesClient = SimpleKubernetesClient(defaultDNS = configFolder.loadConfig().hostDNS, yamlConfigFolder = configFolder.kubernetesYamlFiles),
 ) : ShepherdClient {
     private val jenkins: SimpleJenkinsClient = getConfig().let { config ->
         SimpleJenkinsClient(

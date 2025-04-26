@@ -98,6 +98,12 @@ public class ConfigFolder(public val rootFolder: Path = ETC_SHEPHERD) {
         val configLocation = rootFolder / "java" / "config.json"
         return Config.load(configLocation)
     }
+
+    /**
+     * where the kubernetes yaml config files for projects are stored. Shepherd scripts expects
+     * his to be `/etc/shepherd/k8s`.
+     */
+    public val kubernetesYamlFiles: Path get() = rootFolder / "k8s"
 }
 
 /**

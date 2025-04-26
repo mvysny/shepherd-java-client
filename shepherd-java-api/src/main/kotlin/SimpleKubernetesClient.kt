@@ -13,7 +13,7 @@ import kotlin.io.path.*
  */
 public class SimpleKubernetesClient @JvmOverloads constructor(
     private val kubectl: Array<String> = arrayOf("microk8s", "kubectl"),
-    private val yamlConfigFolder: Path = Path("/etc/shepherd/k8s"),
+    private val yamlConfigFolder: Path,
     private val defaultDNS: String
 ) {
     /**
