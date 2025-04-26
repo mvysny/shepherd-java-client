@@ -80,11 +80,11 @@ public class ProjectConfigFolder(public val folder: Path) {
 }
 
 /**
- * The Shepherd configuration folder, defaults to [ETC_SHEPHERD].
+ * The Shepherd configuration folder, defaults to [ETC_SHEPHERD]. Obtain from [LocalFS.configFolder].
  */
 public class ConfigFolder(public val rootFolder: Path = ETC_SHEPHERD) {
     /**
-     * Stores projects as json files named `projectid.json`.
+     * Stores projects as json files named `projectid.json`. Stores to `rootFolder/java/projects`.
      */
     public val projects: ProjectConfigFolder = ProjectConfigFolder(rootFolder / "java" / "projects")
     init {
@@ -100,6 +100,9 @@ public class ConfigFolder(public val rootFolder: Path = ETC_SHEPHERD) {
     }
 }
 
+/**
+ * Obtain from [LocalFS.cacheFolder].
+ */
 public class CacheFolder(
     public val rootFolder: Path = VAR_CACHE_SHEPHERD
 ) {
@@ -115,6 +118,10 @@ public class CacheFolder(
     }
 }
 
+/**
+ * Defines paths where Shepherd-java looks up files from. Passed to [KubernetesShepherdClient] as a parameter.
+ * Each [ShepherdClient] needs to have an instance of this class, to know where the files are located.
+ */
 public class LocalFS(
     public val configFolder: ConfigFolder = ConfigFolder(),
     public val cacheFolder: CacheFolder = CacheFolder()
