@@ -2,9 +2,16 @@ package com.github.mvysny.shepherd.api
 
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
+import java.nio.file.Path
 import kotlin.test.expect
 
 class SimpleKubernetesClientTest {
+    @TempDir
+    private lateinit var yamlConfigFolder: Path
+
+    private fun newClient(): SimpleKubernetesClient = SimpleKubernetesClient(defaultDNS = "v-herd.eu", yamlConfigFolder = yamlConfigFolder)
+
     @Nested inner class getKubernetesYamlConfigFile {
         @Test fun simple() {
             expect("""
@@ -86,7 +93,7 @@ spec:
                 port:
                   number: 8080
             """.trim()) {
-                SimpleKubernetesClient(defaultDNS = "v-herd.eu").getKubernetesYamlConfigFile(fakeProject)
+                newClient().getKubernetesYamlConfigFile(fakeProject)
             }
         }
 
@@ -178,7 +185,7 @@ spec:
                 port:
                   number: 8080
             """.trim()) {
-                SimpleKubernetesClient(defaultDNS = "v-herd.eu").getKubernetesYamlConfigFile(p)
+                newClient().getKubernetesYamlConfigFile(p)
             }
         }
 
@@ -322,7 +329,7 @@ spec:
   ports:
     - port: 5432
             """.trim()) {
-                SimpleKubernetesClient(defaultDNS = "v-herd.eu").getKubernetesYamlConfigFile(p)
+                newClient().getKubernetesYamlConfigFile(p)
             }
         }
 
@@ -433,7 +440,7 @@ spec:
                 port:
                   number: 8080
             """.trim()) {
-                SimpleKubernetesClient(defaultDNS = "v-herd.eu").getKubernetesYamlConfigFile(p)
+                newClient().getKubernetesYamlConfigFile(p)
             }
         }
     }
@@ -464,7 +471,7 @@ spec:
                 name: service
                 port:
                   number: 8080""") {
-                SimpleKubernetesClient(defaultDNS = "v-herd.eu").getCustomDomainIngressYaml(
+                newClient().getCustomDomainIngressYaml(
                     "foo.com",
                     true,
                     ProjectId("foo-bar")
@@ -490,7 +497,7 @@ spec:
                 name: service
                 port:
                   number: 8080""") {
-                SimpleKubernetesClient(defaultDNS = "v-herd.eu").getCustomDomainIngressYaml(
+                newClient().getCustomDomainIngressYaml(
                     "foo.com",
                     false,
                     ProjectId("foo-bar")
