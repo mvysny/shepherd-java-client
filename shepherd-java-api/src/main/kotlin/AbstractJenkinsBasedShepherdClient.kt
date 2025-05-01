@@ -76,7 +76,8 @@ public abstract class AbstractJenkinsBasedShepherdClient(
     }
 
     /**
-     * Creates the project in the underlying runtime env
+     * Creates the project in the underlying runtime env: prepares all necessary files
+     * and resources.
      */
     protected abstract fun doCreateProject(project: Project)
 
@@ -128,6 +129,7 @@ public abstract class AbstractJenkinsBasedShepherdClient(
     }
 
     /**
+     * Updates runtime system files and objects to the new project configuration.
      * @return true if the project needs to be restarted (via [restartProject]).
      */
     protected abstract fun doUpdateProjectConfig(project: Project): Boolean

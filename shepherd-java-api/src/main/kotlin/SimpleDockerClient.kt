@@ -27,8 +27,8 @@ public class SimpleDockerClient() {
     public fun deleteIfExists(pid: ProjectId) {
         if (isRunning(pid)) {
             kill(pid)
-            disconnectNetworkAndDelete(pid)
         }
+        disconnectNetworkAndDelete(pid)
     }
 
     /**
