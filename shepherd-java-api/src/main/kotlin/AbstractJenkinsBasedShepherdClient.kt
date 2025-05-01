@@ -1,5 +1,6 @@
 package com.github.mvysny.shepherd.api
 
+import org.slf4j.LoggerFactory
 import java.io.FileNotFoundException
 
 /**
@@ -16,9 +17,9 @@ public abstract class AbstractJenkinsBasedShepherdClient(
         projectConfigFolder.requireProjectExists(id)
     }
 
-    override final fun getAllProjectIDs(): List<ProjectId> = projectConfigFolder.getAllProjects()
+    final override fun getAllProjectIDs(): List<ProjectId> = projectConfigFolder.getAllProjects()
 
-    override final fun getAllProjects(ownerEmail: String?): List<ProjectView> {
+    final override fun getAllProjects(ownerEmail: String?): List<ProjectView> {
         var projects = getAllProjectIDs()
             .map { getProjectInfo(it) }
         if (ownerEmail != null) {
@@ -32,10 +33,10 @@ public abstract class AbstractJenkinsBasedShepherdClient(
         }
     }
 
-    override final fun getProjectInfo(id: ProjectId): Project = projectConfigFolder.getProjectInfo(id)
-    override final fun existsProject(id: ProjectId): Boolean = projectConfigFolder.existsProject(id)
+    final override fun getProjectInfo(id: ProjectId): Project = projectConfigFolder.getProjectInfo(id)
+    final override fun existsProject(id: ProjectId): Boolean = projectConfigFolder.existsProject(id)
 
-    override final fun getConfig(): Config = fs.configFolder.loadConfig()
+    final override fun getConfig(): Config = fs.configFolder.loadConfig()
 
     internal val jenkins: SimpleJenkinsClient = getConfig().let { config ->
         SimpleJenkinsClient(
@@ -46,7 +47,7 @@ public abstract class AbstractJenkinsBasedShepherdClient(
         )
     }
 
-    override final fun getLastBuilds(id: ProjectId): List<Build> {
+    final override fun getLastBuilds(id: ProjectId): List<Build> {
         projectConfigFolder.requireProjectExists(id)
         val lastBuilds = try {
             jenkins.getLastBuilds(id)
@@ -56,7 +57,7 @@ public abstract class AbstractJenkinsBasedShepherdClient(
         return lastBuilds.map { it.toBuild() }
     }
 
-    override final fun createProject(project: Project) {
+    final override fun createProject(project: Project) {
         // check prerequisites
         projectConfigFolder.requireProjectDoesntExist(project.id)
         checkMemoryUsage(project)
@@ -79,7 +80,7 @@ public abstract class AbstractJenkinsBasedShepherdClient(
      */
     protected abstract fun doCreateProject(project: Project)
 
-    override final fun deleteProject(id: ProjectId) {
+    final override fun deleteProject(id: ProjectId) {
         jenkins.deleteJobIfExists(id)
         fs.cacheFolder.deleteCacheIfExists(id)
         doDeleteProject(id)
@@ -92,7 +93,59 @@ public abstract class AbstractJenkinsBasedShepherdClient(
      */
     protected abstract fun doDeleteProject(id: ProjectId)
 
-    override final fun getBuildLog(id: ProjectId, buildNumber: Int): String = jenkins.getBuildConsoleText(id, buildNumber)
+    final override fun getBuildLog(id: ProjectId, buildNumber: Int): String = jenkins.getBuildConsoleText(id, buildNumber)
+
+    final override fun updateProject(project: Project) {
+        val oldProject = fs.configFolder.projects.getProjectInfo(project.id)
+        require(oldProject.gitRepo.url == project.gitRepo.url) { "gitRepo is not allowed to be changed: new ${project.gitRepo.url} old ${project.gitRepo.url}" }
+
+        checkMemoryUsage(project)
+
+        // 1. Overwrite the project JSON file
+        fs.configFolder.projects.writeProjectJson(project)
+
+        // 2. Overwrite Kubernetes config file at /etc/shepherd/k8s/PROJECT_ID.yaml
+        val needsRestart = doUpdateProjectConfig(project)
+
+        // 3. Update Jenkins job
+        jenkins.updateJob(project)
+
+        // 4. Detect what kind of update is needed.
+        val isMainPodRunning = isProjectRunning(project.id)
+        if (!isMainPodRunning) {
+            log.info("${project.id.id}: isn't running yet, there is probably no Jenkins job which completed successfully yet")
+            jenkins.build(project.id)
+        } else if (SimpleJenkinsClient.needsProjectRebuild(project, oldProject)) {
+            log.info("${project.id.id}: needs full rebuild on Jenkins")
+            jenkins.build(project.id)
+        } else if (needsRestart) {
+            log.info("${project.id.id}: performing quick kubernetes apply")
+            restartProject(project.id)
+        } else {
+            // probably just a project description or project owner changed, do nothing
+            log.info("${project.id.id}: no kubernetes-level/jenkins-level changes detected, not reloading the project")
+        }
+    }
+
+    /**
+     * @return true if the project needs to be restarted (via [restartProject]).
+     */
+    protected abstract fun doUpdateProjectConfig(project: Project): Boolean
+
+    /**
+     * @return true if the main project container is running, false if not.
+     */
+    protected abstract fun isProjectRunning(id: ProjectId): Boolean
+
+    /**
+     * Restarts project [id].
+     */
+    protected abstract fun restartProject(id: ProjectId)
+
+    private companion object {
+        @JvmStatic
+        private val log = LoggerFactory.getLogger(AbstractJenkinsBasedShepherdClient::class.java)
+    }
 }
 
 /**
