@@ -140,7 +140,7 @@ public abstract class AbstractJenkinsBasedShepherdClient(
     protected abstract fun isProjectRunning(id: ProjectId): Boolean
 
     /**
-     * Restarts project [id].
+     * Restarts project [id]. The project runtime container is running at the moment.
      */
     protected abstract fun restartProject(id: ProjectId)
 
