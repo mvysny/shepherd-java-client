@@ -66,6 +66,7 @@ public interface ShepherdClient : Closeable {
     /**
      * Deletes given project: stops and removes all builds, stops and removes all Kubernetes rules,
      * and removes the project json config (from `/etc/shepherd/projects`).
+     * Kills all running project containers.
      *
      * This function will still try to unregister the project from Jenkins and Kubernetes
      * even if the project json config is already nonexistent.
