@@ -38,7 +38,7 @@ public abstract class AbstractJenkinsBasedShepherdClient(
 
     final override fun getConfig(): Config = fs.configFolder.loadConfig()
 
-    internal val jenkins: SimpleJenkinsClient = getConfig().let { config ->
+    private val jenkins: SimpleJenkinsClient = getConfig().let { config ->
         SimpleJenkinsClient(
             jenkinsUrl = config.jenkins.url,
             jenkinsUsername = config.jenkins.username,
