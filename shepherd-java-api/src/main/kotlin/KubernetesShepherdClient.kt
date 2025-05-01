@@ -43,6 +43,7 @@ public class KubernetesShepherdClient @JvmOverloads constructor(
             log.info("${project.id.id}: performing quick kubernetes apply")
             exec("/opt/shepherd/shepherd-apply", project.id.id, mainPodDockerImage)
         } else {
+            // probably just a project description or project owner changed, do nothing
             log.info("${project.id.id}: no kubernetes-level/jenkins-level changes detected, not reloading the project")
         }
     }
