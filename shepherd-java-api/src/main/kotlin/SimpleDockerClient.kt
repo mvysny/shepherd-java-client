@@ -17,11 +17,32 @@ public class SimpleDockerClient() {
     }
 
     /**
+     * Returns names of Docker running containers.
+     */
+    private fun ps(): Set<String> {
+        val containers = exec("docker", "ps", "--format", "{{.Names}}").lines()
+        return containers.filter { it.isNotEmpty() }.toSet()
+    }
+
+    private fun networkLs(): Set<String> {
+        val output = exec("docker", "network", "ls", "--format", "{{.Name}}").lines()
+        return output.filter { it.isNotEmpty() }.toSet()
+    }
+
+    private fun doesNetworkExist(pid: ProjectId): Boolean {
+        val networks = networkLs()
+        return networks.contains(pid.dockerNetworkName)
+    }
+
+    /**
      * Deletes Docker network for project [pid]. The container must not be running, and Traefik must still be connected to this network.
+     * Does nothing if the network doesn't exist.
      */
     public fun disconnectNetworkAndDelete(pid: ProjectId) {
-        exec("docker", "network", "disconnect", pid.dockerNetworkName, getTraefikContainerId())
-        exec("docker", "network", "rm", pid.dockerNetworkName)
+        if (doesNetworkExist(pid)) {
+            exec("docker", "network", "disconnect", pid.dockerNetworkName, getTraefikContainerId())
+            exec("docker", "network", "rm", pid.dockerNetworkName)
+        }
     }
 
     public fun deleteIfExists(pid: ProjectId) {
@@ -43,10 +64,7 @@ public class SimpleDockerClient() {
     /**
      * Checks if a container for project [pid] is running.
      */
-    public fun isRunning(pid: ProjectId): Boolean {
-        val containers = exec("docker", "ps").lines().drop(1)
-        return containers.any { container -> container.endsWith(pid.dockerContainerName) }
-    }
+    public fun isRunning(pid: ProjectId): Boolean = ps().contains(pid.dockerContainerName)
 
     /**
      * Returns the run log of project [pid].
@@ -71,7 +89,7 @@ public class SimpleDockerClient() {
     }
 
     private fun getTraefikContainerId(): String {
-        val containers = exec("docker", "ps").lines().drop(1)
+        val containers = ps()
         val traefik = containers.firstOrNull { it.endsWith("_traefik_1") }
         checkNotNull(traefik) { "Traefik Docker Container is not running" }
         return traefik.splitByWhitespaces()[0]
