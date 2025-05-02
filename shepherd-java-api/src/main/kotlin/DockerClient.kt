@@ -4,18 +4,10 @@ package com.github.mvysny.shepherd.api
  * Very simple Docker client, uses the `docker` binary.
  */
 internal object DockerClient {
-    private val ProjectId.dockerNetworkName: String get() = "${id}.shepherd"
-    private val ProjectId.dockerContainerName: String get() = "shepherd_${id}"
-
     /**
-     * Creates a new Docker network for given project [pid] and connect the network
-     * to the Traefik container.
+     * Create Docker network with given [networkName]: `docker network create`. Fails if such
+     * network already exists.
      */
-    fun createNetworkAndConnect(pid: ProjectId) {
-        networkCreate(pid.dockerNetworkName)
-        networkConnect(pid.dockerNetworkName, getTraefikContainerId())
-    }
-
     fun networkCreate(networkName: String) {
         exec("docker", "network", "create", networkName)
     }
@@ -57,21 +49,19 @@ internal object DockerClient {
     }
 
     /**
-     * Deletes Docker network for project [pid]. The container must not be running, and Traefik must still be connected to this network.
-     * Does nothing if the network doesn't exist.
+     * Disconnects given [networkName] from given [containerName]. Fails if either network or container doesn't exist.
+     * Fails if given network isn't connected to given container. Works both with running and stopped containers.
      */
-    fun disconnectNetworkAndDelete(pid: ProjectId) {
-        if (doesNetworkExist(pid.dockerNetworkName)) {
-            exec("docker", "network", "disconnect", pid.dockerNetworkName, getTraefikContainerId())
-            exec("docker", "network", "rm", pid.dockerNetworkName)
-        }
+    fun networkDisconnect(networkName: String, containerName: String) {
+        exec("docker", "network", "disconnect", networkName, containerName)
     }
 
-    fun deleteIfExists(pid: ProjectId) {
-        if (isRunning(pid.dockerNetworkName)) {
-            kill(pid.dockerContainerName)
-        }
-        disconnectNetworkAndDelete(pid)
+    /**
+     * Removes given Docker [networkName]. Fails if no such network exists, or if the network is still connected
+     * to any container, running or stopped.
+     */
+    fun networkRm(networkName: String) {
+        exec("docker", "network", "rm", networkName)
     }
 
     /**
@@ -84,7 +74,7 @@ internal object DockerClient {
     }
 
     /**
-     * Removes stopped container. Fails if no such container exists.
+     * Removes stopped container. Fails if no such container exists. Shouldn't be used on running containers: call [containerStop] to stop the container gracefully before calling this.
      */
     fun containerRm(containerName: String) {
         exec("docker", "container", "rm", containerName)
@@ -93,6 +83,8 @@ internal object DockerClient {
     /**
      * The main process inside the container will receive SIGTERM, and after a grace period, SIGKILL.
      * The grace period is 10 seconds for Linux containers. Then, the container is removed.
+     *
+     * Fails if no such container exists.
      */
     fun kill(containerName: String) {
         containerStop(containerName)
@@ -100,7 +92,7 @@ internal object DockerClient {
     }
 
     /**
-     * Checks if a container [containerName] is running.
+     * Checks if a container [containerName] is running. Returns false if the container is stopped or doesn't exist.
      */
     fun isRunning(containerName: String): Boolean = ps().contains(containerName)
 
@@ -120,12 +112,5 @@ internal object DockerClient {
         require(statsSplit[1].endsWith("MiB")) { "Unexpected: $stats: the memory value doesn't end with MiB" }
         val memoryUsage = statsSplit[1].removeSuffix("MiB").toInt()
         return ResourcesUsage(memoryMb = memoryUsage, cpu = cpuUsage)
-    }
-
-    private fun getTraefikContainerId(): String {
-        val containers = ps()
-        val traefik = containers.firstOrNull { it.endsWith("_traefik_1") }
-        checkNotNull(traefik) { "Traefik Docker Container is not running" }
-        return traefik.splitByWhitespaces()[0]
     }
 }

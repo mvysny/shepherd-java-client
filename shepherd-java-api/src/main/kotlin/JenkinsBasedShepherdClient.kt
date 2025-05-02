@@ -142,7 +142,8 @@ public class JenkinsBasedShepherdClient(
 public interface RuntimeContainerSystem {
     /**
      * Creates the project in the underlying runtime env: prepares all necessary files
-     * and resources.
+     * and resources. Note that the project will be compiled by Jenkins first, and started
+     * later on.
      */
     public fun createProject(project: Project)
 

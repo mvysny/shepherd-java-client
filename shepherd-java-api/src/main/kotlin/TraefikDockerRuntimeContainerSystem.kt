@@ -8,11 +8,30 @@ public class TraefikDockerRuntimeContainerSystem : RuntimeContainerSystem {
     private val ProjectId.dockerContainerName: String get() = "shepherd_${id}"
 
     override fun createProject(project: Project) {
-        DockerClient.createNetworkAndConnect(project.id)
+        // Creates a new Docker network for given project and connect the network
+        // to the Traefik container.
+        DockerClient.networkCreate(project.id.dockerNetworkName)
+        DockerClient.networkConnect(project.id.dockerNetworkName, getTraefikContainerId())
+        // The project containers will be connected to the network later on, when Jenkins
+        // finishes its first build of the project.
+    }
+
+    private fun getTraefikContainerId(): String {
+        val containers = DockerClient.ps()
+        val traefik = containers.firstOrNull { it.endsWith("_traefik_1") }
+        checkNotNull(traefik) { "Traefik Docker Container is not running" }
+        return traefik
     }
 
     override fun deleteProject(id: ProjectId) {
-        DockerClient.deleteIfExists(id)
+        // @todo kill the database as well
+        if (DockerClient.psA().contains(id.dockerContainerName)) {
+            DockerClient.kill(id.dockerContainerName)
+        }
+        if (DockerClient.doesNetworkExist(id.dockerNetworkName)) {
+            DockerClient.networkDisconnect(id.dockerNetworkName, getTraefikContainerId())
+            DockerClient.networkRm(id.dockerNetworkName)
+        }
     }
 
     override fun updateProjectConfig(project: Project): Boolean = true
@@ -33,5 +52,5 @@ public class TraefikDockerRuntimeContainerSystem : RuntimeContainerSystem {
         DockerClient.logs(id.dockerContainerName)
 
     override fun getRunMetrics(id: ProjectId): ResourcesUsage =
-        DockerClient.containerStats(id.dockerContainerName)
+        if (!DockerClient.isRunning(id.dockerContainerName)) ResourcesUsage.zero else DockerClient.containerStats(id.dockerContainerName)
 }
