@@ -38,6 +38,9 @@ public class JenkinsBasedShepherdClient(
     override fun existsProject(id: ProjectId): Boolean = projectConfigFolder.existsProject(id)
 
     override fun getConfig(): Config = fs.configFolder.loadConfig()
+    override fun restartContainers(id: ProjectId) {
+        containerSystem.restartProject(projectConfigFolder.getProjectInfo(id))
+    }
 
     private val jenkins: SimpleJenkinsClient = getConfig().let { config ->
         SimpleJenkinsClient(

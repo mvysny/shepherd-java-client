@@ -114,6 +114,7 @@ public class FakeShepherdClient @JvmOverloads constructor(
     }
 
     override fun getConfig(): Config = cfg
+    override fun restartContainers(id: ProjectId) {}
 
     override fun close() {}
 }

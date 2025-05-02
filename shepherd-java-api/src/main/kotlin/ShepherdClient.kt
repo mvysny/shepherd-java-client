@@ -122,6 +122,14 @@ public interface ShepherdClient : Closeable {
         val projects = getAllProjectIDs().map { getProjectInfo(it) }
         return Stats.calculate(config, projects)
     }
+
+    /**
+     * Restarts the project containers, killing the project main container (if it's running)
+     * and starting it anew. Kills old services (databases) that are no longer in use.
+     *
+     * Fails if the project doesn't exist.
+     */
+    public fun restartContainers(id: ProjectId)
 }
 
 /**
