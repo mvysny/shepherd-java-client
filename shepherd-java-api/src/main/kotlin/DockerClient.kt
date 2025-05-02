@@ -33,6 +33,14 @@ internal object DockerClient {
     }
 
     /**
+     * Returns names of all Docker containers, both running and stopped: `docker ps -a`.
+     */
+    fun psA(): Set<String> {
+        val containers = exec("docker", "ps", "-a", "--format", "{{.Names}}").lines()
+        return containers.filter { it.isNotEmpty() }.toSet()
+    }
+
+    /**
      * Return the names of networks currently created in Docker: `docker network ls`
      */
     fun networkLs(): Set<String> {
@@ -60,22 +68,23 @@ internal object DockerClient {
     }
 
     fun deleteIfExists(pid: ProjectId) {
-        if (isRunning(pid)) {
-            kill(pid.dockerNetworkName)
+        if (isRunning(pid.dockerNetworkName)) {
+            kill(pid.dockerContainerName)
         }
         disconnectNetworkAndDelete(pid)
     }
 
     /**
      * The main process inside the container will receive SIGTERM, and after a grace period, SIGKILL.
-     * The grace period is 10 seconds for Linux containers.
+     * The grace period is 10 seconds for Linux containers. Does nothing if the container is already stopped.
+     * Fails if no such container exists.
      */
     fun containerStop(containerName: String) {
         exec("docker", "container", "stop", containerName)
     }
 
     /**
-     * Removes stopped container.
+     * Removes stopped container. Fails if no such container exists.
      */
     fun containerRm(containerName: String) {
         exec("docker", "container", "rm", containerName)
@@ -91,24 +100,20 @@ internal object DockerClient {
     }
 
     /**
-     * Checks if a container for project [pid] is running.
+     * Checks if a container [containerName] is running.
      */
-    fun isRunning(pid: ProjectId): Boolean = ps().contains(pid.dockerContainerName)
+    fun isRunning(containerName: String): Boolean = ps().contains(containerName)
 
     /**
-     * Returns the run log of project [pid].
+     * Returns the stdout of given container. Fails if the container doesn't exist.
      */
-    fun getRunLogs(pid: ProjectId): String =
-        if (!isRunning(pid)) "" else exec("docker", "logs", pid.dockerContainerName)
+    fun logs(containerName: String): String = exec("docker", "logs", containerName)
 
     /**
-     * Returns the runtime metrics of docker container for project [pid].
+     * Returns the runtime metrics of given docker container. Works with stopped containers as well. Fails if the container doesn't exist.
      */
-    fun getRunMetrics(pid: ProjectId): ResourcesUsage {
-        if (!isRunning(pid)) {
-            return ResourcesUsage.zero
-        }
-        val stats = exec("docker", "container", "stats", "--no-stream", "--format", "{{.CPUPerc}} {{.MemUsage}}", pid.dockerContainerName)
+    fun containerStats(containerName: String): ResourcesUsage {
+        val stats = exec("docker", "container", "stats", "--no-stream", "--format", "{{.CPUPerc}} {{.MemUsage}}", containerName)
         // returns: 0.16% 128.1MiB / 256MiB
         val statsSplit = stats.splitByWhitespaces()
         val cpuUsage = statsSplit[0].trimEnd('%').toFloat()

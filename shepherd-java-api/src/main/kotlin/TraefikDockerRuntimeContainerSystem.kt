@@ -18,11 +18,11 @@ public class TraefikDockerRuntimeContainerSystem : RuntimeContainerSystem {
     override fun updateProjectConfig(project: Project): Boolean = true
 
     override fun isProjectRunning(id: ProjectId): Boolean =
-        DockerClient.isRunning(id)
+        DockerClient.isRunning(id.dockerContainerName)
 
     override fun restartProject(id: ProjectId) {
         // no need to kill the associated databases; only kill & restart the main container.
-        DockerClient.kill(id.dockerNetworkName)
+        DockerClient.kill(id.dockerContainerName)
         // todo: here the project should be started via the `docker` command
         // however, the same command is present in Shepherd-Traefik `shepherd-build` command,
         // so we should create one script which does the same thing.
@@ -30,8 +30,8 @@ public class TraefikDockerRuntimeContainerSystem : RuntimeContainerSystem {
     }
 
     override fun getRunLogs(id: ProjectId): String =
-        DockerClient.getRunLogs(id)
+        DockerClient.logs(id.dockerContainerName)
 
     override fun getRunMetrics(id: ProjectId): ResourcesUsage =
-        DockerClient.getRunMetrics(id)
+        DockerClient.containerStats(id.dockerContainerName)
 }
