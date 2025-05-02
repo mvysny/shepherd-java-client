@@ -39,7 +39,7 @@ data class Args(
             val createSubcommand = CreateSubcommand()
             val updateSubcommand = UpdateSubcommand()
             val buildLogSubcommand = BuildLogSubcommand()
-            parser.subcommands(ListProjectSubcommand(), ShowProjectSubcommand(), LogsSubcommand(), createSubcommand, deleteSubcommand, MetricsSubcommand(), updateSubcommand, BuildsSubcommand(), buildLogSubcommand, StatsSubcommand())
+            parser.subcommands(ListProjectSubcommand(), ShowProjectSubcommand(), LogsSubcommand(), createSubcommand, deleteSubcommand, MetricsSubcommand(), updateSubcommand, BuildsSubcommand(), buildLogSubcommand, StatsSubcommand(), RestartSubcommand())
             val parserResult = parser.parse(args)
             val commandName = parserResult.commandName.takeUnless { it == parser.programName }
             val cmd = Command.entries.firstOrNull { it.argName == commandName }
@@ -59,7 +59,7 @@ data class Args(
 }
 
 class ListProjectSubcommand: Subcommand(Command.ListProjects.argName, "List all projects: their IDs and a quick info about the project: the description, the owner and such") {
-    override fun execute() {} // implemented elsewhere, since this function doesn't have access to
+    override fun execute() {} // implemented elsewhere, since this function doesn't have access to ShepherdClient.
 }
 class ShowProjectSubcommand: Subcommand(Command.ShowProject.argName, "Show project information as a pretty-printed JSON") {
     override fun execute() {}
@@ -90,5 +90,8 @@ class BuildLogSubcommand: Subcommand(Command.BuildLog.argName, "Prints the build
     override fun execute() {}
 }
 class StatsSubcommand: Subcommand(Command.Stats.argName, "Prints Shepherd runtime statistics.") {
+    override fun execute() {}
+}
+class RestartSubcommand: Subcommand(Command.Restart.argName, "Restarts containers of given project.") {
     override fun execute() {}
 }

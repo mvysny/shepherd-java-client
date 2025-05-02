@@ -140,6 +140,18 @@ enum class Command(val argName: String) {
             println("Disk Usage: ${stats.diskUsage}")
         }
     },
+
+    /**
+     * The `restart` command, restarts given project containers.
+     */
+    Restart("restart") {
+        override fun run(args: Args, client: ShepherdClient) {
+            val pid = requireProjectId(args)
+            println("Restarting $pid")
+            client.restartContainers(pid)
+            println("Restarted $pid")
+        }
+    }
     ;
 
     /**
