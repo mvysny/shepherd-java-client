@@ -449,8 +449,8 @@ public class KubernetesRuntimeContainerSystem(
         kubernetes.writeConfigYamlFile(project)
     }
 
-    override fun updateProjectConfig(project: Project): Boolean =
-        kubernetes.writeConfigYamlFile(project)
+    override fun updateProjectConfig(newProject: Project, oldProject: Project): Boolean =
+        kubernetes.writeConfigYamlFile(newProject)
 
     override fun isProjectRunning(id: ProjectId): Boolean {
         val mainPodDockerImage = kubernetes.getCurrentDockerImage(id)

@@ -57,6 +57,7 @@ public interface ShepherdClient : Closeable {
      * * [Project.gitRepo]
      *
      * Blocks until the update is fully completed.
+     * @param project the new project information.
      * @throws IllegalArgumentException if the updated project memory or CPU requirements would overflow the
      * available memory or configured max values (see [getConfig] and [Config.maxProjectRuntimeResources]/[Config.maxProjectBuildResources]).
      * @throws NoSuchProjectException if the project doesn't exist.

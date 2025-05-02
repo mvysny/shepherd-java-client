@@ -30,9 +30,11 @@ public interface RuntimeContainerSystem {
      *
      * The project exists, but the main container may not be running. However,
      * the main container has been created (was running at least once previously).
+     * @param newProject the updated information about the project.
+     * @param oldProject the previous project data. The [Project.id] can not change.
      * @return true if the project needs to be restarted (via [restartProject]).
      */
-    public fun updateProjectConfig(project: Project): Boolean
+    public fun updateProjectConfig(newProject: Project, oldProject: Project): Boolean
 
     /**
      * Checks whether the main project container is running or not.

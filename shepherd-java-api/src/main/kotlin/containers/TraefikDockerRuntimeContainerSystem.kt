@@ -47,14 +47,25 @@ public class TraefikDockerRuntimeContainerSystem(
         }
     }
 
-    override fun updateProjectConfig(project: Project): Boolean {
-        // @todo consider all input parameters that go into docker run command-line; return true if any of those changes.
-        // simple fallback for now: always return true, so that the project is always restarted.
-        return true
-    }
+    override fun updateProjectConfig(newProject: Project, oldProject: Project): Boolean =
+        calculateDockerRunCommand(oldProject) != calculateDockerRunCommand(newProject)
 
     override fun isProjectRunning(id: ProjectId): Boolean =
         DockerClient.isRunning(id.dockerContainerName)
+
+    private fun calculateDockerRunCommand(project: Project): List<String> {
+        // run the container in the background, with stdout (terminal) attached, with given name, and having the docker daemon keeping the container up.
+        val cmdline = mutableListOf("docker", "run", "-d", "-t", "--name", project.id.dockerContainerName, "--restart", "always")
+        cmdline.addAll(listOf("--network", project.id.dockerNetworkName)) // every project has its own network.
+        // configure runtime resources
+        cmdline.addAll(listOf("-m", "${project.runtime.resources.memoryMb}m", "--cpus", project.runtime.resources.cpu.toString()))
+        // add Traefik labels so that the routing works automatically.
+        cmdline.addAll(listOf("--label", "traefik.http.routers.shepherd_${project.id}.entrypoints=http"))
+        cmdline.addAll(listOf("--label", "traefik.http.routers.shepherd_${project.id}.rule=Host(\\`${project.id}.${hostDNS}\\`)"))
+        // which image to run. Jenkins is configured to build to `dockerImageName`.
+        cmdline.add("${project.id.dockerImageName}:latest")
+        return cmdline
+    }
 
     override fun restartProject(project: Project) {
         // no need to kill the associated databases; only kill & restart the main container.
@@ -71,17 +82,8 @@ public class TraefikDockerRuntimeContainerSystem(
         // and we would need jq to parse shepherd json config file. Therefore,
         // it's easier to use shepherd-cli to restart the project.
 
-        // run the container in the background, with stdout (terminal) attached, with given name, and having the docker daemon keeping the container up.
-        val cmdline = mutableListOf("docker", "run", "-d", "-t", "--name", project.id.dockerContainerName, "--restart", "always")
-        cmdline.addAll(listOf("--network", project.id.dockerNetworkName)) // every project has its own network.
-        // configure runtime resources
-        cmdline.addAll(listOf("-m", "${project.runtime.resources.memoryMb}m", "--cpus", project.runtime.resources.cpu.toString()))
-        // add Traefik labels so that the routing works automatically.
-        cmdline.addAll(listOf("--label", "traefik.http.routers.shepherd_${project.id}.entrypoints=http"))
-        cmdline.addAll(listOf("--label", "traefik.http.routers.shepherd_${project.id}.rule=Host(\\`${project.id}.${hostDNS}\\`)"))
-        // which image to run. Jenkins is configured to build to `dockerImageName`.
-        cmdline.add("${project.id.dockerImageName}:latest")
-
+        // start the main project container.
+        val cmdline = calculateDockerRunCommand(project)
         exec(*cmdline.toTypedArray())
     }
 

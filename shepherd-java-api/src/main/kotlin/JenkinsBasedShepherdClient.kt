@@ -116,7 +116,7 @@ public class JenkinsBasedShepherdClient(
         fs.configFolder.projects.writeProjectJson(project)
 
         // 2. Overwrite Kubernetes config file at /etc/shepherd/k8s/PROJECT_ID.yaml
-        val needsRestart = containerSystem.updateProjectConfig(project)
+        val needsRestart = containerSystem.updateProjectConfig(project, oldProject)
 
         // 3. Update Jenkins job
         jenkins.updateJob(project)
