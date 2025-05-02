@@ -1,13 +1,9 @@
 @file:OptIn(ExperimentalCli::class)
 
 import com.github.mvysny.shepherd.api.FakeShepherdClient
-import com.github.mvysny.shepherd.api.JenkinsBasedShepherdClient
 import com.github.mvysny.shepherd.api.LocalFS
 import com.github.mvysny.shepherd.api.ProjectId
 import com.github.mvysny.shepherd.api.ShepherdClient
-import com.github.mvysny.shepherd.api.containers.KubernetesRuntimeContainerSystem
-import com.github.mvysny.shepherd.api.containers.RuntimeContainerSystem
-import com.github.mvysny.shepherd.api.containers.TraefikDockerRuntimeContainerSystem
 import com.github.mvysny.shepherd.api.createClient
 import kotlinx.cli.*
 
