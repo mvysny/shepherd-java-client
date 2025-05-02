@@ -41,7 +41,9 @@ Requires a configuration file to be placed in `/etc/shepherd/java/config.json`, 
     "url": "http://localhost:8080",
     "username": "admin",
     "password": "admin"
-  }
+  },
+  "hostDNS": "mydomain.me",
+  "containerSystem": "traefik-docker"
 }
 ```
 
@@ -57,6 +59,7 @@ Additional configuration options:
 * `googleSSOClientId` (Shepherd-Web only): enable Google SSO login and use this client ID. See [vaadin-google-oauth](https://mvysny.github.io/vaadin-google-oauth/) for more details.
 * `ssoOnlyAllowEmailsEndingWith` (Shepherd-Web only): if not null, only e-mails ending with this string are allowed. Example: `@vaadin.com`. If null or empty, all e-mails are allowed.
 * `shepherdHome` Shepherd home, `/opt/shepherd` for [Shepherd Kubernetes](https://github.com/mvysny/shepherd), `/opt/shepherd-traefik` for [Shepherd Traefik](https://github.com/mvysny/shepherd-traefik).
+* `containerSystem` the runtime container system to use for running project containers, either `"kubernetes"` or `"traefik-docker"`.
 
 ## shepherd-cli
 
