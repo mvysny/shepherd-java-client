@@ -1,5 +1,9 @@
 package com.github.mvysny.shepherd.api.containers
 
+import com.github.mvysny.shepherd.api.ResourcesUsage
+import com.github.mvysny.shepherd.api.exec
+import com.github.mvysny.shepherd.api.splitByWhitespaces
+
 /**
  * Very simple Docker client, uses the `docker` binary.
  */

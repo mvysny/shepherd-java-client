@@ -2,6 +2,7 @@ package com.github.mvysny.shepherd.api.containers
 
 import com.github.mvysny.shepherd.api.Project
 import com.github.mvysny.shepherd.api.ProjectId
+import com.github.mvysny.shepherd.api.ResourcesUsage
 
 /**
  * Interacts with the [Shepherd-Traefik](https://github.com/mvysny/shepherd-traefik) system running via Docker+Traefik.
@@ -11,6 +12,9 @@ public class TraefikDockerRuntimeContainerSystem : RuntimeContainerSystem {
     private val ProjectId.dockerContainerName: String get() = "shepherd_${id}"
 
     override fun createProject(project: Project) {
+        require(project.additionalServices.isEmpty()) { "Additional services not yet supported" }
+        require(project.publication.additionalDomains.isEmpty()) { "Additional domains not yet supported" }
+
         // Creates a new Docker network for given project and connect the network
         // to the Traefik container.
         DockerClient.networkCreate(project.id.dockerNetworkName)

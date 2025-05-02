@@ -1,7 +1,12 @@
 package com.github.mvysny.shepherd.api.containers
 
+import com.github.mvysny.shepherd.api.ExecException
+import com.github.mvysny.shepherd.api.LocalFS
 import com.github.mvysny.shepherd.api.Project
 import com.github.mvysny.shepherd.api.ProjectId
+import com.github.mvysny.shepherd.api.ResourcesUsage
+import com.github.mvysny.shepherd.api.Service
+import com.github.mvysny.shepherd.api.ServiceType
 import com.github.mvysny.shepherd.api.exec
 import com.github.mvysny.shepherd.api.splitByWhitespaces
 import org.slf4j.LoggerFactory
