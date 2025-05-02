@@ -51,7 +51,7 @@ class MyServiceInitListener : VaadinServiceInitListener {
     //
     // InMemoryLoginService remembers the currently logged-in user in the Vaadin Session; it
     // retrieves the users from the InMemoryUserRegistry.
-    private val accessControl = SimpleNavigationAccessControl.usingService(UserLoginService::get);
+    private val accessControl = SimpleNavigationAccessControl.usingService(UserLoginService::get)
 
     init {
         accessControl.setLoginView(LoginRoute::class.java)
