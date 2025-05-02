@@ -165,39 +165,46 @@ public interface RuntimeContainerSystem {
      * Kills all project's running containers and deletes all files & resources
      * used by the project. Does nothing if the project containers aren't running and
      * there are no resources to clean up.
-     * @throws NoSuchProjectException if the project doesn't exist.
+     *
+     * The project exists, but it may not be running (e.g. if no Jenkins build passed yet).
      */
     public fun deleteProject(id: ProjectId)
 
     /**
      * Updates runtime system files and objects to the new project configuration.
+     *
+     * The project exists, but it may not be running (e.g. if no Jenkins build passed yet).
      * @return true if the project needs to be restarted (via [restartProject]).
-     * @throws NoSuchProjectException if the project doesn't exist.
      */
     public fun updateProjectConfig(project: Project): Boolean
 
     /**
+     * Checks whether the main project container is running or not.
+     *
+     * The project exists, but it may not be running (e.g. if no Jenkins build passed yet).
      * @return true if the main project container is running, false if not.
-     * @throws NoSuchProjectException if the project doesn't exist.
      */
     public fun isProjectRunning(id: ProjectId): Boolean
 
     /**
-     * Restarts project [id]. The project runtime container is running at the moment.
-     * @throws NoSuchProjectException if the project doesn't exist.
+     * Restarts project [id]. Only called if the project runtime container is running at the moment.
      */
     public fun restartProject(id: ProjectId)
 
     /**
      * Retrieves the run logs of the main app pod (=the app itself). There may be additional pods (e.g. PostgreSQL)
      * but their logs are not returned.
-     * @throws NoSuchProjectException if the project doesn't exist.
+     *
+     * The project exists, but it may not be running (e.g. if no Jenkins build passed yet).
+     * If it's not running, returns an empty string.
      */
     public fun getRunLogs(id: ProjectId): String
 
     /**
      * Returns the current CPU/memory usage of the main app pod.
-     * @throws NoSuchProjectException if the project doesn't exist.
+     *
+     * The project exists, but it may not be running (e.g. if no Jenkins build passed yet).
+     * If it's not running, return [ResourcesUsage.zero].
      */
     public fun getRunMetrics(id: ProjectId): ResourcesUsage
 }

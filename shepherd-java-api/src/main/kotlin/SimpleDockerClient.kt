@@ -51,12 +51,16 @@ public class SimpleDockerClient() {
     /**
      * Returns the run log of project [pid].
      */
-    public fun getRunLogs(pid: ProjectId): String = exec("docker", "logs", pid.dockerContainerName)
+    public fun getRunLogs(pid: ProjectId): String =
+        if (!isRunning(pid)) "" else exec("docker", "logs", pid.dockerContainerName)
 
     /**
      * Returns the runtime metrics of docker container for project [pid].
      */
     public fun getRunMetrics(pid: ProjectId): ResourcesUsage {
+        if (!isRunning(pid)) {
+            return ResourcesUsage.zero
+        }
         val stats = exec("docker", "container", "stats", "--no-stream", "--format", "{{.CPUPerc}} {{.MemUsage}}", pid.dockerContainerName)
         // returns: 0.16% 128.1MiB / 256MiB
         val statsSplit = stats.splitByWhitespaces()
