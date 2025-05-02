@@ -2,10 +2,10 @@
 
 import com.github.mvysny.shepherd.api.FakeShepherdClient
 import com.github.mvysny.shepherd.api.JenkinsBasedShepherdClient
-import com.github.mvysny.shepherd.api.KubernetesRuntimeContainerSystem
 import com.github.mvysny.shepherd.api.LocalFS
 import com.github.mvysny.shepherd.api.ProjectId
 import com.github.mvysny.shepherd.api.ShepherdClient
+import com.github.mvysny.shepherd.api.containers.KubernetesRuntimeContainerSystem
 import kotlinx.cli.*
 
 /**

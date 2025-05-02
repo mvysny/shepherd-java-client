@@ -1,5 +1,11 @@
-package com.github.mvysny.shepherd.api
+package com.github.mvysny.shepherd.api.containers
 
+import com.github.mvysny.shepherd.api.ProjectId
+import com.github.mvysny.shepherd.api.Publication
+import com.github.mvysny.shepherd.api.ResourcesUsage
+import com.github.mvysny.shepherd.api.Service
+import com.github.mvysny.shepherd.api.ServiceType
+import com.github.mvysny.shepherd.api.fakeProject
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
