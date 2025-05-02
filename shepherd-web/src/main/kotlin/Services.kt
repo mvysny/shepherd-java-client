@@ -2,7 +2,8 @@ package com.github.mvysny.shepherd.web
 
 import com.github.mvysny.shepherd.api.ConfigFolder
 import com.github.mvysny.shepherd.api.FakeShepherdClient
-import com.github.mvysny.shepherd.api.KubernetesShepherdClient
+import com.github.mvysny.shepherd.api.JenkinsBasedShepherdClient
+import com.github.mvysny.shepherd.api.KubernetesRuntimeContainerSystem
 import com.github.mvysny.shepherd.api.LocalFS
 import com.github.mvysny.shepherd.api.ShepherdClient
 import com.github.mvysny.shepherd.web.security.UserRegistry
@@ -28,7 +29,7 @@ data class Services(
         }
         fun newReal(fs: LocalFS) {
             destroy()
-            val client = KubernetesShepherdClient(fs)
+            val client = JenkinsBasedShepherdClient(fs, KubernetesRuntimeContainerSystem(fs))
             services = Services(client, UserRegistry(fs.configFolder.userRegistryFolder))
         }
         val initialized: Boolean get() = services != null

@@ -4,22 +4,22 @@ import org.slf4j.LoggerFactory
 import java.io.FileNotFoundException
 
 /**
- * A skeletal implementation of [ShepherdClient] which uses Jenkins to build projects.
- * Overriding classes use different runtime environments to run projects: Kubernetes or Docker.
+ * An implementation of [ShepherdClient] which uses Jenkins to build projects,
+ * and uses [containerSystem] to control running project containers.
  */
-public abstract class AbstractJenkinsBasedShepherdClient(
-    protected val fs: LocalFS
+public class JenkinsBasedShepherdClient(
+    private val fs: LocalFS,
+    private val containerSystem: RuntimeContainerSystem
 ) : ShepherdClient {
-
     private val projectConfigFolder get() = fs.configFolder.projects
 
-    protected fun checkProjectExists(id: ProjectId) {
+    private fun checkProjectExists(id: ProjectId) {
         projectConfigFolder.requireProjectExists(id)
     }
 
-    final override fun getAllProjectIDs(): List<ProjectId> = projectConfigFolder.getAllProjects()
+    override fun getAllProjectIDs(): List<ProjectId> = projectConfigFolder.getAllProjects()
 
-    final override fun getAllProjects(ownerEmail: String?): List<ProjectView> {
+    override fun getAllProjects(ownerEmail: String?): List<ProjectView> {
         var projects = getAllProjectIDs()
             .map { getProjectInfo(it) }
         if (ownerEmail != null) {
@@ -33,10 +33,10 @@ public abstract class AbstractJenkinsBasedShepherdClient(
         }
     }
 
-    final override fun getProjectInfo(id: ProjectId): Project = projectConfigFolder.getProjectInfo(id)
-    final override fun existsProject(id: ProjectId): Boolean = projectConfigFolder.existsProject(id)
+    override fun getProjectInfo(id: ProjectId): Project = projectConfigFolder.getProjectInfo(id)
+    override fun existsProject(id: ProjectId): Boolean = projectConfigFolder.existsProject(id)
 
-    final override fun getConfig(): Config = fs.configFolder.loadConfig()
+    override fun getConfig(): Config = fs.configFolder.loadConfig()
 
     private val jenkins: SimpleJenkinsClient = getConfig().let { config ->
         SimpleJenkinsClient(
@@ -47,7 +47,7 @@ public abstract class AbstractJenkinsBasedShepherdClient(
         )
     }
 
-    final override fun getLastBuilds(id: ProjectId): List<Build> {
+    override fun getLastBuilds(id: ProjectId): List<Build> {
         projectConfigFolder.requireProjectExists(id)
         val lastBuilds = try {
             jenkins.getLastBuilds(id)
@@ -57,7 +57,7 @@ public abstract class AbstractJenkinsBasedShepherdClient(
         return lastBuilds.map { it.toBuild() }
     }
 
-    final override fun createProject(project: Project) {
+    override fun createProject(project: Project) {
         // check prerequisites
         projectConfigFolder.requireProjectDoesntExist(project.id)
         checkMemoryUsage(project)
@@ -66,7 +66,7 @@ public abstract class AbstractJenkinsBasedShepherdClient(
         projectConfigFolder.writeProjectJson(project)
 
         // 2. Create config files for the underlying runtime system (Kubernetes, Docker)
-        doCreateProject(project)
+        containerSystem.createProject(project)
 
         // 3. Create Jenkins job
         jenkins.createJob(project)
@@ -75,28 +75,26 @@ public abstract class AbstractJenkinsBasedShepherdClient(
         jenkins.build(project.id)
     }
 
-    /**
-     * Creates the project in the underlying runtime env: prepares all necessary files
-     * and resources.
-     */
-    protected abstract fun doCreateProject(project: Project)
-
-    final override fun deleteProject(id: ProjectId) {
+    override fun deleteProject(id: ProjectId) {
         jenkins.deleteJobIfExists(id)
         fs.cacheFolder.deleteCacheIfExists(id)
-        doDeleteProject(id)
+        containerSystem.deleteProject(id)
         projectConfigFolder.deleteIfExists(id)
     }
 
-    /**
-     * Kills all project running containers and deletes all files & resources
-     * used by the project. Does nothing if the project doesn't exist.
-     */
-    protected abstract fun doDeleteProject(id: ProjectId)
+    override fun getRunLogs(id: ProjectId): String {
+        checkProjectExists(id)
+        return containerSystem.getRunLogs(id)
+    }
 
-    final override fun getBuildLog(id: ProjectId, buildNumber: Int): String = jenkins.getBuildConsoleText(id, buildNumber)
+    override fun getRunMetrics(id: ProjectId): ResourcesUsage {
+        checkProjectExists(id)
+        return containerSystem.getRunMetrics(id)
+    }
 
-    final override fun updateProject(project: Project) {
+    override fun getBuildLog(id: ProjectId, buildNumber: Int): String = jenkins.getBuildConsoleText(id, buildNumber)
+
+    override fun updateProject(project: Project) {
         val oldProject = fs.configFolder.projects.getProjectInfo(project.id)
         require(oldProject.gitRepo.url == project.gitRepo.url) { "gitRepo is not allowed to be changed: new ${project.gitRepo.url} old ${project.gitRepo.url}" }
 
@@ -106,13 +104,13 @@ public abstract class AbstractJenkinsBasedShepherdClient(
         fs.configFolder.projects.writeProjectJson(project)
 
         // 2. Overwrite Kubernetes config file at /etc/shepherd/k8s/PROJECT_ID.yaml
-        val needsRestart = doUpdateProjectConfig(project)
+        val needsRestart = containerSystem.updateProjectConfig(project)
 
         // 3. Update Jenkins job
         jenkins.updateJob(project)
 
         // 4. Detect what kind of update is needed.
-        val isMainPodRunning = isProjectRunning(project.id)
+        val isMainPodRunning = containerSystem.isProjectRunning(project.id)
         if (!isMainPodRunning) {
             log.info("${project.id.id}: isn't running yet, there is probably no Jenkins job which completed successfully yet")
             jenkins.build(project.id)
@@ -121,32 +119,19 @@ public abstract class AbstractJenkinsBasedShepherdClient(
             jenkins.build(project.id)
         } else if (needsRestart) {
             log.info("${project.id.id}: performing quick kubernetes apply")
-            restartProject(project.id)
+            containerSystem.restartProject(project.id)
         } else {
             // probably just a project description or project owner changed, do nothing
             log.info("${project.id.id}: no kubernetes-level/jenkins-level changes detected, not reloading the project")
         }
     }
 
-    /**
-     * Updates runtime system files and objects to the new project configuration.
-     * @return true if the project needs to be restarted (via [restartProject]).
-     */
-    protected abstract fun doUpdateProjectConfig(project: Project): Boolean
-
-    /**
-     * @return true if the main project container is running, false if not.
-     */
-    protected abstract fun isProjectRunning(id: ProjectId): Boolean
-
-    /**
-     * Restarts project [id]. The project runtime container is running at the moment.
-     */
-    protected abstract fun restartProject(id: ProjectId)
+    override fun close() {
+    }
 
     private companion object {
         @JvmStatic
-        private val log = LoggerFactory.getLogger(AbstractJenkinsBasedShepherdClient::class.java)
+        private val log = LoggerFactory.getLogger(JenkinsBasedShepherdClient::class.java)
     }
 }
 

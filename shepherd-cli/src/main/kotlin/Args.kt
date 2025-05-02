@@ -1,8 +1,8 @@
 @file:OptIn(ExperimentalCli::class)
 
-import com.github.mvysny.shepherd.api.ConfigFolder
 import com.github.mvysny.shepherd.api.FakeShepherdClient
-import com.github.mvysny.shepherd.api.KubernetesShepherdClient
+import com.github.mvysny.shepherd.api.JenkinsBasedShepherdClient
+import com.github.mvysny.shepherd.api.KubernetesRuntimeContainerSystem
 import com.github.mvysny.shepherd.api.LocalFS
 import com.github.mvysny.shepherd.api.ProjectId
 import com.github.mvysny.shepherd.api.ShepherdClient
@@ -24,7 +24,10 @@ data class Args(
     val buildLogSubcommand: BuildLogSubcommand
 ) {
 
-    fun createClient(): ShepherdClient = if (fake) FakeShepherdClient() else KubernetesShepherdClient(LocalFS())
+    fun createClient(): ShepherdClient = if (fake) FakeShepherdClient() else {
+        val fs = LocalFS()
+        JenkinsBasedShepherdClient(fs, KubernetesRuntimeContainerSystem(fs))
+    }
 
     companion object {
         fun parse(args: Array<String>): Args {
