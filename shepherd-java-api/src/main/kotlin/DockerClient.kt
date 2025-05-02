@@ -97,12 +97,12 @@ internal object DockerClient {
     fun isRunning(containerName: String): Boolean = ps().contains(containerName)
 
     /**
-     * Returns the stdout of given container. Fails if the container doesn't exist.
+     * Returns the stdout of given container. Works both with running and stopped containers. Fails if the container doesn't exist.
      */
     fun logs(containerName: String): String = exec("docker", "logs", containerName)
 
     /**
-     * Returns the runtime metrics of given docker container. Works with stopped containers as well. Fails if the container doesn't exist.
+     * Returns the runtime metrics of given docker container. Works both with running and stopped containers. Fails if the container doesn't exist.
      */
     fun containerStats(containerName: String): ResourcesUsage {
         val stats = exec("docker", "container", "stats", "--no-stream", "--format", "{{.CPUPerc}} {{.MemUsage}}", containerName)
