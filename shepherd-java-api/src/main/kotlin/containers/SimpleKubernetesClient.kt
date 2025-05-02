@@ -457,7 +457,8 @@ public class KubernetesRuntimeContainerSystem(
         return mainPodDockerImage != null
     }
 
-    override fun restartProject(id: ProjectId) {
+    override fun restartProject(project: Project) {
+        val id = project.id
         val mainPodDockerImage = kubernetes.getCurrentDockerImage(id)
         check(mainPodDockerImage != null) { "Project $id isn't running" }
         exec("/opt/shepherd/shepherd-apply", id.id, mainPodDockerImage)

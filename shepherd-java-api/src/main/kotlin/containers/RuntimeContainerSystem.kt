@@ -43,9 +43,10 @@ public interface RuntimeContainerSystem {
     public fun isProjectRunning(id: ProjectId): Boolean
 
     /**
-     * Restarts project [id]. Only called if the project runtime container is running at the moment.
+     * Restarts the main container of given project [id]. If the service set changed, stops obsolete containers and
+     * starts new ones. If the main container is already running, kills the old one and starts a new main container.
      */
-    public fun restartProject(id: ProjectId)
+    public fun restartProject(project: Project)
 
     /**
      * Retrieves the run logs of the main app pod (=the app itself). There may be additional pods (e.g. PostgreSQL)

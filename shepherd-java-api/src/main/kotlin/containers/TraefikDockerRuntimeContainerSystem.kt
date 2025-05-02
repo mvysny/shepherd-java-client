@@ -3,20 +3,26 @@ package com.github.mvysny.shepherd.api.containers
 import com.github.mvysny.shepherd.api.Project
 import com.github.mvysny.shepherd.api.ProjectId
 import com.github.mvysny.shepherd.api.ResourcesUsage
+import com.github.mvysny.shepherd.api.exec
 
 /**
  * Interacts with the [Shepherd-Traefik](https://github.com/mvysny/shepherd-traefik) system running via Docker+Traefik.
+ * @property hostDNS the main/default DNS domain where Shepherd is running, e.g. `v-herd.eu`.
  */
-public class TraefikDockerRuntimeContainerSystem : RuntimeContainerSystem {
+public class TraefikDockerRuntimeContainerSystem(
+    public val hostDNS: String
+) : RuntimeContainerSystem {
     private val ProjectId.dockerNetworkName: String get() = "${id}.shepherd"
     private val ProjectId.dockerContainerName: String get() = "shepherd_${id}"
+    private val ProjectId.dockerImageName: String get() = "shepherd/${id}"
 
     override fun createProject(project: Project) {
         require(project.additionalServices.isEmpty()) { "Additional services not yet supported" }
         require(project.publication.additionalDomains.isEmpty()) { "Additional domains not yet supported" }
 
         // Creates a new Docker network for given project and connect the network
-        // to the Traefik container.
+        // to the Traefik container. This way, the projects are separate from each other
+        // and can't reach nor attack each other - they can only see the Traefik container.
         DockerClient.networkCreate(project.id.dockerNetworkName)
         DockerClient.networkConnect(project.id.dockerNetworkName, getTraefikContainerId())
         // The project containers will be connected to the network later on, when Jenkins
@@ -50,17 +56,33 @@ public class TraefikDockerRuntimeContainerSystem : RuntimeContainerSystem {
     override fun isProjectRunning(id: ProjectId): Boolean =
         DockerClient.isRunning(id.dockerContainerName)
 
-    override fun restartProject(id: ProjectId) {
+    override fun restartProject(project: Project) {
         // no need to kill the associated databases; only kill & restart the main container.
-        DockerClient.kill(id.dockerContainerName)
-        // todo: here the project should be started via the `docker` command
-        // however, the same command is present in Shepherd-Traefik `shepherd-build` command,
-        // so we should create one script which does the same thing.
+        // TODO if the project no longer uses a database, kill the database docker container.
+        DockerClient.kill(project.id.dockerContainerName)
 
-        // since `updateProjectConfig()` also needs to know the script parameters, it's probably better
+        // start the project via the `docker` command.
+        // @todo if the project now uses a database, start the database as well.
+        //
+        // Because `updateProjectConfig()` also needs to know the script parameters, it's probably better
         // to have shepherd-java-api handle everything. However, if Jenkins needs to call
-        // shepherd-java-api, it needs to have stuff on classpath and java installed - is that viable?
-        TODO("Not yet implemented")
+        // shepherd-java-api, it needs to have stuff on classpath and java installed. Turns out,
+        // Java is installed along with Jenkins (since Jenkins runs on Java), and jq is not -
+        // and we would need jq to parse shepherd json config file. Therefore,
+        // it's easier to use shepherd-cli to restart the project.
+
+        // run the container in the background, with stdout (terminal) attached, with given name, and having the docker daemon keeping the container up.
+        val cmdline = mutableListOf("docker", "run", "-d", "-t", "--name", project.id.dockerContainerName, "--restart", "always")
+        cmdline.addAll(listOf("--network", project.id.dockerNetworkName)) // every project has its own network.
+        // configure runtime resources
+        cmdline.addAll(listOf("-m", "${project.runtime.resources.memoryMb}m", "--cpus", project.runtime.resources.cpu.toString()))
+        // add Traefik labels so that the routing works automatically.
+        cmdline.addAll(listOf("--label", "traefik.http.routers.shepherd_${project.id}.entrypoints=http"))
+        cmdline.addAll(listOf("--label", "traefik.http.routers.shepherd_${project.id}.rule=Host(\\`${project.id}.${hostDNS}\\`)"))
+        // which image to run. Jenkins is configured to build to `dockerImageName`.
+        cmdline.add("${project.id.dockerImageName}:latest")
+
+        exec(*cmdline.toTypedArray())
     }
 
     override fun getRunLogs(id: ProjectId): String =

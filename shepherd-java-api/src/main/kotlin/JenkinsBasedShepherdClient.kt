@@ -128,7 +128,7 @@ public class JenkinsBasedShepherdClient(
             jenkins.build(project.id)
         } else if (needsRestart) {
             log.info("${project.id.id}: performing quick kubernetes apply")
-            containerSystem.restartProject(project.id)
+            containerSystem.restartProject(project)
         } else {
             // probably just a project description or project owner changed, do nothing
             log.info("${project.id.id}: no kubernetes-level/jenkins-level changes detected, not reloading the project")
