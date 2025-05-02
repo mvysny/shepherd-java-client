@@ -47,8 +47,15 @@ public class TraefikDockerRuntimeContainerSystem(
         }
     }
 
-    override fun updateProjectConfig(newProject: Project, oldProject: Project): Boolean =
-        calculateDockerRunCommand(oldProject) != calculateDockerRunCommand(newProject)
+    override fun updateProjectConfig(newProject: Project, oldProject: Project): Boolean {
+        // all project configuration is passed in via the docker command line, so there's no
+        // file to update.
+        // however, return true if the command line is changed => that means that we need to restart the
+        // main project container with new settings.
+        return calculateDockerRunCommand(oldProject) != calculateDockerRunCommand(
+            newProject
+        )
+    }
 
     override fun isProjectRunning(id: ProjectId): Boolean =
         DockerClient.isRunning(id.dockerContainerName)
