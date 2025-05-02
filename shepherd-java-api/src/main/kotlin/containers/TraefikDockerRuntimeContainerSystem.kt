@@ -41,7 +41,11 @@ public class TraefikDockerRuntimeContainerSystem : RuntimeContainerSystem {
         }
     }
 
-    override fun updateProjectConfig(project: Project): Boolean = true
+    override fun updateProjectConfig(project: Project): Boolean {
+        // @todo consider all input parameters that go into docker run command-line; return true if any of those changes.
+        // simple fallback for now: always return true, so that the project is always restarted.
+        return true
+    }
 
     override fun isProjectRunning(id: ProjectId): Boolean =
         DockerClient.isRunning(id.dockerContainerName)
@@ -52,6 +56,10 @@ public class TraefikDockerRuntimeContainerSystem : RuntimeContainerSystem {
         // todo: here the project should be started via the `docker` command
         // however, the same command is present in Shepherd-Traefik `shepherd-build` command,
         // so we should create one script which does the same thing.
+
+        // since `updateProjectConfig()` also needs to know the script parameters, it's probably better
+        // to have shepherd-java-api handle everything. However, if Jenkins needs to call
+        // shepherd-java-api, it needs to have stuff on classpath and java installed - is that viable?
         TODO("Not yet implemented")
     }
 
