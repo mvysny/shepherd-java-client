@@ -1,9 +1,9 @@
 package com.github.mvysny.shepherd.api
 
 /**
- * Very simple Docker client, uses the `docker` binary. Used by Shepherd-Traefik.
+ * Very simple Docker client, uses the `docker` binary.
  */
-public class SimpleDockerClient() {
+internal object DockerClient {
     private val ProjectId.dockerNetworkName: String get() = "${id}.shepherd"
     private val ProjectId.dockerContainerName: String get() = "shepherd_${id}"
 
@@ -11,71 +11,100 @@ public class SimpleDockerClient() {
      * Creates a new Docker network for given project [pid] and connect the network
      * to the Traefik container.
      */
-    public fun createNetworkAndConnect(pid: ProjectId) {
-        exec("docker", "network", "create", pid.dockerNetworkName)
-        exec("docker", "network", "connect", pid.dockerNetworkName, getTraefikContainerId())
+    fun createNetworkAndConnect(pid: ProjectId) {
+        networkCreate(pid.dockerNetworkName)
+        networkConnect(pid.dockerNetworkName, getTraefikContainerId())
+    }
+
+    fun networkCreate(networkName: String) {
+        exec("docker", "network", "create", networkName)
+    }
+
+    fun networkConnect(networkName: String, runningContainerName: String) {
+        exec("docker", "network", "connect", networkName, runningContainerName)
     }
 
     /**
-     * Returns names of Docker running containers.
+     * Returns names of Docker running containers: `docker ps`.
      */
-    private fun ps(): Set<String> {
+    fun ps(): Set<String> {
         val containers = exec("docker", "ps", "--format", "{{.Names}}").lines()
         return containers.filter { it.isNotEmpty() }.toSet()
     }
 
-    private fun networkLs(): Set<String> {
+    /**
+     * Return the names of networks currently created in Docker: `docker network ls`
+     */
+    fun networkLs(): Set<String> {
         val output = exec("docker", "network", "ls", "--format", "{{.Name}}").lines()
         return output.filter { it.isNotEmpty() }.toSet()
     }
 
-    private fun doesNetworkExist(pid: ProjectId): Boolean {
+    /**
+     * Checks whether network with given name is created in Docker.
+     */
+    fun doesNetworkExist(networkName: String): Boolean {
         val networks = networkLs()
-        return networks.contains(pid.dockerNetworkName)
+        return networks.contains(networkName)
     }
 
     /**
      * Deletes Docker network for project [pid]. The container must not be running, and Traefik must still be connected to this network.
      * Does nothing if the network doesn't exist.
      */
-    public fun disconnectNetworkAndDelete(pid: ProjectId) {
-        if (doesNetworkExist(pid)) {
+    fun disconnectNetworkAndDelete(pid: ProjectId) {
+        if (doesNetworkExist(pid.dockerNetworkName)) {
             exec("docker", "network", "disconnect", pid.dockerNetworkName, getTraefikContainerId())
             exec("docker", "network", "rm", pid.dockerNetworkName)
         }
     }
 
-    public fun deleteIfExists(pid: ProjectId) {
+    fun deleteIfExists(pid: ProjectId) {
         if (isRunning(pid)) {
-            kill(pid)
+            kill(pid.dockerNetworkName)
         }
         disconnectNetworkAndDelete(pid)
     }
 
     /**
      * The main process inside the container will receive SIGTERM, and after a grace period, SIGKILL.
+     * The grace period is 10 seconds for Linux containers.
+     */
+    fun containerStop(containerName: String) {
+        exec("docker", "container", "stop", containerName)
+    }
+
+    /**
+     * Removes stopped container.
+     */
+    fun containerRm(containerName: String) {
+        exec("docker", "container", "rm", containerName)
+    }
+
+    /**
+     * The main process inside the container will receive SIGTERM, and after a grace period, SIGKILL.
      * The grace period is 10 seconds for Linux containers. Then, the container is removed.
      */
-    public fun kill(pid: ProjectId) {
-        exec("docker", "container", "stop", pid.dockerContainerName)
-        exec("docker", "container", "rm", pid.dockerContainerName)
+    fun kill(containerName: String) {
+        containerStop(containerName)
+        containerRm(containerName)
     }
 
     /**
      * Checks if a container for project [pid] is running.
      */
-    public fun isRunning(pid: ProjectId): Boolean = ps().contains(pid.dockerContainerName)
+    fun isRunning(pid: ProjectId): Boolean = ps().contains(pid.dockerContainerName)
 
     /**
      * Returns the run log of project [pid].
      */
-    public fun getRunLogs(pid: ProjectId): String =
+    fun getRunLogs(pid: ProjectId): String =
         if (!isRunning(pid)) "" else exec("docker", "logs", pid.dockerContainerName)
 
     /**
      * Returns the runtime metrics of docker container for project [pid].
      */
-    public fun getRunMetrics(pid: ProjectId): ResourcesUsage {
+    fun getRunMetrics(pid: ProjectId): ResourcesUsage {
         if (!isRunning(pid)) {
             return ResourcesUsage.zero
         }
