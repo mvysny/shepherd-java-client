@@ -151,6 +151,58 @@ public abstract class AbstractJenkinsBasedShepherdClient(
 }
 
 /**
+ * Runtime container system which is capable of running project docker containers.
+ * There are two implementations: Kubernetes and pure Docker.
+ */
+public interface RuntimeContainerSystem {
+    /**
+     * Creates the project in the underlying runtime env: prepares all necessary files
+     * and resources.
+     */
+    public fun createProject(project: Project)
+
+    /**
+     * Kills all project's running containers and deletes all files & resources
+     * used by the project. Does nothing if the project containers aren't running and
+     * there are no resources to clean up.
+     * @throws NoSuchProjectException if the project doesn't exist.
+     */
+    public fun deleteProject(id: ProjectId)
+
+    /**
+     * Updates runtime system files and objects to the new project configuration.
+     * @return true if the project needs to be restarted (via [restartProject]).
+     * @throws NoSuchProjectException if the project doesn't exist.
+     */
+    public fun updateProjectConfig(project: Project): Boolean
+
+    /**
+     * @return true if the main project container is running, false if not.
+     * @throws NoSuchProjectException if the project doesn't exist.
+     */
+    public fun isProjectRunning(id: ProjectId): Boolean
+
+    /**
+     * Restarts project [id]. The project runtime container is running at the moment.
+     * @throws NoSuchProjectException if the project doesn't exist.
+     */
+    public fun restartProject(id: ProjectId)
+
+    /**
+     * Retrieves the run logs of the main app pod (=the app itself). There may be additional pods (e.g. PostgreSQL)
+     * but their logs are not returned.
+     * @throws NoSuchProjectException if the project doesn't exist.
+     */
+    public fun getRunLogs(id: ProjectId): String
+
+    /**
+     * Returns the current CPU/memory usage of the main app pod.
+     * @throws NoSuchProjectException if the project doesn't exist.
+     */
+    public fun getRunMetrics(id: ProjectId): ResourcesUsage
+}
+
+/**
  * We must take care not to bring the Shepherd VM down by OOMs or excessive swapping.
  *
  * If a project creation/update would create a situation where [ProjectMemoryStats.totalQuota]

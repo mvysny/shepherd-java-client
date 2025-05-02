@@ -42,3 +42,37 @@ public class KubernetesShepherdClient @JvmOverloads constructor(
 
     override fun close() {}
 }
+
+public class KubernetesRuntimeContainerSystem(
+    fs: LocalFS,
+    private val kubernetes: SimpleKubernetesClient = SimpleKubernetesClient(defaultDNS = fs.configFolder.loadConfig().hostDNS, yamlConfigFolder = fs.configFolder.kubernetesYamlFiles),
+) : RuntimeContainerSystem {
+    override fun createProject(project: Project) {
+        // Create Kubernetes config file at /etc/shepherd/k8s/PROJECT_ID.yaml
+        kubernetes.writeConfigYamlFile(project)
+    }
+
+    override fun updateProjectConfig(project: Project): Boolean =
+        kubernetes.writeConfigYamlFile(project)
+
+    override fun isProjectRunning(id: ProjectId): Boolean {
+        val mainPodDockerImage = kubernetes.getCurrentDockerImage(id)
+        return mainPodDockerImage != null
+    }
+
+    override fun restartProject(id: ProjectId) {
+        val mainPodDockerImage = kubernetes.getCurrentDockerImage(id)
+        check(mainPodDockerImage != null) { "Project $id isn't running" }
+        exec("/opt/shepherd/shepherd-apply", id.id, mainPodDockerImage)
+    }
+
+    override fun deleteProject(id: ProjectId) {
+        kubernetes.deleteIfExists(id)
+    }
+
+    override fun getRunLogs(id: ProjectId): String =
+        kubernetes.getRunLogs(id)
+
+    override fun getRunMetrics(id: ProjectId): ResourcesUsage =
+        kubernetes.getMetrics(id)
+}
