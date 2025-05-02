@@ -21,14 +21,15 @@ public interface RuntimeContainerSystem {
      * used by the project. Does nothing if the project containers aren't running and
      * there are no resources to clean up.
      *
-     * The project exists, but it may not be running (e.g. if no Jenkins build passed yet).
+     * The project exists, but the main container may not be running or not even created yet (e.g. if no Jenkins build passed yet).
      */
     public fun deleteProject(id: ProjectId)
 
     /**
      * Updates runtime system files and objects to the new project configuration.
      *
-     * The project exists, but it may not be running (e.g. if no Jenkins build passed yet).
+     * The project exists, but the main container may not be running. However,
+     * the main container has been created (was running at least once previously).
      * @return true if the project needs to be restarted (via [restartProject]).
      */
     public fun updateProjectConfig(project: Project): Boolean
@@ -36,8 +37,8 @@ public interface RuntimeContainerSystem {
     /**
      * Checks whether the main project container is running or not.
      *
-     * The project exists, but it may not be running (e.g. if no Jenkins build passed yet).
-     * @return true if the main project container is running, false if not.
+     * The project exists, but the main container may not be running or not even created yet (e.g. if no Jenkins build passed yet).
+     * @return true if the main project container is running, false if it's stopped or hasn't been created yet.
      */
     public fun isProjectRunning(id: ProjectId): Boolean
 
