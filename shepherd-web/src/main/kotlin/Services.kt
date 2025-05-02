@@ -6,6 +6,7 @@ import com.github.mvysny.shepherd.api.JenkinsBasedShepherdClient
 import com.github.mvysny.shepherd.api.LocalFS
 import com.github.mvysny.shepherd.api.ShepherdClient
 import com.github.mvysny.shepherd.api.containers.KubernetesRuntimeContainerSystem
+import com.github.mvysny.shepherd.api.createClient
 import com.github.mvysny.shepherd.web.security.UserRegistry
 import java.io.Closeable
 import java.nio.file.Path
@@ -29,7 +30,7 @@ data class Services(
         }
         fun newReal(fs: LocalFS) {
             destroy()
-            val client = JenkinsBasedShepherdClient(fs, KubernetesRuntimeContainerSystem(fs))
+            val client = fs.createClient()
             services = Services(client, UserRegistry(fs.configFolder.userRegistryFolder))
         }
         val initialized: Boolean get() = services != null

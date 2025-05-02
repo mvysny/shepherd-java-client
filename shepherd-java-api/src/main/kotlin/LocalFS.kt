@@ -1,5 +1,8 @@
 package com.github.mvysny.shepherd.api
 
+import com.github.mvysny.shepherd.api.containers.KubernetesRuntimeContainerSystem
+import com.github.mvysny.shepherd.api.containers.RuntimeContainerSystem
+import com.github.mvysny.shepherd.api.containers.TraefikDockerRuntimeContainerSystem
 import org.slf4j.LoggerFactory
 import java.nio.file.Files
 import java.nio.file.Path
@@ -132,3 +135,13 @@ public class LocalFS(
     public val configFolder: ConfigFolder = ConfigFolder(),
     public val cacheFolder: CacheFolder = CacheFolder()
 )
+
+public fun LocalFS.createClient(): ShepherdClient {
+    val config = configFolder.loadConfig()
+    val rcs: RuntimeContainerSystem = when (config.containerSystem) {
+        "kubernetes" -> KubernetesRuntimeContainerSystem(this)
+        "traefik-docker" -> TraefikDockerRuntimeContainerSystem(config.hostDNS)
+        else -> throw RuntimeException("Unsupported container system: ${config.containerSystem}")
+    }
+    return JenkinsBasedShepherdClient(this, rcs)
+}

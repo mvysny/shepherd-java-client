@@ -6,6 +6,9 @@ import com.github.mvysny.shepherd.api.LocalFS
 import com.github.mvysny.shepherd.api.ProjectId
 import com.github.mvysny.shepherd.api.ShepherdClient
 import com.github.mvysny.shepherd.api.containers.KubernetesRuntimeContainerSystem
+import com.github.mvysny.shepherd.api.containers.RuntimeContainerSystem
+import com.github.mvysny.shepherd.api.containers.TraefikDockerRuntimeContainerSystem
+import com.github.mvysny.shepherd.api.createClient
 import kotlinx.cli.*
 
 /**
@@ -24,10 +27,7 @@ data class Args(
     val buildLogSubcommand: BuildLogSubcommand
 ) {
 
-    fun createClient(): ShepherdClient = if (fake) FakeShepherdClient() else {
-        val fs = LocalFS()
-        JenkinsBasedShepherdClient(fs, KubernetesRuntimeContainerSystem(fs))
-    }
+    fun createClient(): ShepherdClient = if (fake) FakeShepherdClient() else LocalFS().createClient()
 
     companion object {
         fun parse(args: Array<String>): Args {
