@@ -1,4 +1,8 @@
-package com.github.mvysny.shepherd.api
+package com.github.mvysny.shepherd.api.containers
+
+import com.github.mvysny.shepherd.api.Project
+import com.github.mvysny.shepherd.api.ProjectId
+import com.github.mvysny.shepherd.api.ResourcesUsage
 
 /**
  * Runtime container system which is capable of running project docker containers.

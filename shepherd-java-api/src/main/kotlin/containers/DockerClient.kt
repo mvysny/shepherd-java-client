@@ -1,4 +1,4 @@
-package com.github.mvysny.shepherd.api
+package com.github.mvysny.shepherd.api.containers
 
 /**
  * Very simple Docker client, uses the `docker` binary.

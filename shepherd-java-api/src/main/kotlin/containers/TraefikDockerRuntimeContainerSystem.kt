@@ -1,4 +1,7 @@
-package com.github.mvysny.shepherd.api
+package com.github.mvysny.shepherd.api.containers
+
+import com.github.mvysny.shepherd.api.Project
+import com.github.mvysny.shepherd.api.ProjectId
 
 /**
  * Interacts with the [Shepherd-Traefik](https://github.com/mvysny/shepherd-traefik) system running via Docker+Traefik.
