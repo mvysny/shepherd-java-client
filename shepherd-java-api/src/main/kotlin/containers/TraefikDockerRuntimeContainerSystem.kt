@@ -31,9 +31,8 @@ public class TraefikDockerRuntimeContainerSystem(
 
     private fun getTraefikContainerId(): String {
         val containers = DockerClient.ps()
-        val traefik = containers.firstOrNull { it.endsWith("_traefik_1") }
-        checkNotNull(traefik) { "Traefik Docker Container is not running" }
-        return traefik
+        check(containers.contains("int_traefik")) { "Traefik Docker Container is not running" }
+        return "int_traefik"
     }
 
     override fun deleteProject(id: ProjectId) {
