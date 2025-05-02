@@ -87,6 +87,9 @@ internal object DockerClient {
     /**
      * The main process inside the container will receive SIGTERM, and after a grace period, SIGKILL.
      * The grace period is 10 seconds for Linux containers. Then, the container is removed.
+     * If the container exists but is stopped, it is merely removed.
+     *
+     * When this function finishes successfully, the container no longer exists.
      *
      * Fails if no such container exists.
      */
