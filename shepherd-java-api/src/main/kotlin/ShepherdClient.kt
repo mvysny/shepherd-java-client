@@ -82,12 +82,14 @@ public interface ShepherdClient : Closeable {
     /**
      * Retrieves the run logs of the main app pod (=the app itself). There may be additional pods (e.g. PostgreSQL)
      * but their logs are not returned.
+     * @return main container runtime logs. May return an empty string if the container is not running or has not been created yet (e.g. first build is ongoing).
      * @throws NoSuchProjectException if the project doesn't exist.
      */
     public fun getRunLogs(id: ProjectId): String
 
     /**
      * Returns the current CPU/memory usage of the main app pod.
+     * @return main container runtime metrics. May return [ResourcesUsage.zero] if the container is not running or has not been created yet (e.g. first build is ongoing).
      * @throws NoSuchProjectException if the project doesn't exist.
      */
     public fun getRunMetrics(id: ProjectId): ResourcesUsage

@@ -85,12 +85,20 @@ public class JenkinsBasedShepherdClient(
 
     override fun getRunLogs(id: ProjectId): String {
         checkProjectExists(id)
-        return containerSystem.getRunLogs(id)
+        if (containerSystem.isProjectRunning(id)) {
+            return containerSystem.getRunLogs(id)
+        } else {
+            return ""
+        }
     }
 
     override fun getRunMetrics(id: ProjectId): ResourcesUsage {
         checkProjectExists(id)
-        return containerSystem.getRunMetrics(id)
+        if (containerSystem.isProjectRunning(id)) {
+            return containerSystem.getRunMetrics(id)
+        } else {
+            return ResourcesUsage.zero
+        }
     }
 
     override fun getBuildLog(id: ProjectId, buildNumber: Int): String = jenkins.getBuildConsoleText(id, buildNumber)

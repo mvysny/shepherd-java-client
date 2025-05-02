@@ -50,8 +50,8 @@ public interface RuntimeContainerSystem {
      * Retrieves the run logs of the main app pod (=the app itself). There may be additional pods (e.g. PostgreSQL)
      * but their logs are not returned.
      *
-     * The project exists, but it may not be running (e.g. if no Jenkins build passed yet).
-     * If it's not running, returns an empty string.
+     * The project exists, but the main container may not be running or not even created yet (e.g. if no Jenkins build passed yet).
+     * If it's not running, you may return an empty string. If the container doesn't exist yet, you may return an empty string, or you may fail with an exception.
      */
     public fun getRunLogs(id: ProjectId): String
 
@@ -59,7 +59,7 @@ public interface RuntimeContainerSystem {
      * Returns the current CPU/memory usage of the main app pod.
      *
      * The project exists, but it may not be running (e.g. if no Jenkins build passed yet).
-     * If it's not running, return [ResourcesUsage.zero].
+     * If it's not running, return [ResourcesUsage.zero]. If the container doesn't exist yet, you may return [ResourcesUsage.zero], or you may fail with an exception.
      */
     public fun getRunMetrics(id: ProjectId): ResourcesUsage
 }
