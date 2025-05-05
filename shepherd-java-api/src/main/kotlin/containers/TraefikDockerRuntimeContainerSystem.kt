@@ -67,7 +67,7 @@ public class TraefikDockerRuntimeContainerSystem(
         cmdline.addAll(listOf("-m", "${project.runtime.resources.memoryMb}m", "--cpus", project.runtime.resources.cpu.toString()))
         // add Traefik labels so that the routing works automatically.
         cmdline.addAll(listOf("--label", "traefik.http.routers.shepherd_${project.id.id}.entrypoints=http"))
-        cmdline.addAll(listOf("--label", "traefik.http.routers.shepherd_${project.id.id}.rule=Host(\\`${project.id.id}.${hostDNS}\\`)"))
+        cmdline.addAll(listOf("--label", "traefik.http.routers.shepherd_${project.id.id}.rule=Host(`${project.id.id}.${hostDNS}`)"))
         // which image to run. Jenkins is configured to build to `dockerImageName`.
         cmdline.add("${project.id.dockerImageName}:latest")
         return cmdline
