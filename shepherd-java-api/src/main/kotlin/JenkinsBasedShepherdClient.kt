@@ -42,6 +42,8 @@ public class JenkinsBasedShepherdClient(
         containerSystem.restartProject(projectConfigFolder.getProjectInfo(id))
     }
 
+    override fun getMainDomainDeployURL(id: ProjectId): String = containerSystem.getMainDomainDeployURL(id)
+
     private val jenkins: SimpleJenkinsClient = getConfig().let { config ->
         SimpleJenkinsClient(
             jenkinsUrl = config.jenkins.url,

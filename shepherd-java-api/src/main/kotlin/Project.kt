@@ -183,10 +183,10 @@ public data class Project(
 ) {
     /**
      * Returns URLs on which this project runs (can be browsed to). E.g. for `vaadin-boot-example-gradle`
-     * on the `v-herd.eu` [host], this returns `https://v-herd.eu/vaadin-boot-example-gradle`.
+     * on the `v-herd.eu` host, this returns `https://v-herd.eu/vaadin-boot-example-gradle`.
      */
-    public fun getPublishedURLs(host: String): List<String> =
-        listOf("https://$host/${id.id}") + publication.additionalDomains.map { "https://$it" }
+    public fun getPublishedURLs(client: ShepherdClient): List<String> =
+        listOf(client.getMainDomainDeployURL(id)) + publication.additionalDomains.map { "https://$it" }
 
     public fun resolveWebpage(): String = webpage ?: gitRepo.url
 

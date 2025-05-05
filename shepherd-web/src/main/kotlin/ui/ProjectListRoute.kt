@@ -127,7 +127,7 @@ class PublishedURLsAsVerticalLayout(project: Project) : VerticalLayout() {
     init {
         isPadding = false
         isSpacing = false
-        project.getPublishedURLs(host).map { it -> Anchor(it, it) } .forEach { add(it) }
+        project.getPublishedURLs(Bootstrap.getClient()).map { it -> Anchor(it, it) } .forEach { add(it) }
     }
 }
 

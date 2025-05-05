@@ -115,6 +115,7 @@ public class FakeShepherdClient @JvmOverloads constructor(
 
     override fun getConfig(): Config = cfg
     override fun restartContainers(id: ProjectId) {}
+    override fun getMainDomainDeployURL(id: ProjectId): String = "http://v-herd.eu/${id.id}"
 
     override fun close() {}
 }

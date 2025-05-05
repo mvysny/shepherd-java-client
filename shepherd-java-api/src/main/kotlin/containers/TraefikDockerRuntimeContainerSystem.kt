@@ -100,4 +100,6 @@ public class TraefikDockerRuntimeContainerSystem(
 
     override fun getRunMetrics(id: ProjectId): ResourcesUsage =
         if (!DockerClient.isRunning(id.dockerContainerName)) ResourcesUsage.zero else DockerClient.containerStats(id.dockerContainerName)
+
+    override fun getMainDomainDeployURL(id: ProjectId): String = "https://${id.id}.${hostDNS}"
 }

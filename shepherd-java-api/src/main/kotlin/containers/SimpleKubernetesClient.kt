@@ -23,7 +23,7 @@ import kotlin.io.path.*
 public class SimpleKubernetesClient @JvmOverloads constructor(
     private val kubectl: Array<String> = arrayOf("microk8s", "kubectl"),
     private val yamlConfigFolder: Path,
-    private val defaultDNS: String
+    public val defaultDNS: String
 ) {
     /**
      * Runs `kubectl get pods` and returns all names. May return an empty list
@@ -473,4 +473,6 @@ public class KubernetesRuntimeContainerSystem(
 
     override fun getRunMetrics(id: ProjectId): ResourcesUsage =
         kubernetes.getMetrics(id)
+
+    override fun getMainDomainDeployURL(id: ProjectId): String = "https://${kubernetes.defaultDNS}/${id.id}"
 }

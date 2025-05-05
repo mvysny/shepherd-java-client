@@ -69,4 +69,9 @@ public interface RuntimeContainerSystem {
      * If it's not running, return [ResourcesUsage.zero]. If the container doesn't exist yet, you may return [ResourcesUsage.zero], or you may fail with an exception.
      */
     public fun getRunMetrics(id: ProjectId): ResourcesUsage
+
+    /**
+     * Returns the URL of the main domain (e.g. `https://v-herd.eu/pid` or `http://pid.v-herd.eu`) where the project is deployed.
+     */
+    public fun getMainDomainDeployURL(id: ProjectId): String
 }

@@ -200,7 +200,7 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
         h3("Publishing") {
             colspan = 2
         }
-        checkBox("Publish the project on the main domain, at `$host/PROJECT_ID`.") {
+        checkBox("Publish the project on the main domain, at `${Bootstrap.getClient().getMainDomainDeployURL(ProjectId("project-id"))}`.") {
             setId("publishOnMainDomain")
             bind(binder).bind(MutableProject::publishOnMainDomain)
         }

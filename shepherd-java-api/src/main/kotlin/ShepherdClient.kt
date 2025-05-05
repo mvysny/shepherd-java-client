@@ -131,6 +131,11 @@ public interface ShepherdClient : Closeable {
      * Fails if the project doesn't exist.
      */
     public fun restartContainers(id: ProjectId)
+
+    /**
+     * Returns the URL of the main domain (e.g. `https://v-herd.eu/pid` or `http://pid.v-herd.eu`) where the project is deployed.
+     */
+    public fun getMainDomainDeployURL(id: ProjectId): String
 }
 
 /**
@@ -143,9 +148,9 @@ public data class ProjectView(
     val lastBuildOngoing: Boolean get() = lastBuild != null && !lastBuild.isCompleted
     /**
      * Returns URLs on which this project runs (can be browsed to). E.g. for `vaadin-boot-example-gradle`
-     * on the `v-herd.eu` [host], this returns `https://v-herd.eu/vaadin-boot-example-gradle`.
+     * on the `v-herd.eu` host, this returns `https://v-herd.eu/vaadin-boot-example-gradle`.
      */
-    public fun getPublishedURLs(host: String): List<String> = project.getPublishedURLs(host)
+    public fun getPublishedURLs(client: ShepherdClient): List<String> = project.getPublishedURLs(client)
 }
 
 public enum class BuildResult {
