@@ -44,8 +44,8 @@ class NamedVarSetField(label: String? = null) : CustomField<Set<NamedVar>>() {
                 flexGrow = 0
             }
             column(NamedVar::value)
-            iconButtonColumn(VaadinIcon.EDIT) { edit(it) }
-            iconButtonColumn(VaadinIcon.TRASH) { delete(it) }
+            iconButtonColumn(VaadinIcon.EDIT, "Edit variable") { edit(it) }
+            iconButtonColumn(VaadinIcon.TRASH, "Delete variable") { delete(it) }
         }
         button("Add") {
             onClick { createNew() }

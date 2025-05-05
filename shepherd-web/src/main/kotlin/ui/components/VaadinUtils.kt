@@ -1,6 +1,5 @@
 package com.github.mvysny.shepherd.web.ui.components
 
-import com.github.mvysny.karibudsl.v10.StringNotBlankValidator
 import com.github.mvysny.karibudsl.v10.VaadinDsl
 import com.github.mvysny.karibudsl.v10.componentColumn
 import com.github.mvysny.shepherd.api.containsWhitespaces
@@ -19,6 +18,7 @@ import com.vaadin.flow.data.binder.ValueContext
 @VaadinDsl
 fun <T> (@VaadinDsl Grid<T>).iconButtonColumn(
     icon: VaadinIcon,
+    tooltip: String,
     onClick: (T) -> Unit
 ): Grid.Column<T> = componentColumn({ item ->
     Button(icon.create(), { e -> onClick(item) }).apply {
@@ -27,6 +27,7 @@ fun <T> (@VaadinDsl Grid<T>).iconButtonColumn(
             ButtonVariant.LUMO_SMALL,
             ButtonVariant.LUMO_ICON
         )
+        setTooltipText(tooltip)
     }
 }) {
     width = "40px"

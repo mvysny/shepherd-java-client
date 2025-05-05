@@ -83,7 +83,11 @@ class ProjectListRoute : KComposite() {
                     isExpand = false; isAutoWidth = true; isResizable = true
                     setHeader("Builds")
                 }
-                iconButtonColumn(VaadinIcon.TRASH) {
+                iconButtonColumn(VaadinIcon.REFRESH, "Restart main project docker container") {
+                    Bootstrap.getClient().restartContainers(it.project.id)
+                    showInfoNotification("Project ${it.project.id.id} restarted successfully")
+                }
+                iconButtonColumn(VaadinIcon.TRASH, "Delete project") {
                     deleteProject(it.project.id)
                 }
 

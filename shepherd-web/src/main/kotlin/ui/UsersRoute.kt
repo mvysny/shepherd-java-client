@@ -39,8 +39,8 @@ class UsersRoute : KComposite() {
                 columnFor(User::email)
                 columnFor(User::name)
                 columnFor(User::roles)
-                iconButtonColumn(VaadinIcon.EDIT) { edit(it) }
-                iconButtonColumn(VaadinIcon.TRASH) { delete(it) }
+                iconButtonColumn(VaadinIcon.EDIT, "Edit user") { edit(it) }
+                iconButtonColumn(VaadinIcon.TRASH, "Delete user") { delete(it) }
             }
         }
     }
