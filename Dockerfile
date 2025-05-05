@@ -37,5 +37,5 @@ COPY --from=builder /app/shepherd-web/build/distributions/shepherd-web-* /opt/sh
 COPY --from=builder /app/shepherd-cli/build/distributions/shepherd-cli-* /opt/shepherd-cli/
 WORKDIR /opt/shepherd-web/bin
 EXPOSE 8080
-CMD ./shepherd-web
+CMD ["./shepherd-web"]
 
