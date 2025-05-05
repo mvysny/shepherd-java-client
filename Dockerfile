@@ -19,7 +19,7 @@
 # $ docker build -t mvysny/shepherd-java:latest .
 
 # The "builder" stage. Copies the entire project into the container, into the /app/ folder, and builds it.
-FROM openjdk:21-bookworm AS builder
+FROM --platform=$BUILDPLATFORM openjdk:21-bookworm AS builder
 COPY . /app/
 WORKDIR /app/
 RUN --mount=type=cache,target=/root/.gradle --mount=type=cache,target=/root/.vaadin ./gradlew clean build -Pvaadin.productionMode --no-daemon --info --stacktrace
