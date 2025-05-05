@@ -45,8 +45,11 @@ public interface RuntimeContainerSystem {
     public fun isProjectRunning(id: ProjectId): Boolean
 
     /**
-     * Restarts the main container of given project [id]. If the service set changed, stops obsolete containers and
+     * Restarts the main container of given project [project]. If the service set changed, stops obsolete containers and
      * starts new ones. If the main container is already running, kills the old one and starts a new main container.
+     *
+     * May be called when the main container is not running yet - in such case the container
+     * should simply be started.
      */
     public fun restartProject(project: Project)
 

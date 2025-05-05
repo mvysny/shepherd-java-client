@@ -104,6 +104,11 @@ internal object DockerClient {
     fun isRunning(containerName: String): Boolean = ps().contains(containerName)
 
     /**
+     * Checks if a container [containerName] exists. Returns true when the container runs or is stopped; false if it doesn't exist.
+     */
+    fun containerExists(containerName: String): Boolean = psA().contains(containerName)
+
+    /**
      * Returns the stdout of given container. Works both with running and stopped containers. Fails if the container doesn't exist.
      */
     fun logs(containerName: String): String = exec("docker", "logs", containerName)

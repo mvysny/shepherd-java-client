@@ -76,7 +76,9 @@ public class TraefikDockerRuntimeContainerSystem(
     override fun restartProject(project: Project) {
         // no need to kill the associated databases; only kill & restart the main container.
         // TODO if the project no longer uses a database, kill the database docker container.
-        DockerClient.kill(project.id.dockerContainerName)
+        if (DockerClient.containerExists(project.id.dockerContainerName)) {
+            DockerClient.kill(project.id.dockerContainerName)
+        }
 
         // start the project via the `docker` command.
         // @todo if the project now uses a database, start the database as well.
