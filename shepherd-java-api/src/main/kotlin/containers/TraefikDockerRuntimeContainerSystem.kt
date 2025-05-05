@@ -59,15 +59,15 @@ public class TraefikDockerRuntimeContainerSystem(
     override fun isProjectRunning(id: ProjectId): Boolean =
         DockerClient.isRunning(id.dockerContainerName)
 
-    private fun calculateDockerRunCommand(project: Project): List<String> {
+    internal fun calculateDockerRunCommand(project: Project): List<String> {
         // run the container in the background, with stdout (terminal) attached, with given name, and having the docker daemon keeping the container up.
         val cmdline = mutableListOf("docker", "run", "-d", "-t", "--name", project.id.dockerContainerName, "--restart", "always")
         cmdline.addAll(listOf("--network", project.id.dockerNetworkName)) // every project has its own network.
         // configure runtime resources
         cmdline.addAll(listOf("-m", "${project.runtime.resources.memoryMb}m", "--cpus", project.runtime.resources.cpu.toString()))
         // add Traefik labels so that the routing works automatically.
-        cmdline.addAll(listOf("--label", "traefik.http.routers.shepherd_${project.id}.entrypoints=http"))
-        cmdline.addAll(listOf("--label", "traefik.http.routers.shepherd_${project.id}.rule=Host(\\`${project.id}.${hostDNS}\\`)"))
+        cmdline.addAll(listOf("--label", "traefik.http.routers.shepherd_${project.id.id}.entrypoints=http"))
+        cmdline.addAll(listOf("--label", "traefik.http.routers.shepherd_${project.id.id}.rule=Host(\\`${project.id.id}.${hostDNS}\\`)"))
         // which image to run. Jenkins is configured to build to `dockerImageName`.
         cmdline.add("${project.id.dockerImageName}:latest")
         return cmdline
