@@ -1,7 +1,8 @@
 # Shepherd Java Client
 
 Provides a nice Java API library and a Java CLI (Command-line interface) client
-for [Vaadin Shepherd](https://github.com/mvysny/shepherd).
+for [Vaadin Shepherd](https://github.com/mvysny/shepherd)
+and [Vaadin Shepherd Traefik](https://github.com/mvysny/shepherd-traefik)
 
 Requires Java 17+.
 
