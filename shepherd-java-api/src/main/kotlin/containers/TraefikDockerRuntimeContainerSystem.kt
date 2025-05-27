@@ -1,5 +1,6 @@
 package com.github.mvysny.shepherd.api.containers
 
+import com.github.mvysny.shepherd.api.Config
 import com.github.mvysny.shepherd.api.Project
 import com.github.mvysny.shepherd.api.ProjectId
 import com.github.mvysny.shepherd.api.ResourcesUsage
@@ -51,9 +52,7 @@ public class TraefikDockerRuntimeContainerSystem(
         // file to update.
         // however, return true if the command line is changed => that means that we need to restart the
         // main project container with new settings.
-        return calculateDockerRunCommand(oldProject) != calculateDockerRunCommand(
-            newProject
-        )
+        return calculateDockerRunCommand(oldProject) != calculateDockerRunCommand(newProject)
     }
 
     override fun isProjectRunning(id: ProjectId): Boolean =
@@ -66,8 +65,12 @@ public class TraefikDockerRuntimeContainerSystem(
         // configure runtime resources
         cmdline.addAll(listOf("-m", "${project.runtime.resources.memoryMb}m", "--cpus", project.runtime.resources.cpu.toString()))
         // add Traefik labels so that the routing works automatically.
-        cmdline.addAll(listOf("--label", "traefik.http.routers.shepherd_${project.id.id}.entrypoints=http"))
+        cmdline.addAll(listOf("--label", "traefik.http.routers.shepherd_${project.id.id}.entrypoints=https"))
         cmdline.addAll(listOf("--label", "traefik.http.routers.shepherd_${project.id.id}.rule=Host(`${project.id.id}.${hostDNS}`)"))
+        cmdline.addAll(listOf("--label", "traefik.http.routers.shepherd_${project.id.id}.tls=true"))
+        cmdline.addAll(listOf("--label", "traefik.http.routers.shepherd_${project.id.id}.tls.certresolver=default_shepherd"))
+        cmdline.addAll(listOf("--label", "traefik.http.routers.shepherd_${project.id.id}.tls.domains[0].main=${hostDNS}"))
+        cmdline.addAll(listOf("--label", "traefik.http.routers.shepherd_${project.id.id}.tls.domains[0].sans=*.${hostDNS}"))
         // which image to run. Jenkins is configured to build to `dockerImageName`.
         cmdline.add("${project.id.dockerImageName}:latest")
         return cmdline
