@@ -39,7 +39,7 @@ Requires a configuration file to be placed in `/etc/shepherd/java/config.json`, 
     "cpu": 2
   },
   "jenkins": {
-    "url": "http://localhost:8080",
+    "url": "http://jenkins:8080",
     "username": "admin",
     "password": "admin"
   },
@@ -61,6 +61,13 @@ Additional configuration options:
 * `ssoOnlyAllowEmailsEndingWith` (Shepherd-Web only): if not null, only e-mails ending with this string are allowed. Example: `@vaadin.com`. If null or empty, all e-mails are allowed.
 * `shepherdHome` Shepherd home, `/opt/shepherd` for [Shepherd Kubernetes](https://github.com/mvysny/shepherd), `/opt/shepherd-traefik` for [Shepherd Traefik](https://github.com/mvysny/shepherd-traefik).
 * `containerSystem` the runtime container system to use for running project containers, either `"kubernetes"` or `"traefik-docker"`.
+
+Regarding the "jenkins" setting:
+
+- In Traefik mode, Jenkins will be running in the same private Docker network as Shepherd; Shepherd
+  will talk to Jenkins directly at `http://jenkins:8080`.
+- In Kubernetes mode, Jenkins runs directly at host, and so does Shepherd. Shepherd
+  therefore talks to Jenkins via `http://localhost:8080`. Make sure to change the configuration accordingly.
 
 ## shepherd-cli
 
