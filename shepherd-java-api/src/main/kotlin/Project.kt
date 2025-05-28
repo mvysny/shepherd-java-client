@@ -35,6 +35,11 @@ public data class ProjectId(public val id: String) : Comparable<ProjectId> {
     }
 
     override fun compareTo(other: ProjectId): Int = id.compareTo(other.id)
+
+    /**
+     * "admin" and anything ending with "-admin" is reserved and such projects can not be created.
+     */
+    val isReserved: Boolean get() = id == "admin" || id.endsWith("-admin")
 }
 
 private object ProjectIdAsStringSerializer : KSerializer<ProjectId> {

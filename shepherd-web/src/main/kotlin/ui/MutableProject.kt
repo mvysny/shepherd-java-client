@@ -162,6 +162,9 @@ data class MutableProject(
      */
     fun validate() {
         jsr303Validate(this)
+        if (ProjectId(id!!).isReserved) {
+            throw ValidationException("Project ID ${id} is reserved, can not create such project")
+        }
         if (publishAdditionalDomains.contains(host)) {
             throw ValidationException("Additional domains must not contain $host")
         }

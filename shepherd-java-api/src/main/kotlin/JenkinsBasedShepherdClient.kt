@@ -65,6 +65,7 @@ public class JenkinsBasedShepherdClient(
 
     override fun createProject(project: Project) {
         // check prerequisites
+        require(!project.id.isReserved) { "${project.id} is reserved" }
         projectConfigFolder.requireProjectDoesntExist(project.id)
         checkMemoryUsage(project)
 
