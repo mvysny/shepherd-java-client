@@ -14,8 +14,8 @@ To release the library to Maven Central:
 2. Commit with the commit message of simply being the version being released, e.g. "0.2"
 3. git tag the commit with the same tag name as the commit message above, e.g. `0.2`
 4. `git push`, `git push --tags`
-5. Run `./gradlew clean build publish` with JDK 17+
-6. Continue to the [OSSRH Nexus](https://oss.sonatype.org/#stagingRepositories) and follow the [release procedure](https://central.sonatype.org/pages/releasing-the-deployment.html).
+5. Run `./gradlew clean build publish closeAndReleaseStagingRepositories` with JDK 17+
+6. (Optional) watch [Maven Central Publishing Deployments](https://central.sonatype.com/publishing/deployments) as the deployment is published.
 7. Build and release `shepherd-web` to Docker Hub:
    - `docker build --platform linux/amd64,linux/arm64 -t mvysny/shepherd-java:0.2 .`
    - `docker push mvysny/shepherd-java:0.2`
