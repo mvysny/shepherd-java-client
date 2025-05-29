@@ -257,7 +257,8 @@ public data class Service(
 /**
  * The project publication over http/https.
  * @property publishOnMainDomain if true (the default), the project will be published on the main domain as well.
- * Say the main domain is `v-herd.eu`, then the project will be accessible at `v-herd.eu/PROJECT_ID`.
+ * Say the main domain is `v-herd.eu`, then the project will be accessible at `v-herd.eu/PROJECT_ID` or `PROJECT_ID.v-herd.eu`
+ * (consult [ShepherdClient.getMainDomainDeployURL] for exact address).
  * @property https only affects [additionalDomains]; if the project is published on the main domain then it always uses https.
  * Defaults to true. If false, the project is published on [additionalDomains] via plain http.
  * Useful e.g. when CloudFlare unwraps https for us.
