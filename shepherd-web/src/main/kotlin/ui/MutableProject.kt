@@ -62,6 +62,7 @@ data class MutableProject(
     @field:NotNull
     @field:NotBlank
     @field:Pattern(regexp = ProjectId.idValidatorPattern, message = "The ID must contain at most 54 characters, it must contain only lowercase alphanumeric characters or '-', it must start and end with an alphanumeric character")
+    // additional validations in ProjectForm
     var id: String?,
     @field:NotNull
     @field:NotBlank
@@ -73,6 +74,7 @@ data class MutableProject(
     @field:NotNull
     @field:NotBlank
     @field:Length(max = 255)
+    // additional validations in ProjectForm
     var gitRepoURL: String?,
     @field:NotNull
     @field:NotBlank
