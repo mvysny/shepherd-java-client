@@ -153,6 +153,9 @@ public data class ProjectView(
     public fun getPublishedURLs(client: ShepherdClient): List<String> = project.getPublishedURLs(client)
 }
 
+/**
+ * A build status, coming from Jenkins.
+ */
 public enum class BuildResult {
     FAILURE,
     UNSTABLE,
