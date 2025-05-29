@@ -11,12 +11,16 @@ private val validator: Validator =
 
 /**
  * Validates [obj].
- * @throws ValidationException if validation fails.
+ * @throws jakarta.validation.ValidationException if validation fails.
  */
 fun jsr303Validate(obj: Any) {
     validator.validate(obj)
 }
 
+/**
+ * Vaadin validator which validates Strings whether they are a valid
+ * Git URL.
+ */
 object GitUrlValidator : com.vaadin.flow.data.binder.Validator<String?> {
     override fun apply(
         value: String?,

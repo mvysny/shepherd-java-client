@@ -319,11 +319,16 @@ public data class HostMemoryUsageStats(
     }
 }
 
+/**
+ * Represents a memory usage.
+ * @property usageMb the current memory usage.
+ * @property limitMb max memory. May be 0, e.g. if the machine has no swap space.
+ */
 public data class MemoryUsageStats(
     val usageMb: Int,
     val limitMb: Int
 ) {
-    override fun toString(): String = "$usageMb Mb of $limitMb Mb (${if (limitMb == 0) "?" else usageMb * 100 / limitMb}%)"
+    override fun toString(): String = "$usageMb Mb of $limitMb Mb (${if (limitMb == 0) "0" else usageMb * 100 / limitMb}%)"
 }
 
 public class NoSuchProjectException(public val projectId: ProjectId, cause: Throwable? = null) : Exception("No such project: $projectId", cause)
