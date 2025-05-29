@@ -23,6 +23,8 @@ import com.github.mvysny.shepherd.api.ProjectId
 import com.github.mvysny.shepherd.api.ServiceType
 import com.github.mvysny.shepherd.web.Bootstrap
 import com.github.mvysny.shepherd.web.GitUrlValidator
+import com.github.mvysny.shepherd.web.ProjectIdValidator
+import com.github.mvysny.shepherd.web.Services
 import com.github.mvysny.shepherd.web.host
 import com.github.mvysny.shepherd.web.security.checkProjectId
 import com.github.mvysny.shepherd.web.security.getCurrentUser
@@ -87,10 +89,13 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
     init {
         val isAdmin = getCurrentUser().isAdmin
 
-        textField("The project ID, must be unique. The project will be published and running at https://$host/PROJECT_ID") {
+        textField("The project ID, must be unique. The project will be published and running at '${Services.get().client.getMainDomainDeployURL(ProjectId("project-id"))}'") {
             setId("projectid")
             isEnabled = creatingNew // can't change project ID
-            bind(binder).trimmingConverter().bind(MutableProject::id)
+            bind(binder)
+                .trimmingConverter()
+                .withValidator(ProjectIdValidator)
+                .bind(MutableProject::id)
         }
         textField("Description: Any additional vital information about the project") {
             setId("description")
