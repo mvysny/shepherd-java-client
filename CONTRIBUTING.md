@@ -19,6 +19,8 @@ To release the library to Maven Central:
 7. Build and release `shepherd-web` to Docker Hub:
    - `docker build --platform linux/amd64,linux/arm64 -t mvysny/shepherd-java:0.2 .`
    - `docker push mvysny/shepherd-java:0.2`
+   - `docker image tag mvysny/shepherd-java:0.2 mvysny/shepherd-java:latest`
+   - `docker push mvysny/shepherd-java:latest`
 8. Add the `-SNAPSHOT` back to the `version=` while increasing the version to something which will be released in the future,
    e.g. 0.3, then commit with the commit message "0.3-SNAPSHOT" and push.
 
