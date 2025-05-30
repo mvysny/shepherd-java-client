@@ -11,7 +11,7 @@ plugins {
 
 allprojects {
     group = "com.github.mvysny.shepherd"
-    version = "0.4-SNAPSHOT"
+    version = "0.4"
 
     repositories {
         mavenCentral()
@@ -89,7 +89,6 @@ subprojects {
     tasks.withType<Test> {
         useJUnitPlatform()
         testLogging {
-            // to see the exceptions of failed tests in Travis-CI console.
             exceptionFormat = TestExceptionFormat.FULL
         }
     }
