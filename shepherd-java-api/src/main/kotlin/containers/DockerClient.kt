@@ -119,10 +119,21 @@ internal object DockerClient {
     fun containerStats(containerName: String): ResourcesUsage {
         val stats = exec("docker", "container", "stats", "--no-stream", "--format", "{{.CPUPerc}} {{.MemUsage}}", containerName)
         // returns: 0.16% 128.1MiB / 256MiB
+        return parseContainerStats(stats)
+    }
+
+    /**
+     * @param stats e.g. `"0.16% 128.1MiB / 256MiB"` or `"0.20% 259MiB / 7.549GiB"`
+     */
+    internal fun parseContainerStats(stats: String): ResourcesUsage {
         val statsSplit = stats.splitByWhitespaces()
         val cpuUsage = statsSplit[0].trimEnd('%').toFloat()
-        require(statsSplit[1].endsWith("MiB")) { "Unexpected: $stats: the memory value doesn't end with MiB" }
-        val memoryUsage = statsSplit[1].removeSuffix("MiB").toInt()
-        return ResourcesUsage(memoryMb = memoryUsage, cpu = cpuUsage)
+        val memUsage = statsSplit[1]
+        require(memUsage.endsWith("MiB") || memUsage.endsWith("GiB")) { "Unexpected: $stats: the memory value doesn't end with MiB or GiB" }
+        var memoryUsage = statsSplit[1].dropLast(3).toFloat()
+        if (memUsage.endsWith("GiB")) {
+            memoryUsage = memoryUsage * 1000
+        }
+        return ResourcesUsage(memoryMb = memoryUsage.toInt(), cpu = cpuUsage)
     }
 }
