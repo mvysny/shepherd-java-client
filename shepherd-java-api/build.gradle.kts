@@ -8,6 +8,7 @@ dependencies {
     implementation(libs.slf4j.api)
     testImplementation(libs.junit)
     testImplementation(kotlin("test"))
+    testImplementation(libs.slf4j.simple)
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
