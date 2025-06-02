@@ -138,6 +138,7 @@ enum class Command(val argName: String) {
             println("Builder: max concurrent build jobs: ${stats.concurrentJenkinsBuilders}")
             println("Host Memory: Mem: ${stats.hostMemoryStats.memory}; Swap: ${stats.hostMemoryStats.swap}")
             println("Disk Usage: ${stats.diskUsage}")
+            println("Backend system: ${client.description}")
         }
     },
 

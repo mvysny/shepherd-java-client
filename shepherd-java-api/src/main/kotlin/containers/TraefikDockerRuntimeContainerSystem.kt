@@ -119,4 +119,7 @@ public class TraefikDockerRuntimeContainerSystem(
 
     override val features: ClientFeatures
         get() = ClientFeatures(false, true, false, false, EnumSet.noneOf(ServiceType::class.java))
+
+    override val name: String
+        get() = "Traefik"
 }

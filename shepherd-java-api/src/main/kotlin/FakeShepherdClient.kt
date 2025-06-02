@@ -122,4 +122,7 @@ public class FakeShepherdClient @JvmOverloads constructor(
 
     override val features: ClientFeatures
         get() = ClientFeatures(true, true, true, true, EnumSet.allOf(ServiceType::class.java))
+
+    override val description: String
+        get() = "Fake"
 }

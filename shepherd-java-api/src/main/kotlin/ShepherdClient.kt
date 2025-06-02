@@ -142,6 +142,11 @@ public interface ShepherdClient : Closeable {
      * Returns the supported client features.
      */
     public val features: ClientFeatures
+
+    /**
+     * The description of the backend, e.g. "Jenkins + Kubernetes" or "Jenkins + Traefik".
+     */
+    public val description: String
 }
 
 /**

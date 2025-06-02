@@ -59,6 +59,7 @@ fun (@VaadinDsl HasComponents).shepherdStatsTable() {
         addRow("Host OS: Memory", stats.hostMemoryStats.memory.toString())
         addRow("Host OS: Swap", stats.hostMemoryStats.swap.toString())
         addRow("Host OS: Disk Space", stats.diskUsage.toString())
+        addRow("Backend System", Bootstrap.getClient().description)
     }
 }
 

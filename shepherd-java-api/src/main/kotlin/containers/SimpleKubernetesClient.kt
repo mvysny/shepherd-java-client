@@ -480,4 +480,7 @@ public class KubernetesRuntimeContainerSystem(
 
     override val features: ClientFeatures
         get() = ClientFeatures(true, true, true, true, EnumSet.allOf(ServiceType::class.java))
+
+    override val name: String
+        get() = "Kubernetes"
 }

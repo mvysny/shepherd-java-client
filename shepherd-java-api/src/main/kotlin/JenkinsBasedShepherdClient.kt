@@ -147,6 +147,9 @@ public class JenkinsBasedShepherdClient(
     override val features: ClientFeatures
         get() = containerSystem.features
 
+    override val description: String
+        get() = containerSystem.name + " + Jenkins"
+
     private companion object {
         @JvmStatic
         private val log = LoggerFactory.getLogger(JenkinsBasedShepherdClient::class.java)

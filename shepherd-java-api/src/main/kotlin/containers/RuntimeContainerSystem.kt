@@ -81,4 +81,9 @@ public interface RuntimeContainerSystem {
      * Returns the supported client features.
      */
     public val features: ClientFeatures
+
+    /**
+     * The name of this system, e.g. "Kubernetes" or "Traefik".
+     */
+    public val name: String
 }
