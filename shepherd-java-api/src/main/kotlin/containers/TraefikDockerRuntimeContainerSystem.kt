@@ -21,7 +21,6 @@ public class TraefikDockerRuntimeContainerSystem(
 
     override fun createProject(project: Project) {
         require(project.additionalServices.isEmpty()) { "Additional services not yet supported" }
-        require(project.publication.additionalDomains.isEmpty()) { "Additional domains not yet supported" }
 
         // Creates a new Docker network for given project and connect the network
         // to the Traefik container. This way, the projects are separate from each other
