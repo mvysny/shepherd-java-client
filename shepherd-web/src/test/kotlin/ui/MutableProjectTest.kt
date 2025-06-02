@@ -1,10 +1,9 @@
 package com.github.mvysny.shepherd.web.ui
 
-import com.github.mvysny.shepherd.api.GitRepo
+import com.github.mvysny.shepherd.api.FakeShepherdClient
 import com.github.mvysny.shepherd.api.Project
 import com.github.mvysny.shepherd.web.AbstractAppTest
 import com.github.mvysny.shepherd.web.Bootstrap
-import com.github.mvysny.shepherd.web.ui.toMutable
 import kotlin.test.Test
 import kotlin.test.expect
 
@@ -16,7 +15,7 @@ class MutableProjectTest : AbstractAppTest() {
     }
 
     @Test fun allInformationCopiedCorrectly() {
-        expect(fakeProject) { fakeProject.toMutable().toProject() }
+        expect(fakeProject) { fakeProject.toMutable().toProject(FakeShepherdClient()) }
     }
 
     @Test fun testGitUrls() {

@@ -42,7 +42,7 @@ class ProjectFormTest : AbstractAppTest() {
         form.binder._expectValid()
         expect(true) { form.writeIfValid(project) }
 
-        val myproject = project.toProject()
+        val myproject = project.toProject(Bootstrap.getClient())
         expect("my-project-2") { myproject.id.id }
         expect("A cool project") { myproject.description }
         expect(GitRepo("git@github.com:mvysny/shepherd-java-client.git", "main")) { myproject.gitRepo }

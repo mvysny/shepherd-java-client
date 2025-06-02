@@ -17,6 +17,7 @@ import com.github.mvysny.shepherd.api.Project
 import com.github.mvysny.shepherd.api.ProjectId
 import com.github.mvysny.shepherd.api.ProjectView
 import com.github.mvysny.shepherd.web.Bootstrap
+import com.github.mvysny.shepherd.web.Services
 import com.github.mvysny.shepherd.web.host
 import com.github.mvysny.shepherd.web.security.getCurrentUser
 import com.github.mvysny.shepherd.web.ui.components.FormDialog
@@ -102,7 +103,7 @@ class ProjectListRoute : KComposite() {
         val project = MutableProject.newEmpty(getCurrentUser())
         val form = ProjectForm(true)
         FormDialog(form, project) {
-            Bootstrap.getClient().createProject(project.toProject())
+            Bootstrap.getClient().createProject(project.toProject(Services.get().client))
             UI.getCurrent().page.reload()
         } .open()
     }

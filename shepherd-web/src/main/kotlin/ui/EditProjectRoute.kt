@@ -74,7 +74,7 @@ class EditProjectRoute : KComposite(), HasUrlParameter<String> {
             return
         }
 
-        Bootstrap.getClient().updateProject(project.toProject())
+        Bootstrap.getClient().updateProject(project.toProject(Services.get().client))
         navigateTo<ProjectListRoute>()
     }
 }
@@ -82,13 +82,14 @@ class EditProjectRoute : KComposite(), HasUrlParameter<String> {
 /**
  * Edits [MutableProject] in unbuffered mode. Unbuffered because of nested mutable sets.
  */
-class ProjectForm(val creatingNew: Boolean, val features: ClientFeatures) : KFormLayout(), Form<MutableProject> {
+class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject> {
     override val binder: Binder<MutableProject> = beanValidationBinder()
 
     private val config = Bootstrap.getClient().getConfig()
 
     init {
         val isAdmin = getCurrentUser().isAdmin
+        val features = Services.get().client.features
 
         textField("The project ID, must be unique. The project will be published and running at '${Services.get().client.getMainDomainDeployURL(ProjectId("project-id"))}'") {
             setId("projectid")

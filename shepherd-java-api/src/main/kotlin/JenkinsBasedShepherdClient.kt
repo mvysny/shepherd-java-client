@@ -159,8 +159,16 @@ public class JenkinsBasedShepherdClient(
  * If a project creation/update would create a situation where [ProjectMemoryStats.totalQuota]
  * would overlap memory available to shepherd, then such a change will be rejected with an informative exception.
  */
-internal fun ShepherdClient.validate(updatedOrCreatedProject: Project) {
+public fun ShepherdClient.validate(updatedOrCreatedProject: Project) {
     val config = getConfig()
+    require(!updatedOrCreatedProject.id.isReserved) { "${updatedOrCreatedProject.id} is reserved" }
+    require(!updatedOrCreatedProject.publication.additionalDomains.contains(config.hostDNS)) {
+        "Additional domains must not contain the main domain ${config.hostDNS}"
+    }
+    require(updatedOrCreatedProject.publication.additionalDomains.all { !it.endsWith(".${config.hostDNS}") }) {
+        "Additional domains must not contain *.${config.hostDNS}"
+    }
+
     // 1. check the max runtime+build memory+cpu usage
     require(updatedOrCreatedProject.runtime.resources.memoryMb <= config.maxProjectRuntimeResources.memoryMb) {
         "A project can ask for max ${config.maxProjectRuntimeResources.memoryMb} Mb of runtime memory but it asked for ${updatedOrCreatedProject.runtime.resources.memoryMb} Mb"

@@ -1,6 +1,7 @@
 package com.github.mvysny.shepherd.web.ui
 
 import com.github.mvysny.shepherd.api.BuildSpec
+import com.github.mvysny.shepherd.api.Config
 import com.github.mvysny.shepherd.api.GitRepo
 import com.github.mvysny.shepherd.api.IngressConfig
 import com.github.mvysny.shepherd.api.Project
@@ -11,6 +12,8 @@ import com.github.mvysny.shepherd.api.Publication
 import com.github.mvysny.shepherd.api.Resources
 import com.github.mvysny.shepherd.api.Service
 import com.github.mvysny.shepherd.api.ServiceType
+import com.github.mvysny.shepherd.api.ShepherdClient
+import com.github.mvysny.shepherd.api.validate
 import com.github.mvysny.shepherd.web.host
 import com.github.mvysny.shepherd.web.jsr303Validate
 import com.github.mvysny.shepherd.web.security.User
@@ -165,7 +168,7 @@ data class MutableProject(
     fun validate() {
         jsr303Validate(this)
         if (ProjectId(id!!).isReserved) {
-            throw ValidationException("Project ID ${id} is reserved, can not create such project")
+            throw ValidationException("Project ID $id is reserved, can not create such project")
         }
         if (publishAdditionalDomains.contains(host)) {
             throw ValidationException("Additional domains must not contain $host")
@@ -175,9 +178,9 @@ data class MutableProject(
         }
     }
 
-    fun toProject(): Project {
+    fun toProject(client: ShepherdClient): Project {
         validate()
-        return Project(
+        val result = Project(
             id = ProjectId(id!!),
             description = description!!,
             webpage = webpage,
@@ -206,6 +209,8 @@ data class MutableProject(
             additionalServices = additionalServices.map { Service(it) } .toSet(),
             additionalAdmins = if (projectAdmins.isEmpty()) null else projectAdmins.toSet(),
         )
+        client.validate(result)
+        return result
     }
 }
 
