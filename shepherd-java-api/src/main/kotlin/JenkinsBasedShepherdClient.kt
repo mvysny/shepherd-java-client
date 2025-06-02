@@ -168,6 +168,8 @@ public fun ShepherdClient.validate(updatedOrCreatedProject: Project) {
     require(updatedOrCreatedProject.publication.additionalDomains.all { !it.endsWith(".${config.hostDNS}") }) {
         "Additional domains must not contain *.${config.hostDNS}"
     }
+    // other values like ProjectID, resource values being 0 or greater, git URL being a valid git URL are
+    // validated in their respective data classes.
 
     // 1. check the max runtime+build memory+cpu usage
     require(updatedOrCreatedProject.runtime.resources.memoryMb <= config.maxProjectRuntimeResources.memoryMb) {

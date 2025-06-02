@@ -241,6 +241,7 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
         }
         h3("Additional Services") {
             colspan = 2
+            isVisible = features.supportedServices.isNotEmpty()
         }
         multiSelectComboBox<ServiceType>("Additional services accessible by your project. If you enable PostgreSQL, then use the following values to access the database: JDBC URI: `jdbc:postgresql://postgres-service:5432/postgres`, username: `postgres`, password: `mysecretpassword`.") {
             setId("additionalServices")
