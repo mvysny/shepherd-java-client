@@ -2,6 +2,7 @@ package com.github.mvysny.shepherd.api
 
 import java.time.Duration
 import java.time.Instant
+import java.util.EnumSet
 import kotlin.io.path.*
 import kotlin.random.Random
 
@@ -49,14 +50,14 @@ public class FakeShepherdClient @JvmOverloads constructor(
 
     override fun createProject(project: Project) {
         projectConfigFolder.requireProjectDoesntExist(project.id)
-        checkMemoryUsage(project)
+        validate(project)
         projectConfigFolder.writeProjectJson(project)
     }
 
     override fun updateProject(project: Project) {
         val oldProject = projectConfigFolder.getProjectInfo(project.id)
         require(oldProject.gitRepo.url == project.gitRepo.url) { "gitRepo URL is not allowed to be changed: new ${project.gitRepo.url} old ${oldProject.gitRepo.url}" }
-        checkMemoryUsage(project)
+        validate(project)
 
         projectConfigFolder.writeProjectJson(project)
     }
@@ -118,4 +119,7 @@ public class FakeShepherdClient @JvmOverloads constructor(
     override fun getMainDomainDeployURL(id: ProjectId): String = "http://v-herd.eu/${id.id}"
 
     override fun close() {}
+
+    override val features: ClientFeatures
+        get() = ClientFeatures(true, true, true, true, EnumSet.allOf(ServiceType::class.java))
 }

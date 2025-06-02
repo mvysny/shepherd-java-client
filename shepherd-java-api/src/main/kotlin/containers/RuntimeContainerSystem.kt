@@ -1,5 +1,6 @@
 package com.github.mvysny.shepherd.api.containers
 
+import com.github.mvysny.shepherd.api.ClientFeatures
 import com.github.mvysny.shepherd.api.Config
 import com.github.mvysny.shepherd.api.Project
 import com.github.mvysny.shepherd.api.ProjectId
@@ -75,4 +76,9 @@ public interface RuntimeContainerSystem {
      * Returns the URL of the main domain (e.g. `https://v-herd.eu/pid` or `http://pid.v-herd.eu`) where the project is deployed.
      */
     public fun getMainDomainDeployURL(id: ProjectId): String
+
+    /**
+     * Returns the supported client features.
+     */
+    public val features: ClientFeatures
 }

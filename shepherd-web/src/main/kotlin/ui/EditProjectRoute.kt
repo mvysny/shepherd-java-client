@@ -19,6 +19,7 @@ import com.github.mvysny.karibudsl.v10.trimmingConverter
 import com.github.mvysny.karibudsl.v10.verticalLayout
 import com.github.mvysny.karibudsl.v23.multiSelectComboBox
 import com.github.mvysny.kaributools.navigateTo
+import com.github.mvysny.shepherd.api.ClientFeatures
 import com.github.mvysny.shepherd.api.ProjectId
 import com.github.mvysny.shepherd.api.ServiceType
 import com.github.mvysny.shepherd.web.Bootstrap
@@ -81,7 +82,7 @@ class EditProjectRoute : KComposite(), HasUrlParameter<String> {
 /**
  * Edits [MutableProject] in unbuffered mode. Unbuffered because of nested mutable sets.
  */
-class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject> {
+class ProjectForm(val creatingNew: Boolean, val features: ClientFeatures) : KFormLayout(), Form<MutableProject> {
     override val binder: Binder<MutableProject> = beanValidationBinder()
 
     private val config = Bootstrap.getClient().getConfig()
@@ -126,7 +127,7 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
         }
         textField("GIT Repository Credentials ID. WARN: this can not be changed later") {
             setId("gitRepoCredentialsID")
-            isVisible = isAdmin
+            isVisible = isAdmin && features.supportsPrivateRepos
             bind(binder)
                 .trimmingConverter()
                 .validateNoWhitespaces()
@@ -213,6 +214,7 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
             setId("publishAdditionalDomains")
             hint = "Enter your domain and press the PLUS button"
             newValueValidator = StringContainsNoWhitespacesValidator()
+            isVisible = features.supportsCustomDomains
             bind(binder).bind(MutableProject::publishAdditionalDomains)
         }
         checkBox(
@@ -222,14 +224,17 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
                     "useful e.g. when CloudFlare unwraps https for us. Ignored if there are no additional domains."
         ) {
             setId("publishAdditionalDomainsHttps")
+            isVisible = features.supportsHttpsOnCustomDomains
             bind(binder).bind(MutableProject::publishAdditionalDomainsHttps)
         }
         integerField("Max request body size, in megabytes, defaults to 1m. Increase if you intend your project to accept large file uploads.") {
             setId("ingressMaxBodySizeMb")
+            isVisible = features.supportsIngressConfig
             bind(binder).bind(MutableProject::ingressMaxBodySizeMb)
         }
         integerField("Proxy Read Timeout, in seconds, defaults to 60s. Increase to 6 minutes or more if you use Vaadin Push, otherwise the connection will be dropped out. Alternatively, set this to 3 minutes and set Vaadin heartbeat frequency to 2 minutes.") {
             setId("ingressProxyReadTimeoutSeconds")
+            isVisible = features.supportsIngressConfig
             bind(binder).bind(MutableProject::ingressProxyReadTimeoutSeconds)
         }
         h3("Additional Services") {
@@ -237,7 +242,8 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
         }
         multiSelectComboBox<ServiceType>("Additional services accessible by your project. If you enable PostgreSQL, then use the following values to access the database: JDBC URI: `jdbc:postgresql://postgres-service:5432/postgres`, username: `postgres`, password: `mysecretpassword`.") {
             setId("additionalServices")
-            setItems(ServiceType.entries)
+            setItems(features.supportedServices)
+            isVisible = features.supportedServices.isNotEmpty()
             bind(binder).bind(MutableProject::additionalServices)
         }
     }

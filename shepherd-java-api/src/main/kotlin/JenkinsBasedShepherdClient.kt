@@ -67,7 +67,7 @@ public class JenkinsBasedShepherdClient(
         // check prerequisites
         require(!project.id.isReserved) { "${project.id} is reserved" }
         projectConfigFolder.requireProjectDoesntExist(project.id)
-        checkMemoryUsage(project)
+        validate(project)
 
         // 1. Create project JSON file
         projectConfigFolder.writeProjectJson(project)
@@ -113,7 +113,7 @@ public class JenkinsBasedShepherdClient(
         val oldProject = fs.configFolder.projects.getProjectInfo(project.id)
         require(oldProject.gitRepo.url == project.gitRepo.url) { "gitRepo is not allowed to be changed: new ${project.gitRepo.url} old ${project.gitRepo.url}" }
 
-        checkMemoryUsage(project)
+        validate(project)
 
         // 1. Overwrite the project JSON file
         fs.configFolder.projects.writeProjectJson(project)
@@ -144,6 +144,9 @@ public class JenkinsBasedShepherdClient(
     override fun close() {
     }
 
+    override val features: ClientFeatures
+        get() = containerSystem.features
+
     private companion object {
         @JvmStatic
         private val log = LoggerFactory.getLogger(JenkinsBasedShepherdClient::class.java)
@@ -156,7 +159,7 @@ public class JenkinsBasedShepherdClient(
  * If a project creation/update would create a situation where [ProjectMemoryStats.totalQuota]
  * would overlap memory available to shepherd, then such a change will be rejected with an informative exception.
  */
-internal fun ShepherdClient.checkMemoryUsage(updatedOrCreatedProject: Project) {
+internal fun ShepherdClient.validate(updatedOrCreatedProject: Project) {
     val config = getConfig()
     // 1. check the max runtime+build memory+cpu usage
     require(updatedOrCreatedProject.runtime.resources.memoryMb <= config.maxProjectRuntimeResources.memoryMb) {
@@ -179,4 +182,20 @@ internal fun ShepherdClient.checkMemoryUsage(updatedOrCreatedProject: Project) {
     require(stats.totalQuota.usageMb <= stats.totalQuota.limitMb) {
         "Can not add project ${updatedOrCreatedProject.id.id}: there is no available memory to run it+build it"
     }
+
+    // 3. Check features
+    val features = this.features
+    require(features.supportsPrivateRepos || updatedOrCreatedProject.gitRepo.credentialsID == null) {
+        "Current backend doesn't support private repositories"
+    }
+    require(features.supportsCustomDomains || updatedOrCreatedProject.publication.additionalDomains.isEmpty()) {
+        "Current backend doesn't support custom domains"
+    }
+    require(features.supportsHttpsOnCustomDomains || !updatedOrCreatedProject.publication.https) {
+        "Current backend doesn't support HTTPS on custom domains"
+    }
+    require(features.supportedServices.containsAll(updatedOrCreatedProject.additionalServices.map { it.type })) {
+        "Current backend only supports these service types: ${features.supportedServices}; these services were attempted to be activated: ${updatedOrCreatedProject.additionalServices.map { it.type }}"
+    }
+    // no need to check features.supportsIngressConfig since those are just ignored if not supported.
 }

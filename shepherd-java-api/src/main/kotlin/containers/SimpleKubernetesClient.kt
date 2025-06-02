@@ -1,5 +1,6 @@
 package com.github.mvysny.shepherd.api.containers
 
+import com.github.mvysny.shepherd.api.ClientFeatures
 import com.github.mvysny.shepherd.api.ExecException
 import com.github.mvysny.shepherd.api.LocalFS
 import com.github.mvysny.shepherd.api.Project
@@ -11,6 +12,7 @@ import com.github.mvysny.shepherd.api.exec
 import com.github.mvysny.shepherd.api.splitByWhitespaces
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
+import java.util.EnumSet
 import kotlin.io.path.*
 
 /**
@@ -475,4 +477,7 @@ public class KubernetesRuntimeContainerSystem(
         kubernetes.getMetrics(id)
 
     override fun getMainDomainDeployURL(id: ProjectId): String = "https://${kubernetes.defaultDNS}/${id.id}"
+
+    override val features: ClientFeatures
+        get() = ClientFeatures(true, true, true, true, EnumSet.allOf(ServiceType::class.java))
 }

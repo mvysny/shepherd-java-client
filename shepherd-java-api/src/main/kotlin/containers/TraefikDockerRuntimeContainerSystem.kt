@@ -1,10 +1,12 @@
 package com.github.mvysny.shepherd.api.containers
 
-import com.github.mvysny.shepherd.api.Config
+import com.github.mvysny.shepherd.api.ClientFeatures
 import com.github.mvysny.shepherd.api.Project
 import com.github.mvysny.shepherd.api.ProjectId
 import com.github.mvysny.shepherd.api.ResourcesUsage
+import com.github.mvysny.shepherd.api.ServiceType
 import com.github.mvysny.shepherd.api.exec
+import java.util.EnumSet
 
 /**
  * Interacts with the [Shepherd-Traefik](https://github.com/mvysny/shepherd-traefik) system running via Docker+Traefik.
@@ -107,4 +109,8 @@ public class TraefikDockerRuntimeContainerSystem(
         if (!DockerClient.isRunning(id.dockerContainerName)) ResourcesUsage.zero else DockerClient.containerStats(id.dockerContainerName)
 
     override fun getMainDomainDeployURL(id: ProjectId): String = "https://${id.id}.${hostDNS}"
+
+    override val features: ClientFeatures
+        get() = ClientFeatures(false, false, false, false, EnumSet.noneOf(
+            ServiceType::class.java))
 }

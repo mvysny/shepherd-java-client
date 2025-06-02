@@ -4,6 +4,7 @@ import java.io.Closeable
 import java.io.File
 import java.time.Duration
 import java.time.Instant
+import java.util.EnumSet
 
 /**
  * Accesses the Shepherd backend. Allows you to create/modify/delete/list apps, get the build/runtime logs, statistics.
@@ -136,6 +137,11 @@ public interface ShepherdClient : Closeable {
      * Returns the URL of the main domain (e.g. `https://v-herd.eu/pid` or `http://pid.v-herd.eu`) where the project is deployed.
      */
     public fun getMainDomainDeployURL(id: ProjectId): String
+
+    /**
+     * Returns the supported client features.
+     */
+    public val features: ClientFeatures
 }
 
 /**
@@ -335,3 +341,19 @@ public data class MemoryUsageStats(
 }
 
 public class NoSuchProjectException(public val projectId: ProjectId, cause: Throwable? = null) : Exception("No such project: $projectId", cause)
+
+/**
+ * Features supported by a Shepherd backend.
+ * @property supportsPrivateRepos if false, [GitRepo.credentialsID] is not supported and must be null.
+ * @property supportsCustomDomains If false, [Publication.additionalDomains] is unsupported and must be empty.
+ * @property supportsHttpsOnCustomDomains If false, [Publication.https] is unsupported and must be false.s
+ * @property supportsIngressConfig if false, [Publication.ingressConfig] is ignored and the runtime may use arbitrary values.
+ * @property supportedServices set of supported service types, may be empty.
+ */
+public data class ClientFeatures(
+    val supportsPrivateRepos: Boolean,
+    val supportsCustomDomains: Boolean,
+    val supportsHttpsOnCustomDomains: Boolean,
+    val supportsIngressConfig: Boolean,
+    val supportedServices: EnumSet<ServiceType>,
+)
