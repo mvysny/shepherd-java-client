@@ -68,8 +68,16 @@ public class TraefikDockerRuntimeContainerSystem(
         cmdline.addAll(listOf("-m", "${project.runtime.resources.memoryMb}m", "--cpus", project.runtime.resources.cpu.toString()))
         // add Traefik labels so that the routing works automatically.
         cmdline.addAll(listOf("--label", "traefik.http.routers.shepherd_${project.id.id}.entrypoints=https"))
+        val host = mutableSetOf<String>()
         if (project.publication.publishOnMainDomain) {
-            cmdline.addAll(listOf("--label", "traefik.http.routers.shepherd_${project.id.id}.rule=Host(`${project.id.id}.${hostDNS}`)"))
+            host.add("${project.id.id}.${hostDNS}")
+        }
+        host.addAll(project.publication.additionalDomains)
+        if (!host.isEmpty()) {
+            val hostClause = host.joinToString(separator = " || ") { "Host(`${it}`)" }
+            cmdline.addAll(listOf("--label", "traefik.http.routers.shepherd_${project.id.id}.rule=$hostClause"))
+        }
+        if (project.publication.publishOnMainDomain) {
             cmdline.addAll(listOf("--label", "traefik.http.routers.shepherd_${project.id.id}.tls=true"))
             cmdline.addAll(listOf("--label", "traefik.http.routers.shepherd_${project.id.id}.tls.certresolver=default_shepherd"))
             cmdline.addAll(listOf("--label", "traefik.http.routers.shepherd_${project.id.id}.tls.domains[0].main=${hostDNS}"))
@@ -111,6 +119,5 @@ public class TraefikDockerRuntimeContainerSystem(
     override fun getMainDomainDeployURL(id: ProjectId): String = "https://${id.id}.${hostDNS}"
 
     override val features: ClientFeatures
-        get() = ClientFeatures(false, false, false, false, EnumSet.noneOf(
-            ServiceType::class.java))
+        get() = ClientFeatures(false, true, false, false, EnumSet.noneOf(ServiceType::class.java))
 }

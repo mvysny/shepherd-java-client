@@ -225,7 +225,8 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
                     "useful e.g. when CloudFlare unwraps https for us. Ignored if there are no additional domains."
         ) {
             setId("publishAdditionalDomainsHttps")
-            isVisible = features.supportsHttpsOnCustomDomains
+            // make this always visible. This way, the user has a feedback that https is NOT enabled for their domains.
+            // isVisible = features.supportsHttpsOnCustomDomains
             bind(binder).bind(MutableProject::publishAdditionalDomainsHttps)
         }
         integerField("Max request body size, in megabytes, defaults to 1m. Increase if you intend your project to accept large file uploads.") {
