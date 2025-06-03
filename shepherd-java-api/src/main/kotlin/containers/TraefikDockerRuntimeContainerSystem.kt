@@ -66,21 +66,18 @@ public class TraefikDockerRuntimeContainerSystem(
         // configure runtime resources
         cmdline.addAll(listOf("-m", "${project.runtime.resources.memoryMb}m", "--cpus", project.runtime.resources.cpu.toString()))
         // add Traefik labels so that the routing works automatically.
-        cmdline.addAll(listOf("--label", "traefik.http.routers.shepherd_${project.id.id}.entrypoints=https"))
-        val host = mutableSetOf<String>()
         if (project.publication.publishOnMainDomain) {
-            host.add("${project.id.id}.${hostDNS}")
-        }
-        host.addAll(project.publication.additionalDomains)
-        if (!host.isEmpty()) {
-            val hostClause = host.joinToString(separator = " || ") { "Host(`${it}`)" }
-            cmdline.addAll(listOf("--label", "traefik.http.routers.shepherd_${project.id.id}.rule=$hostClause"))
-        }
-        if (project.publication.publishOnMainDomain) {
+            cmdline.addAll(listOf("--label", "traefik.http.routers.shepherd_${project.id.id}.entrypoints=https"))
+            cmdline.addAll(listOf("--label", "traefik.http.routers.shepherd_${project.id.id}.rule=Host(`${project.id.id}.${hostDNS}`)"))
             cmdline.addAll(listOf("--label", "traefik.http.routers.shepherd_${project.id.id}.tls=true"))
             cmdline.addAll(listOf("--label", "traefik.http.routers.shepherd_${project.id.id}.tls.certresolver=default_shepherd"))
             cmdline.addAll(listOf("--label", "traefik.http.routers.shepherd_${project.id.id}.tls.domains[0].main=${hostDNS}"))
             cmdline.addAll(listOf("--label", "traefik.http.routers.shepherd_${project.id.id}.tls.domains[0].sans=*.${hostDNS}"))
+        }
+        if (project.publication.additionalDomains.isNotEmpty()) {
+            val hostClause = project.publication.additionalDomains.joinToString(separator = " || ") { "Host(`${it}`)" }
+            cmdline.addAll(listOf("--label", "traefik.http.routers.shepherd_${project.id.id}_http.entrypoints=http"))
+            cmdline.addAll(listOf("--label", "traefik.http.routers.shepherd_${project.id.id}_http.rule=$hostClause"))
         }
         // which image to run. Jenkins is configured to build to `dockerImageName`.
         cmdline.add("${project.id.dockerImageName}:latest")
