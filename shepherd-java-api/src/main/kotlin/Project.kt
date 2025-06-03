@@ -272,7 +272,11 @@ public data class Publication(
     val https: Boolean = true,
     val additionalDomains: Set<String> = setOf(),
     val ingressConfig: IngressConfig = IngressConfig()
-)
+) {
+    init {
+        require(publishOnMainDomain || additionalDomains.isNotEmpty()) { "The publication is empty: no DNS domains configured" }
+    }
+}
 
 /**
  * NGINX Ingress additional configuration.
