@@ -99,6 +99,21 @@ internal object DockerClient {
     }
 
     /**
+     * The main process inside the container will receive SIGTERM, and after a grace period, SIGKILL.
+     * The grace period is 10 seconds for Linux containers. Then, the container is removed.
+     * If the container exists but is stopped, it is merely removed.
+     *
+     * When this function finishes successfully, the container no longer exists.
+     *
+     * Does nothing if no such container exists.
+     */
+    fun killIfExists(containerName: String) {
+        if (containerExists(containerName)) {
+            kill(containerName)
+        }
+    }
+
+    /**
      * Checks if a container [containerName] is running. Returns false if the container is stopped or doesn't exist.
      */
     fun isRunning(containerName: String): Boolean = ps().contains(containerName)

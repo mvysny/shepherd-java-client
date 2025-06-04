@@ -17,6 +17,7 @@ public class TraefikDockerRuntimeContainerSystem(
 ) : RuntimeContainerSystem {
     private val ProjectId.dockerNetworkName: String get() = "${id}.shepherd"
     private val ProjectId.dockerContainerName: String get() = "shepherd_${id}"
+    private val ProjectId.dockerPostgresContainerName: String get() = "shepherd_${id}_psql"
     private val ProjectId.dockerImageName: String get() = "shepherd/${id}"
 
     override fun createProject(project: Project) {
@@ -38,10 +39,8 @@ public class TraefikDockerRuntimeContainerSystem(
     }
 
     override fun deleteProject(id: ProjectId) {
-        // @todo kill the database as well
-        if (DockerClient.psA().contains(id.dockerContainerName)) {
-            DockerClient.kill(id.dockerContainerName)
-        }
+        DockerClient.killIfExists(id.dockerContainerName)
+        DockerClient.killIfExists(id.dockerPostgresContainerName)
         if (DockerClient.doesNetworkExist(id.dockerNetworkName)) {
             DockerClient.networkDisconnect(id.dockerNetworkName, getTraefikContainerId())
             DockerClient.networkRm(id.dockerNetworkName)
@@ -86,9 +85,9 @@ public class TraefikDockerRuntimeContainerSystem(
 
     override fun restartProject(project: Project) {
         // no need to kill the associated databases; only kill & restart the main container.
-        // TODO if the project no longer uses a database, kill the database docker container.
-        if (DockerClient.containerExists(project.id.dockerContainerName)) {
-            DockerClient.kill(project.id.dockerContainerName)
+        DockerClient.killIfExists(project.id.dockerContainerName)
+        if (project.additionalServices.none { it.type == ServiceType.Postgres }) {
+            DockerClient.killIfExists(project.id.dockerPostgresContainerName)
         }
 
         // start the project via the `docker` command.
