@@ -262,6 +262,8 @@ To test, build your app via
 $ docker build -t test/xyz:latest --build-arg offlinekey=the_license_key .
 ```
 
+Find the working `Dockerfile` example in the [vaadinplus](https://github.com/anezthes/vaadinplus) project.
+
 ## Build Cache
 
 To speed up your build, you can cache your local Maven repository and the contents of the `~/.vaadin` folder.
