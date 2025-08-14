@@ -226,10 +226,12 @@ ${shepherdHome}/shepherd-build ${project.id.id.escapeXml()}</command>
     }
 
     /**
-     * Jenkins will enter into the "quiet down" mode by sending a POST request with optional reason query parameter.
+     * Jenkins will enter into the "quiet down" mode which prevents any new builds from taking place.
+     * Done by sending a POST request with optional `reason` query parameter.
      * You can also send another request to this URL to update the reason.
      */
     fun quietDown() {
+        // documentation: https://ci.jenkins.io/api/
         post("quietDown")
     }
 
@@ -237,6 +239,7 @@ ${shepherdHome}/shepherd-build ${project.id.id.escapeXml()}</command>
      * Jenkins will cancel the "quiet down" mode.
      */
     fun cancelQuietDown() {
+        // documentation: https://ci.jenkins.io/api/
         post("cancelQuietDown")
     }
 
@@ -245,7 +248,64 @@ ${shepherdHome}/shepherd-build ${project.id.id.escapeXml()}</command>
      * (Pipeline builds may prevent Jenkins from restarting for a short period of time in some cases, but if so, they will be paused at the next available opportunity and then resumed after Jenkins restarts.)
      */
     fun safeRestart() {
+        // documentation: https://ci.jenkins.io/api/
         post("safeRestart")
+    }
+
+    /**
+     * Shutdown jenkins
+     */
+    fun exit() {
+        // https://wiki.jenkins-ci.org/display/JENKINS/Administering+Jenkins
+        post("exit")
+    }
+
+    /**
+     * Restarts jenkins.
+     */
+    fun restart() {
+        // https://wiki.jenkins-ci.org/display/JENKINS/Administering+Jenkins
+        post("restart")
+    }
+
+    /**
+     * Reload the configuration.
+     */
+    fun reload() {
+        // https://wiki.jenkins-ci.org/display/JENKINS/Administering+Jenkins
+        post("reload")
+    }
+
+    /**
+     * Returns the current build queue. This does not include projects that are currently being built.
+     */
+    fun getQueue(): Set<ProjectId> {
+        // https://ci.jenkins.io/queue/api/
+        val url = URI("$jenkinsUrl/queue/api/json?tree=items[task[name]]")
+        val request = url.buildRequest {
+            basicAuth(jenkinsUsername, jenkinsPassword)
+        }
+        return httpClient.exec(request) { response ->
+            val jobs: JenkinsQueue = response.json<JenkinsQueue>(json)
+            val jobNames = jobs.items.map { it.task.name } .toSet()
+            jobNames.map { ProjectId(it) } .toSet()
+        }
+    }
+
+    /**
+     * Returns the current build queue. This does not include projects that are currently being built.
+     */
+    fun getBuildExecutorStatus(): Set<ProjectId> {
+        // https://ci.jenkins.io/computer/api/
+        val url = URI("$jenkinsUrl/computer/api/json?tree=computer[executors[currentExecutable[fullDisplayName]]]")
+        val request = url.buildRequest {
+            basicAuth(jenkinsUsername, jenkinsPassword)
+        }
+        return httpClient.exec(request) { response ->
+            val computers: JenkinsComputers = response.json<JenkinsComputers>(json)
+            val executors = computers.computer.flatMap { it.executors }
+            executors.mapNotNull { it.currentExecutable?.pid } .toSet()
+        }
     }
 
     companion object {
@@ -337,6 +397,28 @@ internal data class JenkinsJob(
 internal data class JenkinsJobNames(
     val jobs: List<JenkinsJobName>
 )
+
+@Serializable
+internal data class JenkinsQueue(val items: List<JenkinsQueueItem>)
+@Serializable
+internal data class JenkinsQueueItem(val task: JenkinsJobName)
+@Serializable
+internal data class JenkinsComputers(val computer: List<JenkinsComputer>)
+@Serializable
+internal data class JenkinsComputer(val executors: List<JenkinsExecutor>)
+@Serializable
+internal data class JenkinsExecutor(val currentExecutable: FreeStyleBuild? = null)
+
+/**
+ * @property fullDisplayName something like "vaadin-boot-example-gradle #15"
+ */
+@Serializable
+internal data class FreeStyleBuild(val fullDisplayName: String) {
+    val pid: ProjectId get() {
+        val parts = fullDisplayName.splitByWhitespaces()
+        return ProjectId(parts[0])
+    }
+}
 
 /**
  * A Jenkins job (=project); [name] equals to [ProjectId.id].
