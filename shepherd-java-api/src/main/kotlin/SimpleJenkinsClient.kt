@@ -40,13 +40,7 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
     fun build(id: ProjectId) {
         log.info("Running Jenkins build of ${id.jenkinsJobName}")
 
-        val url = URI("$jenkinsUrl/job/${id.jenkinsJobName}/build/api/json")
-        val request = url.buildRequest {
-            POST(BodyPublishers.noBody())
-            basicAuth(jenkinsUsername, jenkinsPassword)
-            crumb()
-        }
-        httpClient.exec(request) {}
+        post("job/${id.jenkinsJobName}/build/api/json")
     }
 
     /**
@@ -179,15 +173,9 @@ ${shepherdHome}/shepherd-build ${project.id.id.escapeXml()}</command>
         val xml = getJobXml(project)
         if (!hasJob(project.id)) {
             log.info("Creating Jenkins job ${project.jenkinsJobName}")
-            val url = URI("$jenkinsUrl/createItem/api/json?name=${project.jenkinsJobName}")
-            val request = url.buildRequest {
-                POST(BodyPublishers.ofString(xml))
-                header("Content-type", "text/xml; charset=utf-8");
-                basicAuth(jenkinsUsername, jenkinsPassword)
-                // crumbFlag=true is necessary: https://serverfault.com/questions/990224/jenkins-server-throws-403-while-accessing-rest-api-or-using-jenkins-java-client/1131973
-                crumb()
+            post("createItem/api/json?name=${project.jenkinsJobName}", xml) {
+                header("Content-type", "text/xml; charset=utf-8")
             }
-            httpClient.exec(request) {}
         } else {
             log.warn("Jenkins job for ${project.id.id} already exists, updating existing instead")
             updateJob(project)
@@ -201,11 +189,18 @@ ${shepherdHome}/shepherd-build ${project.id.id.escapeXml()}</command>
         log.info("Updating Jenkins job ${project.jenkinsJobName}")
 
         val xml = getJobXml(project)
-        val url = URI("$jenkinsUrl/job/${project.jenkinsJobName}/config.xml/api/json")
+        post("job/${project.jenkinsJobName}/config.xml/api/json", xml) {
+            header("Content-type", "text/xml; charset=utf-8")
+        }
+    }
+
+    private fun post(path: String, body: String? = null, block: HttpRequest.Builder.()->Unit = {}) {
+        val url = URI("$jenkinsUrl/$path")
         val request = url.buildRequest {
-            POST(BodyPublishers.ofString(xml))
-            header("Content-type", "text/xml; charset=utf-8");
+            POST(if (body == null) BodyPublishers.noBody() else BodyPublishers.ofString(body))
+            block()
             basicAuth(jenkinsUsername, jenkinsPassword)
+            // crumbFlag=true is necessary: https://serverfault.com/questions/990224/jenkins-server-throws-403-while-accessing-rest-api-or-using-jenkins-java-client/1131973
             crumb()
         }
         httpClient.exec(request) {}
@@ -227,13 +222,30 @@ ${shepherdHome}/shepherd-build ${project.id.id.escapeXml()}</command>
 
         log.info("Deleting Jenkins job ${id.jenkinsJobName}. This also cancels all ongoing builds of this project.")
         // deletes the job (=project in Jenkins terminology), canceling any ongoing builds of this job.
-        val url = URI("$jenkinsUrl/job/${id.jenkinsJobName}/doDelete/api/json")
-        val request = url.buildRequest {
-            POST(BodyPublishers.noBody())
-            basicAuth(jenkinsUsername, jenkinsPassword)
-            crumb()
-        }
-        httpClient.exec(request) {}
+        post("job/${id.jenkinsJobName}/doDelete/api/json")
+    }
+
+    /**
+     * Jenkins will enter into the "quiet down" mode by sending a POST request with optional reason query parameter.
+     * You can also send another request to this URL to update the reason.
+     */
+    fun quietDown() {
+        post("quietDown")
+    }
+
+    /**
+     * Jenkins will cancel the "quiet down" mode.
+     */
+    fun cancelQuietDown() {
+        post("cancelQuietDown")
+    }
+
+    /**
+     * On environments where Jenkins can restart itself (such as when Jenkins is installed as a Windows service), POSTing to this URL will start the restart sequence once no jobs are running.
+     * (Pipeline builds may prevent Jenkins from restarting for a short period of time in some cases, but if so, they will be paused at the next available opportunity and then resumed after Jenkins restarts.)
+     */
+    fun safeRestart() {
+        post("safeRestart")
     }
 
     companion object {
