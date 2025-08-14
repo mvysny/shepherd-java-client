@@ -1,7 +1,9 @@
 package com.github.mvysny.shepherd.web.ui.components
 
 import com.github.mvysny.karibudsl.v10.VaadinDsl
+import com.github.mvysny.karibudsl.v10.button
 import com.github.mvysny.karibudsl.v10.componentColumn
+import com.github.mvysny.karibudsl.v10.onClick
 import com.github.mvysny.shepherd.api.containsWhitespaces
 import com.vaadin.flow.component.button.Button
 import com.vaadin.flow.component.button.ButtonVariant
@@ -21,7 +23,8 @@ fun <T> (@VaadinDsl Grid<T>).iconButtonColumn(
     tooltip: String,
     onClick: (T) -> Unit
 ): Grid.Column<T> = componentColumn({ item ->
-    Button(icon.create(), { e -> onClick(item) }).apply {
+    button(icon = icon.create()) {
+        this.onClick { onClick(item) }
         addThemeVariants(
             ButtonVariant.LUMO_TERTIARY_INLINE,
             ButtonVariant.LUMO_SMALL,

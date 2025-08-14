@@ -2,13 +2,15 @@ package com.github.mvysny.shepherd.web.ui.components
 
 import com.github.mvysny.karibudsl.v10.KComposite
 import com.github.mvysny.karibudsl.v10.VaadinDsl
+import com.github.mvysny.karibudsl.v10.anchor
+import com.github.mvysny.karibudsl.v10.buildSingleComponent
 import com.github.mvysny.karibudsl.v10.div
 import com.github.mvysny.karibudsl.v10.init
 import com.github.mvysny.karibudsl.v10.strong
 import com.github.mvysny.kaributools.HtmlSpan
 import com.github.mvysny.shepherd.api.Project
 import com.github.mvysny.shepherd.web.Bootstrap
-import com.github.mvysny.shepherd.web.ui.PublishedURLsAsVerticalLayout
+import com.github.mvysny.shepherd.web.ui.publishedURLsAsVerticalLayout
 import com.vaadin.flow.component.Component
 import com.vaadin.flow.component.HasComponents
 import com.vaadin.flow.component.html.Anchor
@@ -19,7 +21,7 @@ import org.intellij.lang.annotations.Language
 /**
  * Shows a simple key-value table pair.
  */
-open class SimpleKeyValueTable(columns: Int = 1) : KComposite() {
+open class SimpleKeyValueTable : KComposite() {
     private val div = ui {
         div()
     }
@@ -29,7 +31,7 @@ open class SimpleKeyValueTable(columns: Int = 1) : KComposite() {
         div.element.style.set("font-size", "90%")
         div.element.style.set("display", "grid")
         div.element.style.set("gap", "0px 10px")
-        div.element.style.set("grid-template-columns", "repeat($columns, auto 1fr)")
+        div.element.style.set("grid-template-columns", "repeat(2, auto 1fr)")
     }
 
     fun addRow(header: String, body: String) {
@@ -42,13 +44,17 @@ open class SimpleKeyValueTable(columns: Int = 1) : KComposite() {
         div.strong(header)
         div.add(body)
     }
+    @VaadinDsl
+    fun row(header: String, dsl: (@VaadinDsl HasComponents).() -> Unit) {
+        addRow(header, buildSingleComponent(block = dsl))
+    }
     fun removeAll() {
         div.removeAll()
     }
 }
 
 @VaadinDsl
-fun (@VaadinDsl HasComponents).simpleKeyValueTable(columns: Int = 1, block: (@VaadinDsl SimpleKeyValueTable).() -> Unit = {}) = init(SimpleKeyValueTable(columns), block)
+fun (@VaadinDsl HasComponents).simpleKeyValueTable(block: (@VaadinDsl SimpleKeyValueTable).() -> Unit = {}) = init(SimpleKeyValueTable(), block)
 
 @VaadinDsl
 fun (@VaadinDsl HasComponents).shepherdStatsTable() {
@@ -63,7 +69,7 @@ fun (@VaadinDsl HasComponents).shepherdStatsTable() {
     }
 }
 
-class ProjectQuickDetailsTable(project: Project? = null) : SimpleKeyValueTable(2) {
+class ProjectQuickDetailsTable(project: Project? = null) : SimpleKeyValueTable() {
     init {
         if (project != null) {
             showProject(project)
@@ -81,7 +87,7 @@ class ProjectQuickDetailsTable(project: Project? = null) : SimpleKeyValueTable(2
         addRow("Runtime Max Resources", project.runtime.resources.toString())
         addRow("Build Max Resources", project.build.resources.toString())
         addRow("Services", project.additionalServices.joinToString { it.type.toString() })
-        addRow("Published At", PublishedURLsAsVerticalLayout(project))
+        row("Published At") { publishedURLsAsVerticalLayout(project) }
     }
 }
 

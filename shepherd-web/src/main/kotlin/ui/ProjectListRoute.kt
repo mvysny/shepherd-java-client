@@ -1,6 +1,7 @@
 package com.github.mvysny.shepherd.web.ui
 
 import com.github.mvysny.karibudsl.v10.KComposite
+import com.github.mvysny.karibudsl.v10.VaadinDsl
 import com.github.mvysny.karibudsl.v10.anchor
 import com.github.mvysny.karibudsl.v10.button
 import com.github.mvysny.karibudsl.v10.column
@@ -27,6 +28,7 @@ import com.github.mvysny.shepherd.web.ui.components.iconButtonColumn
 import com.github.mvysny.shepherd.web.ui.components.shepherdStatsTable
 import com.github.mvysny.shepherd.web.ui.components.showInfoNotification
 import com.vaadin.flow.component.Component
+import com.vaadin.flow.component.HasComponents
 import com.vaadin.flow.component.UI
 import com.vaadin.flow.component.html.Anchor
 import com.vaadin.flow.component.icon.VaadinIcon
@@ -63,7 +65,7 @@ class ProjectListRoute : KComposite() {
 
                 componentColumn({ p ->
                     val pid = p.project.id.id
-                    RouterLink(pid, ProjectOverviewRoute::class.java, pid)
+                    routerLink(text = pid, viewType = ProjectOverviewRoute::class, parameter = pid)
                 }) {
                     isExpand = false; isAutoWidth = true; isResizable = true
                     setHeader("Project ID")
@@ -72,15 +74,15 @@ class ProjectListRoute : KComposite() {
                     isExpand = false; isAutoWidth = true; isResizable = true
                     setHeader("Owner")
                 }
-                componentColumn({ p -> val web = p.project.resolveWebpage(); Anchor(web, web) }) {
+                componentColumn({ p -> val web = p.project.resolveWebpage(); anchor(web, web) }) {
                     isExpand = false; isAutoWidth = true; isResizable = true
                     setHeader("Home Page")
                 }
-                componentColumn({ p -> p.project.getPublishedURLsInVerticalLayout() }) {
+                componentColumn({ p -> publishedURLsAsVerticalLayout(p.project) }) {
                     isExpand = false; isAutoWidth = true; isResizable = true
                     setHeader("Deployed At")
                 }
-                componentColumn({ p -> BuildLinks(p) }) {
+                componentColumn({ p -> buildLinks(p) }) {
                     isExpand = false; isAutoWidth = true; isResizable = true
                     setHeader("Builds")
                 }
@@ -97,8 +99,6 @@ class ProjectListRoute : KComposite() {
         }
     }
 
-    private fun Project.getPublishedURLsInVerticalLayout(): Component = PublishedURLsAsVerticalLayout(this)
-
     private fun createNewProject() {
         val project = MutableProject.newEmpty(getCurrentUser())
         val form = ProjectForm(true)
@@ -109,8 +109,9 @@ class ProjectListRoute : KComposite() {
     }
 }
 
-private class BuildLinks(val project: ProjectView) : HorizontalLayout() {
-    init {
+@VaadinDsl
+private fun (@VaadinDsl HasComponents).buildLinks(project: ProjectView): HorizontalLayout {
+    return horizontalLayout {
         isSpacing = false
         routerLink(text = "Builds") {
             setRoute(ProjectBuildsRoute::class.java, project.project.id.id)
@@ -124,8 +125,9 @@ private class BuildLinks(val project: ProjectView) : HorizontalLayout() {
     }
 }
 
-class PublishedURLsAsVerticalLayout(project: Project) : VerticalLayout() {
-    init {
+@VaadinDsl
+fun (@VaadinDsl HasComponents).publishedURLsAsVerticalLayout(project: Project) : VerticalLayout {
+    return verticalLayout {
         isPadding = false
         isSpacing = false
         project.getPublishedURLs(Bootstrap.getClient()).map { it -> Anchor(it, it) } .forEach { add(it) }
