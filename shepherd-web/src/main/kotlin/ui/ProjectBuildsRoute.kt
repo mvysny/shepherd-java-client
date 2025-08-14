@@ -60,4 +60,7 @@ object Downloads {
         DownloadHandler.fromInputStream {
             DownloadResponse(Bootstrap.getClient().getBuildLog(id, build.number).byteInputStream(), "${id.id}-buildlog-${build.number}.txt", "text/plain", -1)
         }
+    fun runLog(id: ProjectId): DownloadHandler = DownloadHandler.fromInputStream {
+        DownloadResponse(Bootstrap.getClient().getRunLogs(id).toByteArray().inputStream(), "${id.id}-log.txt", "text/plain", -1)
+    }
 }

@@ -19,7 +19,6 @@ import com.vaadin.flow.router.HasUrlParameter
 import com.vaadin.flow.router.PageTitle
 import com.vaadin.flow.router.Route
 import com.vaadin.flow.server.InputStreamFactory
-import com.vaadin.flow.server.StreamResource
 import jakarta.annotation.security.PermitAll
 
 @Route("project/overview", layout = MainLayout::class)
@@ -61,7 +60,6 @@ class ProjectOverviewRoute : KComposite(), HasUrlParameter<String> {
         quickDetails.showProject(project)
         val runMetrics = Bootstrap.getClient().getRunMetrics(project.id)
         quickDetails.addRow("Runtime Usage", runMetrics.toString())
-        downloadRuntimeLogs.setHref(StreamResource("${project.id.id}-log.txt",
-            InputStreamFactory { Bootstrap.getClient().getRunLogs(project.id).toByteArray().inputStream() }))
+        downloadRuntimeLogs.setHref(Downloads.runLog(project.id))
     }
 }
