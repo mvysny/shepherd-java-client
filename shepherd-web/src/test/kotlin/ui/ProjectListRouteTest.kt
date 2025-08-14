@@ -21,8 +21,8 @@ class ProjectListRouteTest : AbstractAppTest() {
         _expect<ProjectListRoute>()
         val grid = _get<Grid<ProjectView>>()
         grid.expectRows(2)
-        grid.expectRow(0, "RouterLink[text='my-fake-project2']", "Martin Vysny <mavi@vaadin.com>", "Anchor[text='https://github.com/mvysny/vaadin-boot-example-gradle', href='https://github.com/mvysny/vaadin-boot-example-gradle']", "PublishedURLsAsVerticalLayout[@style='width:100%']", "BuildLinks[]", "Button[icon='vaadin:refresh', @theme='small tertiary-inline icon']", "Button[icon='vaadin:trash', @theme='small tertiary-inline icon']")
-        grid.expectRow(1, "RouterLink[text='vaadin-boot-example-gradle']", "Martin Vysny <mavi@vaadin.com>", "Anchor[text='https://github.com/mvysny/vaadin-boot-example-gradle', href='https://github.com/mvysny/vaadin-boot-example-gradle']", "PublishedURLsAsVerticalLayout[@style='width:100%']", "BuildLinks[]", "Button[icon='vaadin:refresh', @theme='small tertiary-inline icon']", "Button[icon='vaadin:trash', @theme='small tertiary-inline icon']")
+        grid.expectRow(0, "RouterLink[text='my-fake-project2']", "Martin Vysny <mavi@vaadin.com>", "Anchor[text='https://github.com/mvysny/vaadin-boot-example-gradle', href='https://github.com/mvysny/vaadin-boot-example-gradle']", "VerticalLayout[@style='width:100%;justify-content:flex-start;align-items:flex-start']", "HorizontalLayout[@style='justify-content:flex-start;align-items:baseline']", "Button[icon='vaadin:refresh', @theme='small tertiary-inline icon']", "Button[icon='vaadin:trash', @theme='small tertiary-inline icon']")
+        grid.expectRow(1, "RouterLink[text='vaadin-boot-example-gradle']", "Martin Vysny <mavi@vaadin.com>", "Anchor[text='https://github.com/mvysny/vaadin-boot-example-gradle', href='https://github.com/mvysny/vaadin-boot-example-gradle']", "VerticalLayout[@style='width:100%;justify-content:flex-start;align-items:flex-start']", "HorizontalLayout[@style='justify-content:flex-start;align-items:baseline']", "Button[icon='vaadin:refresh', @theme='small tertiary-inline icon']", "Button[icon='vaadin:trash', @theme='small tertiary-inline icon']")
     }
 
     @Test fun userSeesProjectForWhichItIsAdditionalAdmin() {
@@ -30,6 +30,6 @@ class ProjectListRouteTest : AbstractAppTest() {
         _expect<ProjectListRoute>()
         val grid = _get<Grid<ProjectView>>()
         grid.expectRows(1)
-        grid.expectRow(0, "RouterLink[text='my-fake-project2']", "Martin Vysny <mavi@vaadin.com>", "Anchor[text='https://github.com/mvysny/vaadin-boot-example-gradle', href='https://github.com/mvysny/vaadin-boot-example-gradle']", "PublishedURLsAsVerticalLayout[@style='width:100%']", "BuildLinks[]", "Button[icon='vaadin:refresh', @theme='small tertiary-inline icon']", "Button[icon='vaadin:trash', @theme='small tertiary-inline icon']")
+        grid.expectRow(0, "RouterLink[text='my-fake-project2']", "Martin Vysny <mavi@vaadin.com>", "Anchor[text='https://github.com/mvysny/vaadin-boot-example-gradle', href='https://github.com/mvysny/vaadin-boot-example-gradle']", "VerticalLayout[@style='width:100%;justify-content:flex-start;align-items:flex-start']", "HorizontalLayout[@style='justify-content:flex-start;align-items:baseline']", "Button[icon='vaadin:refresh', @theme='small tertiary-inline icon']", "Button[icon='vaadin:trash', @theme='small tertiary-inline icon']")
     }
 }
