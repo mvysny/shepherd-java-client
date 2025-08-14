@@ -118,7 +118,7 @@ private class BuildLinks(val project: ProjectView) : HorizontalLayout() {
         val lastBuild = project.lastBuild
         if (lastBuild != null) {
             text(" (")
-            anchor(BuildLogStreamResource(project.project.id, lastBuild), "#${lastBuild.number}: ${lastBuild.outcome}")
+            anchor(Downloads.buildLog(project.project.id, lastBuild), "#${lastBuild.number}: ${lastBuild.outcome}")
             text(")")
         }
     }

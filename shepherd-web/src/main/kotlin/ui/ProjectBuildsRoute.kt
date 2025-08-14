@@ -19,8 +19,10 @@ import com.vaadin.flow.router.HasUrlParameter
 import com.vaadin.flow.router.PageTitle
 import com.vaadin.flow.router.Route
 import com.vaadin.flow.server.InputStreamFactory
-import com.vaadin.flow.server.StreamResource
+import com.vaadin.flow.server.streams.DownloadHandler
+import com.vaadin.flow.server.streams.DownloadResponse
 import jakarta.annotation.security.PermitAll
+import java.util.logging.StreamHandler
 
 @Route("project/builds", layout = MainLayout::class)
 @PageTitle("Builds")
@@ -39,7 +41,7 @@ class ProjectBuildsRoute : KComposite(), HasUrlParameter<String> {
                 columnFor(Build::outcome)
                 columnFor(Build::buildStarted)
                 columnFor(Build::duration)
-                componentColumn({ build -> Anchor(BuildLogStreamResource(project.id, build), "Log") }) {
+                componentColumn({ build -> Anchor(Downloads.buildLog(project.id, build), "Log") }) {
                     setHeader("Build Log")
                 }
             }
@@ -53,6 +55,9 @@ class ProjectBuildsRoute : KComposite(), HasUrlParameter<String> {
     }
 }
 
-class BuildLogStreamResource(val id: ProjectId, val build: Build) : StreamResource("${id.id}-buildlog-${build.number}.txt",
-    InputStreamFactory { Bootstrap.getClient().getBuildLog(id, build.number).byteInputStream() }
-)
+object Downloads {
+    fun buildLog(id: ProjectId, build: Build): DownloadHandler =
+        DownloadHandler.fromInputStream {
+            DownloadResponse(Bootstrap.getClient().getBuildLog(id, build.number).byteInputStream(), "${id.id}-buildlog-${build.number}.txt", "text/plain", -1)
+        }
+}
