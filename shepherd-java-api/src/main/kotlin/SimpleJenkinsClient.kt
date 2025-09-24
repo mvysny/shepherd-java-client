@@ -2,12 +2,17 @@ package com.github.mvysny.shepherd.api
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.boolean
 import org.slf4j.LoggerFactory
+import java.io.InputStream
 import java.net.CookieManager
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpRequest.BodyPublishers
+import java.net.http.HttpResponse
 import java.net.http.HttpResponse.BodyHandlers
 import java.time.Duration
 import java.time.Instant
@@ -281,15 +286,19 @@ ${shepherdHome}/shepherd-build ${project.id.id.escapeXml()}</command>
      */
     fun getQueue(): Set<ProjectId> {
         // https://ci.jenkins.io/queue/api/
-        val url = URI("$jenkinsUrl/queue/api/json?tree=items[task[name]]")
+        val queue: JenkinsQueue = get("queue/api/json?tree=items[task[name]]") {
+            it.json<JenkinsQueue>(json)
+        }
+        val jobNames = queue.items.map { it.task.name } .toSet()
+        return jobNames.map { ProjectId(it) } .toSet()
+    }
+
+    private fun <T> get(path: String, responseBlock: (HttpResponse<InputStream>) -> T): T {
+        val url = URI("$jenkinsUrl/$path")
         val request = url.buildRequest {
             basicAuth(jenkinsUsername, jenkinsPassword)
         }
-        return httpClient.exec(request) { response ->
-            val jobs: JenkinsQueue = response.json<JenkinsQueue>(json)
-            val jobNames = jobs.items.map { it.task.name } .toSet()
-            jobNames.map { ProjectId(it) } .toSet()
-        }
+        return httpClient.exec(request, responseBlock)
     }
 
     /**
@@ -297,15 +306,11 @@ ${shepherdHome}/shepherd-build ${project.id.id.escapeXml()}</command>
      */
     fun getBuildExecutorStatus(): Set<ProjectId> {
         // https://ci.jenkins.io/computer/api/
-        val url = URI("$jenkinsUrl/computer/api/json?tree=computer[executors[currentExecutable[fullDisplayName]]]")
-        val request = url.buildRequest {
-            basicAuth(jenkinsUsername, jenkinsPassword)
+        val computers: JenkinsComputers = get("computer/api/json?tree=computer[executors[currentExecutable[fullDisplayName]]]") {
+            it.json<JenkinsComputers>(json)
         }
-        return httpClient.exec(request) { response ->
-            val computers: JenkinsComputers = response.json<JenkinsComputers>(json)
-            val executors = computers.computer.flatMap { it.executors }
-            executors.mapNotNull { it.currentExecutable?.pid } .toSet()
-        }
+        val executors = computers.computer.flatMap { it.executors }
+        return executors.mapNotNull { it.currentExecutable?.pid } .toSet()
     }
 
     companion object {
@@ -341,11 +346,7 @@ ${shepherdHome}/shepherd-build ${project.id.id.escapeXml()}</command>
         // get all jobs: http://localhost:8080/api/json?pretty=true
         // very detailed info, NOT RECOMMENDED for production use: http://localhost:8080/api/json?pretty=true&depth=2
         // full URL: http://localhost:8080/api/json?tree=jobs[name,lastBuild[number,result,timestamp,duration,estimatedDuration]]
-        val url = URI("$jenkinsUrl/api/json?tree=jobs[name,lastBuild[number,result,timestamp,duration,estimatedDuration]]")
-        val request = url.buildRequest {
-            basicAuth(jenkinsUsername, jenkinsPassword)
-        }
-        return httpClient.exec(request) {
+        return get("api/json?tree=jobs[name,lastBuild[number,result,timestamp,duration,estimatedDuration]]") {
             it.json<JenkinsJobs>(json).jobs
         }
     }
@@ -357,11 +358,7 @@ ${shepherdHome}/shepherd-build ${project.id.id.escapeXml()}</command>
     fun getLastBuilds(id: ProjectId): List<JenkinsBuild> {
         // general project info: http://localhost:8080/job/vaadin-boot-example-gradle/api/json?depth=2
         // http://localhost:8080/job/vaadin-boot-example-gradle/api/json?tree=builds[number,result,timestamp,duration,estimatedDuration]
-        val url = URI("$jenkinsUrl/job/${id.jenkinsJobName}/api/json?tree=builds[number,result,timestamp,duration,estimatedDuration]")
-        val request = url.buildRequest {
-            basicAuth(jenkinsUsername, jenkinsPassword)
-        }
-        val builds: List<JenkinsBuild> = httpClient.exec(request) {
+        val builds: List<JenkinsBuild> = get("job/${id.jenkinsJobName}/api/json?tree=builds[number,result,timestamp,duration,estimatedDuration]") {
             it.json<JenkinsBuilds>(json).builds
         }
         return builds.sortedBy { it.number } .takeLast(30)
@@ -376,6 +373,12 @@ ${shepherdHome}/shepherd-build ${project.id.id.escapeXml()}</command>
         return httpClient.send(request, BodyHandlers.ofString())
             .checkOk()
             .body()
+    }
+
+    fun isQuietingDown(): Boolean {
+        val status = get("api/json?tree=quietingDown") { it.bodyAsString() }
+        val e: JsonObject = json.parseToJsonElement(status) as JsonObject
+        return (e["quietingDown"] as JsonPrimitive).boolean
     }
 }
 

@@ -17,6 +17,7 @@ vaadin-simplesecurity = "com.github.mvysny.vaadin-simple-security:externalauth-g
 karibu-dsl = "com.github.mvysny.karibudsl:karibu-dsl-v23:2.4.0"
 karibu-testing = "com.github.mvysny.kaributesting:karibu-testing-v24:2.4.2"
 google-api-client = "com.google.api-client:google-api-client:2.7.2"
+testcontainers = "org.testcontainers:testcontainers:1.21.3"
 
 [plugins]
 vaadin = { id = "com.vaadin", version.ref = "vaadin" }

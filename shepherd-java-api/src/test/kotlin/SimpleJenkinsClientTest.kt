@@ -1,5 +1,7 @@
 package com.github.mvysny.shepherd.api
 
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import kotlin.test.expect
@@ -154,5 +156,35 @@ export DOCKERFILE=vherd.Dockerfile
 </project>
             """.trim()) { SimpleJenkinsClient().getJobXml(fakeProject2) }
         }
+    }
+
+}
+
+class RealJenkinsTest {
+    companion object {
+        private lateinit var jenkins: JenkinsContainer
+        @BeforeAll @JvmStatic
+        fun startJenkins() {
+            jenkins = JenkinsContainer()
+            jenkins.start()
+        }
+        @AfterAll @JvmStatic
+        fun stopJenkins() {
+            jenkins.stop()
+        }
+    }
+
+    private val client = SimpleJenkinsClient("http://localhost:${jenkins.firstMappedPort}")
+
+    @Test fun smoke() {
+        expect(setOf()) { client.getQueue() }
+        expect(setOf()) { client.getBuildExecutorStatus() }
+        expect(listOf()) { client.getJobsOverview() }
+        expect(false) { client.isQuietingDown() }
+    }
+
+    @Test fun testQuietDown() {
+        client.quietDown()
+        expect(true) { client.isQuietingDown() }
     }
 }
