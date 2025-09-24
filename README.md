@@ -275,3 +275,29 @@ Gradle:
 ```dockerfile
 RUN --mount=type=cache,target=/root/.gradle --mount=type=cache,target=/root/.vaadin ./gradlew clean build -Pvaadin.productionMode --no-daemon --info --stacktrace
 ```
+
+# Maintenance
+
+It's important to keep the host Linux up-to-date, via `apt`. However,
+rebooting while Jenkins is building a project is not safe. To safely restart the host machine,
+it's best to shut down Jenkins gracefully first.
+
+## Shepherd-Traefik
+
+1. Stop Jenkins, by logging to Shepherd Web, going to `/admin` and clicking the "Shutdown" button.
+   Refresh the page until the text "Shutting down" changes to "Shepherd is shut down"
+2. Run `sudo reboot`
+
+Jenkins runs as a docker image and is never upgraded via `apt`. It is never exposed to public:
+only Shepherd-Web has access to Jenkins, and therefore it's not important to keep Jenkins up-to-date.
+
+## Shepherd-Kubernetes (old)
+
+`apt upgrade` also frequently upgrades Jenkins since Jenkins issues frequent updates.
+However, it's not safe to update Jenkins while it's building a project. To update the host system:
+
+1. Stop jenkins, via `./shepherd-cli shutdown` - the script waits until it's safe to proceed further.
+2. `sudo apt update && sudo apt dist-upgrade`
+3. If Jenkins is updated, it will be restarted and will start taking new jobs. If a reboot is needed:
+   - Run `./shepherd-cli shutdown`
+   - Run `sudo reboot`
