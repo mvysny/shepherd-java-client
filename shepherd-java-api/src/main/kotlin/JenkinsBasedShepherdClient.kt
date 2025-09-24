@@ -75,6 +75,10 @@ public class JenkinsBasedShepherdClient(
 
         override fun getCurrentlyBeingBuilt(): Set<ProjectId> = jenkins.getBuildExecutorStatus()
         override fun getQueue(): Set<ProjectId> = jenkins.getQueue()
+        override fun isShuttingDown(): Boolean = jenkins.isQuietingDown()
+        override fun initiateShutdown() {
+            jenkins.quietDown()
+        }
     }
 
     override fun createProject(project: Project) {

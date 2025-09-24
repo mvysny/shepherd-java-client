@@ -173,6 +173,19 @@ public interface BuilderClient {
      * (doesn't include [getCurrentlyBeingBuilt]).
      */
     public fun getQueue(): Set<ProjectId>
+
+    /**
+     * Check whether [initiateShutdown] was called.
+     */
+    public fun isShuttingDown(): Boolean
+
+    /**
+     * Start the shutdown procedure. The builder won't accept further builds,
+     * but will finish currently ongoing builds. No queued builds will be built.
+     */
+    public fun initiateShutdown()
+
+    public fun isFullyShutDown(): Boolean = isShuttingDown() && getCurrentlyBeingBuilt().isEmpty()
 }
 
 /**

@@ -141,6 +141,7 @@ enum class Command(val argName: String) {
             println("Jenkins:")
             println("   Building: ${client.builder.getCurrentlyBeingBuilt()}; Queue: ${client.builder.getQueue()}")
             println("   Max concurrent build jobs: ${stats.concurrentJenkinsBuilders}")
+            println("   Is shutting down: ${client.builder.isShuttingDown()}")
         }
     },
 
