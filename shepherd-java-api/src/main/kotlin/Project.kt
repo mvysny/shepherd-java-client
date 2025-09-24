@@ -11,6 +11,7 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
+import java.io.FileNotFoundException
 import java.net.URI
 import java.nio.file.Path
 import java.util.UUID
@@ -203,7 +204,13 @@ public data class Project(
          * @throws java.io.FileNotFoundException Fails if the file doesn't exist.
          */
         @JvmStatic
-        public fun loadFromFile(file: Path): Project = JsonUtils.fromFile(file)
+        public fun loadFromFile(file: Path): Project = try {
+            JsonUtils.fromFile(file)
+        } catch (e: FileNotFoundException) {
+            throw e
+        } catch (e: Exception) {
+            throw RuntimeException("Failed to load $file", e)
+        }
 
         @JvmStatic
         public fun fromJson(json: String): Project = Json.decodeFromString(json)
