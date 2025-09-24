@@ -11,7 +11,7 @@ plugins {
 
 allprojects {
     group = "com.github.mvysny.shepherd"
-    version = "0.5-SNAPSHOT"
+    version = "0.5"
 
     repositories {
         mavenCentral()
