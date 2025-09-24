@@ -1,6 +1,6 @@
 [versions]
-vaadin = "24.8.6"
-kotlin = "2.2.0"
+vaadin = "24.9.0"
+kotlin = "2.2.20"
 slf4j = "2.0.16"
 
 [libraries]
