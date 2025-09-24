@@ -103,7 +103,7 @@ enum class Command(val argName: String) {
     Builds("builds") {
         override fun run(args: Args, client: ShepherdClient) {
             val pid = requireProjectId(args)
-            client.getLastBuilds(pid).forEach { build ->
+            client.builder.getLastBuilds(pid).forEach { build ->
                 println("Build ${build.formatShort()}")
             }
         }
@@ -117,11 +117,11 @@ enum class Command(val argName: String) {
             val pid = requireProjectId(args)
             var buildNumber = args.buildLogSubcommand.buildNumber
             if (buildNumber == null) {
-                buildNumber = client.getLastBuilds(pid).maxOfOrNull { it.number }
+                buildNumber = client.builder.getLastBuilds(pid).maxOfOrNull { it.number }
             }
             require(buildNumber != null) { "Project ${pid.id} has no builds yet" }
 
-            println(client.getBuildLog(pid, buildNumber))
+            println(client.builder.getBuildLog(pid, buildNumber))
         }
     },
 
@@ -135,10 +135,12 @@ enum class Command(val argName: String) {
             println("Project Memory Quotas:")
             println("   Quota allocated for project runtimes: ${stats.projectMemoryStats.projectRuntimeQuota}")
             println("   Total project quota (runtime+builds): ${stats.projectMemoryStats.totalQuota}")
-            println("Builder: max concurrent build jobs: ${stats.concurrentJenkinsBuilders}")
             println("Host Memory: Mem: ${stats.hostMemoryStats.memory}; Swap: ${stats.hostMemoryStats.swap}")
             println("Disk Usage: ${stats.diskUsage}")
             println("Backend system: ${client.description}")
+            println("Jenkins:")
+            println("   Building: ${client.builder.getCurrentlyBeingBuilt()}; Queue: ${client.builder.getQueue()}")
+            println("   Max concurrent build jobs: ${stats.concurrentJenkinsBuilders}")
         }
     },
 

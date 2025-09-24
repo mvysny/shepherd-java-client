@@ -97,18 +97,9 @@ public interface ShepherdClient : Closeable {
     public fun getRunMetrics(id: ProjectId): ResourcesUsage
 
     /**
-     * Retrieve the last 30 builds for given project [id].
-     * @return the list of builds, sorted by [Build.number] ascending.
-     * @throws NoSuchProjectException if the project doesn't exist.
+     * A project builder, builds projects in the background.
      */
-    public fun getLastBuilds(id: ProjectId): List<Build>
-
-    /**
-     * Retrieves the full build log (stdout).
-     * @param buildNumber pass in [Build.number].
-     * @throws NoSuchProjectException if the project doesn't exist.
-     */
-    public fun getBuildLog(id: ProjectId, buildNumber: Int): String
+    public val builder: BuilderClient
 
     /**
      * INTERNAL, DON'T EXPOSE, may contain sensitive settings, private keys etc. Not
@@ -122,7 +113,7 @@ public interface ShepherdClient : Closeable {
     public fun getStats(): Stats {
         val config = getConfig()
         val projects = getAllProjectIDs().map { getProjectInfo(it) }
-        return Stats.calculate(config, projects)
+        return Stats.calculate(config, projects, builder)
     }
 
     /**
@@ -147,6 +138,41 @@ public interface ShepherdClient : Closeable {
      * The description of the backend, e.g. "Jenkins + Kubernetes" or "Jenkins + Traefik".
      */
     public val description: String
+}
+
+/**
+ * A project builder, builds projects in the background (via the `shepherd-build` script).
+ */
+public interface BuilderClient {
+    /**
+     * Starts a build manually.
+     */
+    public fun build(id: ProjectId)
+
+    /**
+     * Retrieves the full build log (stdout).
+     * @param buildNumber pass in [Build.number].
+     * @throws NoSuchProjectException if the project doesn't exist.
+     */
+    public fun getBuildLog(id: ProjectId, buildNumber: Int): String
+
+    /**
+     * Retrieve the last 30 builds for given project [id].
+     * @return the list of builds, sorted by [Build.number] ascending.
+     * @throws NoSuchProjectException if the project doesn't exist.
+     */
+    public fun getLastBuilds(id: ProjectId): List<Build>
+
+    /**
+     * Gets projects currently being built. Doesn't include projects from [getQueue].
+     */
+    public fun getCurrentlyBeingBuilt(): Set<ProjectId>
+
+    /**
+     * Returns the current build queue. This does not include projects that are currently being built
+     * (doesn't include [getCurrentlyBeingBuilt]).
+     */
+    public fun getQueue(): Set<ProjectId>
 }
 
 /**
@@ -256,26 +282,34 @@ public data class Build(
  * @property projectMemoryStats the project quota
  * @property hostMemoryStats the memory stats of the host machine
  * @property diskUsage the hard disk usage stats
+ * @property building projects currently being built.
+ * @property buildQueue the current build queue. This does not include projects that are currently being built.
  */
 public data class Stats(
     val concurrentJenkinsBuilders: Int,
     val projectCount: Int,
     val projectMemoryStats: ProjectMemoryStats,
     val hostMemoryStats: HostMemoryUsageStats,
-    val diskUsage: MemoryUsageStats
+    val diskUsage: MemoryUsageStats,
+    val building: Set<ProjectId>,
+    val buildQueue: Set<ProjectId>
 ) {
     public companion object {
-        public fun calculate(config: Config, projects: List<Project>): Stats {
+        public fun calculate(config: Config, projects: List<Project>, builder: BuilderClient): Stats {
             val projectQuota: ProjectMemoryStats = ProjectMemoryStats.calculateQuota(config, projects)
             val diskFreeSpaceMb = (File("/").freeSpace / 1000 / 1000).toInt()
             val diskTotalSpaceMb = (File("/").totalSpace / 1000 / 1000).toInt()
             val diskUsage = MemoryUsageStats(diskTotalSpaceMb - diskFreeSpaceMb, diskTotalSpaceMb)
+            val building = builder.getCurrentlyBeingBuilt()
+            val buildQueue = builder.getQueue()
             return Stats(
                 config.concurrentJenkinsBuilders,
                 projects.size,
                 projectQuota,
                 HostMemoryUsageStats.getHostStats(),
-                diskUsage
+                diskUsage,
+                building,
+                buildQueue
             )
         }
     }

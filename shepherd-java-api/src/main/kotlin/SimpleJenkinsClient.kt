@@ -293,7 +293,7 @@ ${shepherdHome}/shepherd-build ${project.id.id.escapeXml()}</command>
     }
 
     /**
-     * Returns the current build queue. This does not include projects that are currently being built.
+     * Returns projects currently being built.
      */
     fun getBuildExecutorStatus(): Set<ProjectId> {
         // https://ci.jenkins.io/computer/api/

@@ -50,7 +50,7 @@ class ProjectBuildsRoute : KComposite(), HasUrlParameter<String> {
     override fun setParameter(event: BeforeEvent, parameter: String) {
         project = checkProjectId(parameter)
         captionComponent.text = "${project.id.id}: Builds"
-        val builds = Bootstrap.getClient().getLastBuilds(project.id)
+        val builds = Bootstrap.getClient().builder.getLastBuilds(project.id)
         buildsGrid.setItems(builds)
     }
 }
@@ -58,7 +58,7 @@ class ProjectBuildsRoute : KComposite(), HasUrlParameter<String> {
 object Downloads {
     fun buildLog(id: ProjectId, build: Build): DownloadHandler =
         DownloadHandler.fromInputStream {
-            DownloadResponse(Bootstrap.getClient().getBuildLog(id, build.number).byteInputStream(), "${id.id}-buildlog-${build.number}.txt", "text/plain", -1)
+            DownloadResponse(Bootstrap.getClient().builder.getBuildLog(id, build.number).byteInputStream(), "${id.id}-buildlog-${build.number}.txt", "text/plain", -1)
         }
     fun runLog(id: ProjectId): DownloadHandler = DownloadHandler.fromInputStream {
         DownloadResponse(Bootstrap.getClient().getRunLogs(id).toByteArray().inputStream(), "${id.id}-log.txt", "text/plain", -1)

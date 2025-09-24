@@ -53,14 +53,28 @@ public class JenkinsBasedShepherdClient(
         )
     }
 
-    override fun getLastBuilds(id: ProjectId): List<Build> {
-        projectConfigFolder.requireProjectExists(id)
-        val lastBuilds = try {
-            jenkins.getLastBuilds(id)
-        } catch (e: FileNotFoundException) {
-            throw NoSuchProjectException(id, e)
+    override val builder: BuilderClient = object : BuilderClient {
+        override fun build(id: ProjectId) {
+            jenkins.build(id)
         }
-        return lastBuilds.map { it.toBuild() }
+
+        override fun getBuildLog(
+            id: ProjectId,
+            buildNumber: Int
+        ): String = jenkins.getBuildConsoleText(id, buildNumber)
+
+        override fun getLastBuilds(id: ProjectId): List<Build> {
+            projectConfigFolder.requireProjectExists(id)
+            val lastBuilds = try {
+                jenkins.getLastBuilds(id)
+            } catch (e: FileNotFoundException) {
+                throw NoSuchProjectException(id, e)
+            }
+            return lastBuilds.map { it.toBuild() }
+        }
+
+        override fun getCurrentlyBeingBuilt(): Set<ProjectId> = jenkins.getBuildExecutorStatus()
+        override fun getQueue(): Set<ProjectId> = jenkins.getQueue()
     }
 
     override fun createProject(project: Project) {
@@ -106,8 +120,6 @@ public class JenkinsBasedShepherdClient(
             return ResourcesUsage.zero
         }
     }
-
-    override fun getBuildLog(id: ProjectId, buildNumber: Int): String = jenkins.getBuildConsoleText(id, buildNumber)
 
     override fun updateProject(project: Project) {
         val oldProject = fs.configFolder.projects.getProjectInfo(project.id)

@@ -94,24 +94,33 @@ public class FakeShepherdClient @JvmOverloads constructor(
         )
     }
 
-    override fun getLastBuilds(id: ProjectId): List<Build> {
-        projectConfigFolder.requireProjectExists(id)
-        return listOf(
-            Build(
-                1,
-                Duration.ofMinutes(3),
-                Duration.ofMinutes(5),
-                Instant.now(),
-                BuildResult.BUILDING
-            )
-        )
-    }
+    override val builder: BuilderClient = object : BuilderClient {
+        override fun build(id: ProjectId) {
+        }
 
-    override fun getBuildLog(id: ProjectId, buildNumber: Int): String {
-        projectConfigFolder.requireProjectExists(id)
-        return """
-    Dummy build log
-        """.trim()
+        override fun getBuildLog(
+            id: ProjectId,
+            buildNumber: Int
+        ): String {
+            projectConfigFolder.requireProjectExists(id)
+            return "Dummy build log"
+        }
+
+        override fun getLastBuilds(id: ProjectId): List<Build> {
+            projectConfigFolder.requireProjectExists(id)
+            return listOf(
+                Build(
+                    1,
+                    Duration.ofMinutes(3),
+                    Duration.ofMinutes(5),
+                    Instant.now(),
+                    BuildResult.BUILDING
+                )
+            )
+        }
+
+        override fun getCurrentlyBeingBuilt(): Set<ProjectId> = setOf()
+        override fun getQueue(): Set<ProjectId> = setOf()
     }
 
     override fun getConfig(): Config = cfg
