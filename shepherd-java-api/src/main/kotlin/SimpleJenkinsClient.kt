@@ -380,6 +380,12 @@ ${shepherdHome}/shepherd-build ${project.id.id.escapeXml()}</command>
         val e: JsonObject = json.parseToJsonElement(status) as JsonObject
         return (e["quietingDown"] as JsonPrimitive).boolean
     }
+
+    /**
+     * Checks whether Jenkins is fully stopped: it is quieting down and there are
+     * no ongoing builds. If this function returns true, it is safe to stop or restart Jenkins.
+     */
+    fun isFullyStopped() = isQuietingDown() && getBuildExecutorStatus().isEmpty()
 }
 
 @Serializable
