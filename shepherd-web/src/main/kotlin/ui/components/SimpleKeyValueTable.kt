@@ -66,6 +66,12 @@ fun (@VaadinDsl HasComponents).shepherdStatsTable() {
         addRow("Host OS: Swap", stats.hostMemoryStats.swap.toString())
         addRow("Host OS: Disk Space", stats.diskUsage.toString())
         addRow("Backend System", Bootstrap.getClient().description)
+        addRow("Builder: Max # of concurrent builds", stats.concurrentJenkinsBuilders.toString())
+        val builder = Bootstrap.getClient().builder
+        addRow("Builder: Stats", buildString {
+            if (builder.isShuttingDown()) append("SHUTTING DOWN; ")
+            append("Building: ${builder.getCurrentlyBeingBuilt().size}; Build Queue: ${builder.getQueue().size}")
+        })
     }
 }
 
