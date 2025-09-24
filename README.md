@@ -291,6 +291,19 @@ it's best to shut down Jenkins gracefully first.
 Jenkins runs as a docker image and is never upgraded via `apt`. It is never exposed to public:
 only Shepherd-Web has access to Jenkins, and therefore it's not important to keep Jenkins up-to-date.
 
+### Updating Shepherd-Web Docker Container
+
+1. `cd /opt/shepherd-traefik`
+2. `docker compose pull`
+3. `docker compose up -d --no-deps shepherd`
+
+Docker will re-create shepherd container from the newest image, and will automatically
+join it to the correct 'admin.int' network.
+
+Note that you must not update Traefik this way too, since docker compose will drop all container network bindings,
+which means that Traefik won't be able to route to apps.
+TODO Shepherd-Web could update Traefik and reconnect it to all app networks - investigate.
+
 ## Shepherd-Kubernetes (old)
 
 `apt upgrade` also frequently upgrades Jenkins since Jenkins issues frequent updates.
