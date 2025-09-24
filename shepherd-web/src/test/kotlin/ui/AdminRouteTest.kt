@@ -7,21 +7,23 @@ import com.vaadin.flow.router.AccessDeniedException
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-class UsersRouteTest : AbstractAppTest() {
-    @Test fun cantNavigateWithoutLoggingIn() {
-        navigateTo<UsersRoute>()
+class AdminRouteTest : AbstractAppTest() {
+    @Test
+    fun cantNavigateWithoutLoggingIn() {
+        navigateTo<AdminRoute>()
         _expectOne<LoginRoute>()
     }
 
-    @Test fun adminCanNavigate() {
+    @Test
+    fun adminCanNavigate() {
         login()
-        navigateTo<UsersRoute>()
-        _expectOne<UsersRoute>()
+        navigateTo<AdminRoute>()
+        _expectOne<AdminRoute>()
     }
 
     @Test
     fun userCantNavigate() {
         loginUser()
-        assertThrows<AccessDeniedException> { navigateTo<UsersRoute>() }
+        assertThrows<AccessDeniedException> { navigateTo<AdminRoute>() }
     }
 }

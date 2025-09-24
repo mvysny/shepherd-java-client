@@ -69,8 +69,15 @@ fun (@VaadinDsl HasComponents).shepherdStatsTable() {
         addRow("Builder: Max # of concurrent builds", stats.concurrentJenkinsBuilders.toString())
         val builder = Bootstrap.getClient().builder
         addRow("Builder: Stats", buildString {
-            if (builder.isShuttingDown()) append("SHUTTING DOWN; ")
-            append("Building: ${builder.getCurrentlyBeingBuilt().size}; Build Queue: ${builder.getQueue().size}")
+            val shuttingDown = builder.isShuttingDown()
+            val buildingNow = builder.getCurrentlyBeingBuilt().size
+            val status = when {
+                shuttingDown && buildingNow == 0 -> "SHUT DOWN; "
+                shuttingDown -> "SHUTTING DOWN; "
+                else -> "OK; "
+            }
+            append(status)
+            append("Building: $buildingNow; Build Queue: ${builder.getQueue().size}")
         })
     }
 }

@@ -40,6 +40,7 @@ class MainLayout : AppLayout() {
                 route(ProjectListRoute::class, VaadinIcon.LIST, "Project List")
                 if (getCurrentUser().isAdmin) {
                     route(UsersRoute::class, VaadinIcon.USER, "Users")
+                    route(AdminRoute::class, VaadinIcon.COG, "Admin")
                 }
             }
         }
