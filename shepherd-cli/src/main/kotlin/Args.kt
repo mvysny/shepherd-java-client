@@ -35,7 +35,7 @@ data class Args(
             val createSubcommand = CreateSubcommand()
             val updateSubcommand = UpdateSubcommand()
             val buildLogSubcommand = BuildLogSubcommand()
-            parser.subcommands(ListProjectSubcommand(), ShowProjectSubcommand(), LogsSubcommand(), createSubcommand, deleteSubcommand, MetricsSubcommand(), updateSubcommand, BuildsSubcommand(), buildLogSubcommand, StatsSubcommand(), RestartSubcommand())
+            parser.subcommands(ListProjectSubcommand(), ShowProjectSubcommand(), LogsSubcommand(), createSubcommand, deleteSubcommand, MetricsSubcommand(), updateSubcommand, BuildsSubcommand(), buildLogSubcommand, StatsSubcommand(), RestartSubcommand(), ShutDownSubcommand())
             val parserResult = parser.parse(args)
             val commandName = parserResult.commandName.takeUnless { it == parser.programName }
             val cmd = Command.entries.firstOrNull { it.argName == commandName }
@@ -89,5 +89,8 @@ class StatsSubcommand: Subcommand(Command.Stats.argName, "Prints Shepherd runtim
     override fun execute() {}
 }
 class RestartSubcommand: Subcommand(Command.Restart.argName, "Restarts containers of given project.") {
+    override fun execute() {}
+}
+class ShutDownSubcommand: Subcommand(Command.Shutdown.argName, "Shuts down Shepherd and awaits until it's fully shut down.") {
     override fun execute() {}
 }

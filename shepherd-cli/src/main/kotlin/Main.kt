@@ -155,7 +155,27 @@ enum class Command(val argName: String) {
             client.restartContainers(pid)
             println("Restarted $pid")
         }
-    }
+    },
+
+    /**
+     * `shutdown`: Shuts down Shepherd and awaits until it's fully shut down.
+     */
+    Shutdown(argName = "shutdown") {
+        override fun run(args: Args, client: ShepherdClient) {
+            println("Initiating shutdown")
+            client.builder.initiateShutdown()
+            println("Awaiting for empty build queue")
+            while(true) {
+                val queue: Set<ProjectId> = client.builder.getQueue()
+                if (queue.isEmpty()) {
+                    break
+                }
+                println("Build queue not empty: $queue")
+                Thread.sleep(1000)
+            }
+            println("Shepherd is shut down, it is now safe to reboot the machine")
+        }
+    },
     ;
 
     /**

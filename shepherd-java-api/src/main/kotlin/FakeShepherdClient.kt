@@ -121,6 +121,11 @@ public class FakeShepherdClient @JvmOverloads constructor(
 
         override fun getCurrentlyBeingBuilt(): Set<ProjectId> = setOf()
         override fun getQueue(): Set<ProjectId> = setOf()
+        private var shuttingDown = false
+        override fun isShuttingDown(): Boolean = shuttingDown
+        override fun initiateShutdown() {
+            shuttingDown = true
+        }
     }
 
     override fun getConfig(): Config = cfg
