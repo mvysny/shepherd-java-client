@@ -314,3 +314,4 @@ However, it's not safe to update Jenkins while it's building a project. To updat
 3. If Jenkins is updated, it will be restarted and will start taking new jobs. If a reboot is needed:
    - Run `./shepherd-cli shutdown`
    - Run `sudo reboot`
+
