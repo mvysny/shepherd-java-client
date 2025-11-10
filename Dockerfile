@@ -19,7 +19,7 @@
 # $ docker build -t mvysny/shepherd-java:latest .
 
 # The "builder" stage. Copies the entire project into the container, into the /app/ folder, and builds it.
-FROM --platform=$BUILDPLATFORM openjdk:21-bookworm AS builder
+FROM --platform=$BUILDPLATFORM eclipse-temurin:21 AS builder
 COPY . /app/
 WORKDIR /app/
 RUN --mount=type=cache,target=/root/.gradle --mount=type=cache,target=/root/.vaadin ./gradlew clean build -Pvaadin.productionMode --no-daemon --info --stacktrace -x test
@@ -32,7 +32,7 @@ RUN tar xvf shepherd-cli-*.tar && rm shepherd-cli-*.tar shepherd-cli-*.zip
 # 2. the cli (executable bash scrip plus a bunch of jars) in the /app/shepherd-cli/build/distributions/shepherd-cli-VERSION/ folder.
 
 # The "Run" stage. Start with a clean image, and copy over just the app itself, omitting gradle, npm and any intermediate build files.
-FROM openjdk:21-bookworm
+FROM eclipse-temurin:21
 COPY --from=builder /app/shepherd-web/build/distributions/shepherd-web-* /opt/shepherd-web/
 COPY --from=builder /app/shepherd-cli/build/distributions/shepherd-cli-* /opt/shepherd-cli/
 WORKDIR /opt/shepherd-web/bin
