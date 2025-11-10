@@ -1,7 +1,7 @@
 [versions]
-vaadin = "24.9.0"
+vaadin = "24.9.5"
 kotlin = "2.2.20"
-slf4j = "2.0.16"
+slf4j = "2.0.17"
 
 [libraries]
 # https://repo1.maven.org/maven2/org/junit/jupiter/junit-jupiter-engine/
