@@ -12,7 +12,7 @@ ztexec = "org.zeroturnaround:zt-exec:1.12"
 kotlinx-serialization-json = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2"
 kotlinx-cli = "org.jetbrains.kotlinx:kotlinx-cli:0.3.6"
 vaadin-core = { module = "com.vaadin:vaadin-core", version.ref = "vaadin" }
-vaadin-boot = "com.github.mvysny.vaadin-boot:vaadin-boot:13.4"
+vaadin-boot = "com.github.mvysny.vaadin-boot:vaadin-boot:13.5"
 vaadin-simplesecurity = "com.github.mvysny.vaadin-simple-security:externalauth-google:1.1"
 karibu-dsl = "com.github.mvysny.karibudsl:karibu-dsl-v23:2.5.0"
 karibu-testing = "com.github.mvysny.kaributesting:karibu-testing-v24:2.4.3"
