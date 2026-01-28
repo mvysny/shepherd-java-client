@@ -1,6 +1,7 @@
 package com.github.mvysny.shepherd.api
 
 import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -155,6 +156,56 @@ export DOCKERFILE=vherd.Dockerfile
   </buildWrappers>
 </project>
             """.trim()) { SimpleJenkinsClient().getJobXml(fakeProject2) }
+        }
+
+        @Test fun `with buildContext`() {
+            val projectWithBuildContext = fakeProject.copy(
+                build = fakeProject.build.copy(buildContext = "demo")
+            )
+            val xml = SimpleJenkinsClient().getJobXml(projectWithBuildContext)
+            assertTrue(xml.contains("export BUILD_CONTEXT=demo"), "XML should contain BUILD_CONTEXT export: $xml")
+        }
+    }
+
+    @Nested inner class needsProjectRebuild {
+        @Test fun `returns false for identical projects`() {
+            expect(false) { SimpleJenkinsClient.needsProjectRebuild(fakeProject, fakeProject) }
+        }
+
+        @Test fun `returns true when buildContext changes`() {
+            val oldProject = fakeProject
+            val newProject = fakeProject.copy(
+                build = fakeProject.build.copy(buildContext = "demo")
+            )
+            expect(true) { SimpleJenkinsClient.needsProjectRebuild(newProject, oldProject) }
+        }
+
+        @Test fun `returns true when buildContext changes from one value to another`() {
+            val oldProject = fakeProject.copy(
+                build = fakeProject.build.copy(buildContext = "demo")
+            )
+            val newProject = fakeProject.copy(
+                build = fakeProject.build.copy(buildContext = "services/api")
+            )
+            expect(true) { SimpleJenkinsClient.needsProjectRebuild(newProject, oldProject) }
+        }
+
+        @Test fun `returns true when buildContext is removed`() {
+            val oldProject = fakeProject.copy(
+                build = fakeProject.build.copy(buildContext = "demo")
+            )
+            val newProject = fakeProject
+            expect(true) { SimpleJenkinsClient.needsProjectRebuild(newProject, oldProject) }
+        }
+
+        @Test fun `returns false when buildContext stays the same`() {
+            val oldProject = fakeProject.copy(
+                build = fakeProject.build.copy(buildContext = "demo")
+            )
+            val newProject = fakeProject.copy(
+                build = fakeProject.build.copy(buildContext = "demo")
+            )
+            expect(false) { SimpleJenkinsClient.needsProjectRebuild(newProject, oldProject) }
         }
     }
 
