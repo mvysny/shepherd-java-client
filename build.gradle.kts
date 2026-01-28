@@ -28,8 +28,8 @@ subprojects {
     }
     
     java {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
     // creates a reusable function which configures proper deployment to Maven Central
@@ -83,7 +83,7 @@ subprojects {
     }
 
     tasks.withType<KotlinCompile> {
-        compilerOptions.jvmTarget = JvmTarget.JVM_17
+        compilerOptions.jvmTarget = JvmTarget.JVM_21
     }
 
     tasks.withType<Test> {

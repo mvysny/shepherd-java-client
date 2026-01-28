@@ -7,6 +7,7 @@ import com.github.mvysny.karibudsl.v10.onClick
 import com.github.mvysny.karibudsl.v10.verticalLayout
 import com.github.mvysny.kaributools.setPrimary
 import com.vaadin.flow.component.Component
+import com.vaadin.flow.component.ModalityMode
 import com.vaadin.flow.component.dialog.Dialog
 
 /**
@@ -16,7 +17,7 @@ import com.vaadin.flow.component.dialog.Dialog
  */
 class FormDialog<B: Any>(val form: Form<B>, private val bean: B, val onSave: (B) -> Unit) : Dialog() {
     init {
-        isModal = true
+        modality = ModalityMode.VISUAL
         isCloseOnEsc = false
         isCloseOnOutsideClick = false
 
