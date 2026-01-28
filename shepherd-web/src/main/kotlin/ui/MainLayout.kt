@@ -18,7 +18,9 @@ import com.vaadin.flow.component.applayout.AppLayout
 import com.vaadin.flow.component.html.H3
 import com.vaadin.flow.component.icon.VaadinIcon
 import com.vaadin.flow.router.PageTitle
+import jakarta.annotation.security.PermitAll
 
+@PermitAll
 class MainLayout : AppLayout() {
     private lateinit var routeTitle: H3
     init {
