@@ -1,6 +1,7 @@
 package com.github.mvysny.shepherd.web.ui
 
 import com.github.mvysny.karibudsl.v10.KComposite
+import com.github.mvysny.karibudsl.v10.anchor
 import com.github.mvysny.karibudsl.v10.columnFor
 import com.github.mvysny.karibudsl.v10.componentColumn
 import com.github.mvysny.karibudsl.v10.grid
@@ -12,7 +13,7 @@ import com.github.mvysny.shepherd.api.ProjectId
 import com.github.mvysny.shepherd.web.Bootstrap
 import com.github.mvysny.shepherd.web.security.checkProjectId
 import com.vaadin.flow.component.grid.Grid
-import com.vaadin.flow.component.html.Anchor
+import com.vaadin.flow.component.html.AttachmentType
 import com.vaadin.flow.component.html.H2
 import com.vaadin.flow.router.BeforeEvent
 import com.vaadin.flow.router.HasUrlParameter
@@ -41,7 +42,7 @@ class ProjectBuildsRoute : KComposite(), HasUrlParameter<String> {
                 columnFor(Build::outcome)
                 columnFor(Build::buildStarted)
                 columnFor(Build::duration)
-                componentColumn({ build -> Anchor(Downloads.buildLog(project.id, build), "Log") }) {
+                componentColumn({ build -> anchor(Downloads.buildLog(project.id, build), "Log", AttachmentType.INLINE) }) {
                     setHeader("Build Log")
                 }
             }
