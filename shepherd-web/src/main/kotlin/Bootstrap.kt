@@ -6,6 +6,7 @@ import com.github.mvysny.shepherd.web.security.UserLoginService
 import com.github.mvysny.shepherd.web.ui.LoginRoute
 import com.github.mvysny.vaadinsimplesecurity.SimpleNavigationAccessControl
 import com.vaadin.flow.component.UI
+import com.vaadin.flow.component.dependency.StyleSheet
 import com.vaadin.flow.component.notification.Notification
 import com.vaadin.flow.component.notification.NotificationVariant
 import com.vaadin.flow.component.page.AppShellConfigurator
@@ -14,6 +15,7 @@ import com.vaadin.flow.server.ServiceInitEvent
 import com.vaadin.flow.server.VaadinServiceInitListener
 import com.vaadin.flow.server.VaadinSession
 import com.vaadin.flow.theme.Theme
+import com.vaadin.flow.theme.lumo.Lumo
 import jakarta.servlet.ServletContextEvent
 import jakarta.servlet.ServletContextListener
 import jakarta.servlet.annotation.WebListener
@@ -39,7 +41,8 @@ class Bootstrap : ServletContextListener {
 }
 
 @PWA(name = "Project Base for Vaadin", shortName = "Project Base")
-@Theme("my-theme")
+@StyleSheet(Lumo.STYLESHEET)
+@StyleSheet("styles.css")
 class AppShell : AppShellConfigurator
 
 /**
