@@ -1,5 +1,6 @@
 package com.github.mvysny.shepherd.web
 
+import com.github.mvysny.kaributools.BrowserTimeZone
 import com.github.mvysny.shepherd.api.LocalFS
 import com.github.mvysny.shepherd.api.ShepherdClient
 import com.github.mvysny.shepherd.web.security.UserLoginService
@@ -62,7 +63,10 @@ class MyServiceInitListener : VaadinServiceInitListener {
 
     override fun serviceInit(event: ServiceInitEvent) {
         event.source.addSessionInitListener { initSession(it.session) }
-        event.source.addUIInitListener { it.ui.addBeforeEnterListener(accessControl) }
+        event.source.addUIInitListener {
+            BrowserTimeZone.fetch()
+            it.ui.addBeforeEnterListener(accessControl)
+        }
     }
 
     private fun initSession(session: VaadinSession) {

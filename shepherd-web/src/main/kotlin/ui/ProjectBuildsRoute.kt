@@ -6,6 +6,8 @@ import com.github.mvysny.shepherd.api.Project
 import com.github.mvysny.shepherd.api.ProjectId
 import com.github.mvysny.shepherd.web.Bootstrap
 import com.github.mvysny.shepherd.web.security.checkProjectId
+import com.github.mvysny.shepherd.web.ui.components.DurationRenderer
+import com.github.mvysny.shepherd.web.ui.components.InstantRenderer
 import com.vaadin.flow.component.grid.Grid
 import com.vaadin.flow.component.html.AttachmentType
 import com.vaadin.flow.component.html.H2
@@ -32,8 +34,8 @@ class ProjectBuildsRoute : KComposite(), HasUrlParameter<String> {
             buildsGrid = grid {
                 columnFor(Build::number)
                 columnFor(Build::outcome)
-                columnFor(Build::buildStarted)
-                columnFor(Build::duration)
+                columnFor(Build::buildStarted, InstantRenderer(Build::buildStarted))
+                columnFor(Build::duration, DurationRenderer(Build::duration))
                 componentColumn({ build -> anchor(Downloads.buildLog(project.id, build), "Log", AttachmentType.INLINE) }) {
                     setHeader("Build Log")
                 }
