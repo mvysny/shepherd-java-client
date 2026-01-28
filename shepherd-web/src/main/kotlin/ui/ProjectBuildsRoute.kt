@@ -1,12 +1,6 @@
 package com.github.mvysny.shepherd.web.ui
 
-import com.github.mvysny.karibudsl.v10.KComposite
-import com.github.mvysny.karibudsl.v10.anchor
-import com.github.mvysny.karibudsl.v10.columnFor
-import com.github.mvysny.karibudsl.v10.componentColumn
-import com.github.mvysny.karibudsl.v10.grid
-import com.github.mvysny.karibudsl.v10.h2
-import com.github.mvysny.karibudsl.v10.verticalLayout
+import com.github.mvysny.karibudsl.v10.*
 import com.github.mvysny.shepherd.api.Build
 import com.github.mvysny.shepherd.api.Project
 import com.github.mvysny.shepherd.api.ProjectId
@@ -19,11 +13,9 @@ import com.vaadin.flow.router.BeforeEvent
 import com.vaadin.flow.router.HasUrlParameter
 import com.vaadin.flow.router.PageTitle
 import com.vaadin.flow.router.Route
-import com.vaadin.flow.server.InputStreamFactory
 import com.vaadin.flow.server.streams.DownloadHandler
 import com.vaadin.flow.server.streams.DownloadResponse
 import jakarta.annotation.security.PermitAll
-import java.util.logging.StreamHandler
 
 @Route("project/builds", layout = MainLayout::class)
 @PageTitle("Builds")
