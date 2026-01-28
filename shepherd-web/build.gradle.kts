@@ -10,10 +10,9 @@ dependencies {
     implementation(project(":shepherd-java-api"))
     implementation(libs.slf4j.simple)
 
-    implementation(libs.vaadin.core) {
-        if (vaadin.effective.productionMode.get()) {
-            exclude(module = "vaadin-dev")
-        }
+    implementation(libs.vaadin.core)
+    if (!vaadin.effective.productionMode.get()) {
+        implementation(libs.vaadin.dev)
     }
     implementation(libs.vaadin.boot)
     implementation(libs.karibu.dsl)

@@ -43,7 +43,7 @@ public data class ProjectId(public val id: String) : Comparable<ProjectId> {
     val isReserved: Boolean get() = id == "admin" || id.endsWith("-admin")
 }
 
-private object ProjectIdAsStringSerializer : KSerializer<ProjectId> {
+public object ProjectIdAsStringSerializer : KSerializer<ProjectId> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("ProjectId", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, value: ProjectId) {

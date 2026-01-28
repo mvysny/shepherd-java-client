@@ -13,6 +13,7 @@ import com.github.mvysny.karibudsl.v23.sideNav
 import com.github.mvysny.shepherd.web.host
 import com.github.mvysny.shepherd.web.security.UserLoginService
 import com.github.mvysny.shepherd.web.security.getCurrentUser
+import com.vaadin.flow.component.HasElement
 import com.vaadin.flow.component.applayout.AppLayout
 import com.vaadin.flow.component.html.H3
 import com.vaadin.flow.component.icon.VaadinIcon
@@ -46,8 +47,8 @@ class MainLayout : AppLayout() {
         }
     }
 
-    override fun afterNavigation() {
-        super.afterNavigation()
+    override fun showRouterLayoutContent(content: HasElement) {
+        super.showRouterLayoutContent(content)
         val pageTitle = content.javaClass.getAnnotation<PageTitle>(PageTitle::class.java)?.value ?: ""
         routeTitle.text = pageTitle
     }
