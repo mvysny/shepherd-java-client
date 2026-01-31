@@ -1,5 +1,6 @@
 package com.github.mvysny.shepherd.web.ui
 
+import com.github.mvysny.kaributesting.v10.MockAccessDeniedException
 import com.github.mvysny.kaributesting.v10._expectOne
 import com.github.mvysny.kaributools.navigateTo
 import com.github.mvysny.shepherd.web.AbstractAppTest
@@ -22,6 +23,6 @@ class UsersRouteTest : AbstractAppTest() {
     @Test
     fun userCantNavigate() {
         loginUser()
-        assertThrows<AccessDeniedException> { navigateTo<UsersRoute>() }
+        assertThrows<MockAccessDeniedException> { navigateTo<UsersRoute>() }
     }
 }

@@ -1,5 +1,5 @@
 [versions]
-vaadin = "25.0.3"
+vaadin = "25.0.4"
 kotlin = "2.3.0"
 slf4j = "2.0.17"
 
@@ -16,7 +16,7 @@ vaadin-dev = { module = "com.vaadin:vaadin-dev", version.ref = "vaadin" }
 vaadin-boot = "com.github.mvysny.vaadin-boot:vaadin-boot:13.6"
 vaadin-simplesecurity = "com.github.mvysny.vaadin-simple-security:externalauth-google:1.1"
 karibu-dsl = "com.github.mvysny.karibudsl:karibu-dsl-v23:2.5.0"
-karibu-testing = "com.github.mvysny.kaributesting:karibu-testing-v24:2.6.1"
+karibu-testing = "com.github.mvysny.kaributesting:karibu-testing-v24:2.6.2"
 google-api-client = "com.google.api-client:google-api-client:2.7.2"
 testcontainers = "org.testcontainers:testcontainers:1.21.3"
 

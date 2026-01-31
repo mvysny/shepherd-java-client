@@ -1,5 +1,6 @@
 package com.github.mvysny.shepherd.web.ui
 
+import com.github.mvysny.kaributesting.v10.NotFoundError
 import com.github.mvysny.kaributesting.v10._expect
 import com.github.mvysny.kaributools.navigateTo
 import com.github.mvysny.shepherd.api.Project
@@ -31,7 +32,7 @@ class ProjectOverviewRouteTest : AbstractAppTest() {
 
     @Test fun userCantSeeAdminsProject() {
         loginUser()
-        assertThrows<NotFoundException> {
+        assertThrows<NotFoundError> {
             navigateTo(ProjectOverviewRoute::class, adminsProject.id.id)
         }
     }
@@ -46,14 +47,14 @@ class ProjectOverviewRouteTest : AbstractAppTest() {
     }
 
     @Test fun navigateToNonExistingProject() {
-        assertThrows<NotFoundException> {
+        assertThrows<NotFoundError> {
             navigateTo(ProjectOverviewRoute::class, "non-existing-project")
         }
     }
 
     @Test fun navigateToURLWithInvalidProjectID() {
         expect(false) { ProjectId.isValid("---invalid") }
-        assertThrows<NotFoundException> {
+        assertThrows<NotFoundError> {
             navigateTo(ProjectOverviewRoute::class, "---invalid")
         }
     }
