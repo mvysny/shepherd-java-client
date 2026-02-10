@@ -1,5 +1,5 @@
 [versions]
-vaadin = "25.0.4"
+vaadin = "25.0.5"
 kotlin = "2.3.0"
 slf4j = "2.0.17"
 
