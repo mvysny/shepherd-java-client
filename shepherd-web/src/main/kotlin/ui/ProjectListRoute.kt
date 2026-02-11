@@ -14,6 +14,8 @@ import com.github.mvysny.karibudsl.v10.routerLink
 import com.github.mvysny.karibudsl.v10.text
 import com.github.mvysny.karibudsl.v10.verticalLayout
 import com.github.mvysny.kaributools.navigateTo
+import com.github.mvysny.kaributools.tooltip
+import com.github.mvysny.shepherd.api.BuildResult
 import com.github.mvysny.shepherd.api.Project
 import com.github.mvysny.shepherd.api.ProjectId
 import com.github.mvysny.shepherd.api.ProjectView
@@ -63,6 +65,10 @@ class ProjectListRoute : KComposite() {
                 isExpand = true
                 setItems(projects)
 
+                componentColumn({ p -> buildLinks(p) }) {
+                    isExpand = false; isAutoWidth = true
+                    setHeader("Builds")
+                }
                 componentColumn({ p ->
                     val pid = p.project.id.id
                     routerLink(text = pid, viewType = ProjectOverviewRoute::class, parameter = pid)
@@ -81,10 +87,6 @@ class ProjectListRoute : KComposite() {
                 componentColumn({ p -> publishedURLsAsVerticalLayout(p.project) }) {
                     isExpand = false; isAutoWidth = true; isResizable = true
                     setHeader("Deployed At")
-                }
-                componentColumn({ p -> buildLinks(p) }) {
-                    isExpand = false; isAutoWidth = true; isResizable = true
-                    setHeader("Builds")
                 }
                 iconButtonColumn(VaadinIcon.REFRESH, "Restart main project docker container") {
                     Bootstrap.getClient().restartContainers(it.project.id)
@@ -111,16 +113,22 @@ class ProjectListRoute : KComposite() {
 
 @VaadinDsl
 private fun (@VaadinDsl HasComponents).buildLinks(project: ProjectView): HorizontalLayout {
+    fun getIcon(result: BuildResult): String = when(result) {
+        BuildResult.SUCCESS -> "✅"
+        BuildResult.BUILDING, BuildResult.REBUILDING -> "\uD83D\uDD04"
+        BuildResult.CANCELLED, BuildResult.ABORTED, BuildResult.FAILURE -> "❌"
+        else -> "❓"
+    }
     return horizontalLayout {
         isSpacing = false
-        routerLink(text = "Builds") {
-            setRoute(ProjectBuildsRoute::class.java, project.project.id.id)
-        }
         val lastBuild = project.lastBuild
         if (lastBuild != null) {
-            text(" (")
-            anchor(Downloads.buildLog(project.project.id, lastBuild), "#${lastBuild.number}: ${lastBuild.outcome}")
-            text(")")
+            anchor(Downloads.buildLog(project.project.id, lastBuild), getIcon(lastBuild.outcome) + " ") {
+                tooltip =  "#${lastBuild.number}: ${lastBuild.outcome}"
+            }
+        }
+        routerLink(text = "(\uD83D\uDCDC)") {
+            setRoute(ProjectBuildsRoute::class.java, project.project.id.id)
         }
     }
 }
