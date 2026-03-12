@@ -95,6 +95,50 @@ class ProjectTest {
     }
 }
 
+class BuildSpecTest {
+    @Test fun `buildContext validation - valid contexts`() {
+        BuildSpec(Resources.defaultBuildResources, buildContext = null)
+        BuildSpec(Resources.defaultBuildResources, buildContext = "demo")
+        BuildSpec(Resources.defaultBuildResources, buildContext = "services/api")
+        BuildSpec(Resources.defaultBuildResources, buildContext = "path/to/subdir")
+    }
+
+    @Test fun `buildContext validation - rejects whitespaces`() {
+        val ex = assertThrows<IllegalArgumentException> {
+            BuildSpec(Resources.defaultBuildResources, buildContext = "path with spaces")
+        }
+        assertTrue(ex.message!!.contains("whitespaces"), ex.message)
+    }
+
+    @Test fun `buildContext validation - rejects directory traversal`() {
+        val ex = assertThrows<IllegalArgumentException> {
+            BuildSpec(Resources.defaultBuildResources, buildContext = "../parent")
+        }
+        assertTrue(ex.message!!.contains(".."), ex.message)
+
+        val ex2 = assertThrows<IllegalArgumentException> {
+            BuildSpec(Resources.defaultBuildResources, buildContext = "foo/../bar")
+        }
+        assertTrue(ex2.message!!.contains(".."), ex2.message)
+    }
+
+    @Test fun `buildContext validation - rejects absolute paths`() {
+        val ex = assertThrows<IllegalArgumentException> {
+            BuildSpec(Resources.defaultBuildResources, buildContext = "/absolute/path")
+        }
+        assertTrue(ex.message!!.contains("relative"), ex.message)
+    }
+
+    @Test fun `buildContext serialization`() {
+        val spec = BuildSpec(Resources.defaultBuildResources, buildContext = "demo")
+        val json = JsonUtils.toJson(spec, prettyPrint = false)
+        assertTrue(json.contains("\"buildContext\":\"demo\""), json)
+
+        val deserialized = JsonUtils.fromJson<BuildSpec>(json)
+        expect("demo") { deserialized.buildContext }
+    }
+}
+
 class GitRepoTest {
     @Test
     fun validation() {
