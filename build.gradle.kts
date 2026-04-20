@@ -90,6 +90,7 @@ subprojects {
         useJUnitPlatform()
         testLogging {
             exceptionFormat = TestExceptionFormat.FULL
+            showCauses = true
         }
     }
 }

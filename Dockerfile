@@ -22,7 +22,7 @@
 FROM --platform=$BUILDPLATFORM eclipse-temurin:21 AS builder
 COPY . /app/
 WORKDIR /app/
-RUN --mount=type=cache,target=/root/.gradle --mount=type=cache,target=/root/.vaadin ./gradlew clean build -Pvaadin.productionMode --no-daemon --info --stacktrace -x test
+RUN --mount=type=cache,target=/root/.gradle,sharing=locked --mount=type=cache,target=/root/.vaadin,sharing=locked ./gradlew clean build -Pvaadin.productionMode --no-daemon -x test
 WORKDIR /app/shepherd-web/build/distributions/
 RUN tar xvf shepherd-web-*.tar && rm shepherd-web-*.tar shepherd-web-*.zip
 WORKDIR /app/shepherd-cli/build/distributions/
