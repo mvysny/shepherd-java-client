@@ -1,24 +1,24 @@
 [versions]
 vaadin = "25.1.3"
-kotlin = "2.3.10"
+kotlin = "2.3.20"
 slf4j = "2.0.17"
 
 [libraries]
 # https://repo1.maven.org/maven2/org/junit/jupiter/junit-jupiter-engine/
-junit = "org.junit.jupiter:junit-jupiter-engine:6.0.1"
+junit = "org.junit.jupiter:junit-jupiter-engine:6.0.3"
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
 ztexec = "org.zeroturnaround:zt-exec:1.12"
-kotlinx-serialization-json = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2"
+kotlinx-serialization-json = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0"
 kotlinx-cli = "org.jetbrains.kotlinx:kotlinx-cli:0.3.6"
 vaadin-core = { module = "com.vaadin:vaadin-core", version.ref = "vaadin" }
 vaadin-dev = { module = "com.vaadin:vaadin-dev", version.ref = "vaadin" }
-vaadin-boot = "com.github.mvysny.vaadin-boot:vaadin-boot:13.6"
+vaadin-boot = "com.github.mvysny.vaadin-boot:vaadin-boot:13.7"
 vaadin-simplesecurity = "com.github.mvysny.vaadin-simple-security:externalauth-google:1.1"
 karibu-dsl = "com.github.mvysny.karibudsl:karibu-dsl-v23:2.6.0"
 karibu-testing = "com.github.mvysny.kaributesting:karibu-testing-v24:2.7.0"
-google-api-client = "com.google.api-client:google-api-client:2.7.2"
-testcontainers = "org.testcontainers:testcontainers:1.21.4"
+google-api-client = "com.google.api-client:google-api-client:2.9.0"
+testcontainers = "org.testcontainers:testcontainers:2.0.4"
 
 [plugins]
 vaadin = { id = "com.vaadin", version.ref = "vaadin" }
