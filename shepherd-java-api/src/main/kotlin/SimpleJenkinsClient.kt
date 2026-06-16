@@ -80,6 +80,9 @@ internal class SimpleJenkinsClient @JvmOverloads constructor(
         if (project.build.dockerFile != null) {
             envVars.add("export DOCKERFILE=${project.build.dockerFile}")
         }
+        if (project.build.buildContext != null) {
+            envVars.add("export BUILD_CONTEXT=${project.build.buildContext}")
+        }
         val credentials = if (project.gitRepo.credentialsID == null) {
             ""
         } else {
@@ -329,6 +332,7 @@ ${shepherdHome}/shepherd-build ${project.id.id.escapeXml()}</command>
         fun needsProjectRebuild(newProject: Project, oldProject: Project): Boolean =
             newProject.build.buildArgs != oldProject.build.buildArgs ||
                     newProject.build.dockerFile != oldProject.build.dockerFile ||
+                    newProject.build.buildContext != oldProject.build.buildContext ||
                     // also this: if e.g. build memory increases from 1024 to 2048, we want a full rebuild: the old project might have failed to build because there was not enough memory
                     newProject.build.resources.memoryMb != oldProject.build.resources.memoryMb ||
                     newProject.gitRepo != oldProject.gitRepo ||
