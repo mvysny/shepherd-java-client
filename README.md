@@ -235,7 +235,7 @@ Every credential should contain information on which files it contains (e.g. `/r
 Adding a persistent postgresql database is easy:
 
 1. Add the `Postgres` additional service to the project descriptor JSON: `"additionalServices": [{"type": "Postgres"}]`
-2. Configure your app to connect to the `jdbc:postgresql://postgres:5432/postgres` URL, with the `postgres` username and `mysecretpassword` password.
+2. Configure your app to connect to the `jdbc:postgresql://postgres-service:5432/postgres` URL, with the `postgres` username and `mysecretpassword` password.
 
 # Tips and Tricks
 
