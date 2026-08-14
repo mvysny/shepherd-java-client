@@ -180,6 +180,15 @@ class ProjectForm(val creatingNew: Boolean) : KFormLayout(), Form<MutableProject
                 .validateNoWhitespaces()
                 .bind(MutableProject::buildDockerFile)
         }
+        textField("Build context: subdirectory to use as Docker build context (e.g., 'demo' or 'services/api'). Leave empty to use repository root.") {
+            setId("buildContext")
+            bind(binder)
+                .trimmingConverter()
+                .validateNoWhitespaces()
+                .withValidator({ it == null || !it.contains("..") }, "must not contain '..'")
+                .withValidator({ it == null || !it.startsWith("/") }, "must be a relative path")
+                .bind(MutableProject::buildContext)
+        }
         h3("Runtime") {
             colspan = 2
         }

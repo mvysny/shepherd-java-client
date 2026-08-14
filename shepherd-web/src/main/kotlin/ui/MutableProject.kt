@@ -117,6 +117,8 @@ data class MutableProject(
     var buildArgs: Set<NamedVar>,
     @field:Length(max = 255)
     var buildDockerFile: String?,
+    @field:Length(max = 255)
+    var buildContext: String?,
 
     var publishOnMainDomain: Boolean,
     var publishAdditionalDomainsHttps: Boolean,
@@ -152,6 +154,7 @@ data class MutableProject(
             buildResourcesCpu = Resources.defaultBuildResources.cpu.toBigDecimal(),
             buildArgs = setOf(),
             buildDockerFile = null,
+            buildContext = null,
             publishOnMainDomain = true,
             publishAdditionalDomainsHttps = true,
             publishAdditionalDomains = mutableSetOf(),
@@ -198,7 +201,8 @@ data class MutableProject(
             build = BuildSpec(
                 Resources(buildResourcesMemoryMb, buildResourcesCpu.toFloat()),
                 buildArgs.associate { it.name to it.value },
-                dockerFile = buildDockerFile
+                dockerFile = buildDockerFile,
+                buildContext = buildContext
             ),
             publication = Publication(
                 publishOnMainDomain = publishOnMainDomain,
@@ -242,6 +246,7 @@ fun Project.toMutable(): MutableProject = MutableProject(
     buildResourcesCpu = build.resources.cpu.toBigDecimal(),
     buildArgs = build.buildArgs.map { NamedVar(it.key, it.value) } .toSet(),
     buildDockerFile = build.dockerFile,
+    buildContext = build.buildContext,
     publishOnMainDomain = publication.publishOnMainDomain,
     publishAdditionalDomainsHttps = publication.https,
     publishAdditionalDomains = publication.additionalDomains.toMutableSet(),
