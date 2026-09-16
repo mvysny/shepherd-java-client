@@ -46,7 +46,7 @@ Every fact lives in exactly one of these; the others link to it.
 - **Java callers are first-class.** `@JvmOverloads` / `@JvmStatic` on public API; `ProjectJavaAPITest` exercises it from Java.
 - **JSON through kotlinx.serialization; HTTP through `java.net.http.HttpClient`; subprocesses through `exec()` (zt-exec).** No Jackson, no OkHttp.
 - **Diagnostics through slf4j**, `simplelogger.properties` in the apps; stdout is the CLI's output only.
-- **Tests: JUnit 5 with `kotlin.test`, no mocking framework.** `FakeShepherdClient` is the fake; UI tests extend `AbstractAppTest` (Karibu Testing).
+- **Tests: JUnit with `kotlin.test`, no mocking framework.** `FakeShepherdClient` is the fake; UI tests extend `AbstractAppTest` (Karibu Testing).
 - **Tests needing Jenkins, Docker or Kubernetes use Testcontainers** and a local Docker daemon; they are slow.
 - **Web UI: Karibu-DSL + Vaadin Boot, no Spring.** Global services through the `Services` singleton; auth via `vaadin-simple-security` + `UserRegistry`.
 - **Dependency versions live in `gradle/libs.versions.toml`**, never in a subproject build file.
