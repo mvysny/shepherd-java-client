@@ -4,27 +4,31 @@ Provides a nice Java API library and a Java CLI (Command-line interface) client
 for [Vaadin Shepherd](https://github.com/mvysny/shepherd)
 and [Vaadin Shepherd Traefik](https://github.com/mvysny/shepherd-traefik)
 
-Requires Java 17+.
+Requires Java 21+.
 
-The library is available in Maven Central. To use, add this to your `build.gradle`:
-```groovy
+## The library
+
+The library is in Maven Central:
+
+```kotlin
 dependencies {
-    implementation("com.github.mvysny.shepherd:shepherd-java-api:0.3")
+    implementation("com.github.mvysny.shepherd:shepherd-java-api:0.5")
 }
 ```
 
-To use, simply instantiate an implementation of `ShepherdClient`:
+Create a `ShepherdClient`:
 
 ```kotlin
-val client: ShepherdClient = LinuxShepherdClient()  // or FakeShepherdClient()
+val client: ShepherdClient = LocalFS().createClient()  // or FakeShepherdClient()
 ```
 
-`LinuxShepherdClient` requires Shepherd to be installed on this machine. However,
-for development purposes, it's better to use `FakeShepherdClient` which doesn't
-require anything to be installed on the dev machine, while providing reasonable
-fake data.
+`LocalFS().createClient()` needs Shepherd installed on this machine and reads
+`/etc/shepherd/java/config.json`. For development, use `FakeShepherdClient`: it needs nothing
+installed and serves fake data.
 
-Requires a configuration file to be placed in `/etc/shepherd/java/config.json`, example contents:
+## Configuration
+
+`/etc/shepherd/java/config.json`:
 
 ```json
 {
@@ -44,42 +48,43 @@ Requires a configuration file to be placed in `/etc/shepherd/java/config.json`, 
     "password": "admin"
   },
   "hostDNS": "mydomain.me",
+  "shepherdHome": "/opt/shepherd-traefik",
   "containerSystem": "traefik-docker"
 }
 ```
 
-The `memoryQuotaMb` is the memory available both for project runtime and for project builds.
-Every project's runtime memory + the build memory is guaranteed by Shepherd; if a project would be created
-that overflows this quota, the project creation is prohibited. Calculate the quota value
-as follows: Take the total host machine memory, subtract memory for Jenkins usage (by default 512mb), for Kubernetes itself (say 1000mb),
-possibly 500mb for the future shepherd-ui project, and finally subtract memory for OS usage (say 200mb).
-
-Additional configuration options:
-
-* `hostDNS`: where Shepherd is running, e.g. "v-herd.eu"
-* `googleSSOClientId` (Shepherd-Web only): enable Google SSO login and use this client ID. See [vaadin-google-oauth](https://mvysny.github.io/vaadin-google-oauth/) for more details.
-* `ssoOnlyAllowEmailsEndingWith` (Shepherd-Web only): if not null, only e-mails ending with this string are allowed. Example: `@vaadin.com`. If null or empty, all e-mails are allowed.
-* `shepherdHome` Shepherd home, `/opt/shepherd` for [Shepherd Kubernetes](https://github.com/mvysny/shepherd), `/opt/shepherd-traefik` for [Shepherd Traefik](https://github.com/mvysny/shepherd-traefik).
-* `containerSystem` the runtime container system to use for running project containers, either `"kubernetes"` or `"traefik-docker"`.
-
-Regarding the "jenkins" setting:
-
-- In Traefik mode, Jenkins will be running in the same private Docker network as Shepherd; Shepherd
-  will talk to Jenkins directly at `http://jenkins:8080`.
-- In Kubernetes mode, Jenkins runs directly at host, and so does Shepherd. Shepherd
-  therefore talks to Jenkins via `http://localhost:8080`. Make sure to change the configuration accordingly.
+* `memoryQuotaMb`: memory for all project runtimes and builds together. Shepherd guarantees every project
+  its runtime + build memory, and refuses a project that would overflow the quota. Compute it as host memory
+  minus Jenkins (512 MB by default), minus Kubernetes itself if used (~1000 MB), minus Shepherd-Web (~500 MB),
+  minus the OS (~200 MB).
+* `concurrentJenkinsBuilders`: must match the `# of executors` configured in Jenkins.
+* `jenkins`: defaults to `http://localhost:8080`, `admin`/`admin`. With Traefik, Jenkins runs in Shepherd's private
+  Docker network, so use `http://jenkins:8080`; with Kubernetes both run directly on the host, so keep `localhost`.
+* `hostDNS`: where Shepherd runs, e.g. `v-herd.eu` (the default).
+* `shepherdHome`: `/opt/shepherd` (the default) for Shepherd Kubernetes, `/opt/shepherd-traefik` for Shepherd Traefik.
+* `containerSystem`: `kubernetes` (the default) or `traefik-docker`.
+* `googleSSOClientId` (Shepherd-Web only): enables Google SSO login with this client ID;
+  see [vaadin-google-oauth](https://mvysny.github.io/vaadin-google-oauth/).
+* `ssoOnlyAllowEmailsEndingWith` (Shepherd-Web only): e.g. `@vaadin.com` allows only those e-mails; null or empty allows all.
 
 ## shepherd-cli
 
-The [shepherd-cli](shepherd-cli) project provides a command-line client for Shepherd.
-Simply build the CLI via `./gradlew shepherd-cli:build`, then scp
-the `shepherd-cli/build/distributions/*.zip` to the target machine which runs Shepherd,
-then unzip and run the `shepherd-cli` binary.
+Build it via `./gradlew :shepherd-cli:build`, scp `shepherd-cli/build/distributions/*.zip` to the Shepherd
+machine, unzip and run `bin/shepherd-cli --help` for the commands
+(`list`, `show`, `create`, `update`, `delete`, `logs`, `builds`, `buildlog`, `restart`, `shutdown`, ...).
+The Shepherd-Web Docker image ships the CLI too.
 
-Shepherd CLI requires Java 17+.
+# Adding Your Project To Shepherd
 
-`shepherd-cli create` requires the project descriptor json. It's really simple,
-here's a very simple example for the [vaadin-boot-example-gradle](https://github.com/mvysny/vaadin-boot-example-gradle) project:
+1. Write the project JSON (below).
+2. Add a `Dockerfile` to your project (below).
+3. Run `shepherd-cli create -f file.json`, or create the project in Shepherd-Web.
+
+Jenkins then builds the project and, when the build succeeds, deploys it.
+
+## Project JSON
+
+A minimal example, for [vaadin-boot-example-gradle](https://github.com/mvysny/vaadin-boot-example-gradle):
 
 ```json
 {
@@ -108,12 +113,13 @@ here's a very simple example for the [vaadin-boot-example-gradle](https://github
 }
 ```
 
-A more complex example:
+All the options:
 
 ```json
 {
   "id": "jdbi-orm-vaadin-crud-demo",
   "description": "JDBI-ORM example project",
+  "webpage": "https://github.com/mvysny/jdbi-orm-vaadin-crud-demo",
   "gitRepo": {
     "url": "https://github.com/mvysny/jdbi-orm-vaadin-crud-demo",
     "branch": "master",
@@ -123,6 +129,7 @@ A more complex example:
     "name": "Martin Vysny",
     "email": "mavi@vaadin.com"
   },
+  "additionalAdmins": ["someone@vaadin.com"],
   "runtime": {
     "resources": {
       "memoryMb": 256,
@@ -163,155 +170,113 @@ A more complex example:
 }
 ```
 
+`gitRepo.url` can't be changed after creation; delete and recreate the project instead.
+
 ### Updating a project
 
-The project config json files are located at `/etc/shepherd/java/projects/PROJECT_ID.json`.
-Do not edit the file in-place: copy it to `/root/`, edit it there, then run `./shepherd-cli update -f /root/file.json` then delete it from /root/.
-That way, Shepherd can track what has been changed, and can restart the project VM quickly if need be.
-
-# Adding Your Project To Shepherd
-
-That's easy:
-
-1. Create the project JSON as above
-2. Create a Dockerfile as explained below.
-3. Run `./shepherd-cli create -f file.json` to create the project.
-4. Done - the project is now being built in Jenkins; when the build succeeds, it will be
-   deployed in Kubernetes.
+Project JSONs live at `/etc/shepherd/java/projects/PROJECT_ID.json`. Don't edit them in place: copy the file
+elsewhere, edit the copy, run `shepherd-cli update -f copy.json`, then delete the copy. That way Shepherd
+sees what changed and restarts the project only when needed.
 
 ## Dockerfile
 
-Shepherd expects the following from your project:
+Shepherd builds the `Dockerfile` at the root of your git repo (or the one named by `build.dockerFile`).
+Before submitting, make sure this works on your machine — debugging Docker is far easier locally:
 
-1. It must have `Dockerfile` at the root of its git repo.
-2. The Docker image can be built via the `docker build -t test/xyz:latest .` command;
-   The image can be run via `docker run --rm -ti -p8080:8080 -m256m test/xyz` command.
+```bash
+docker build -t test/xyz:latest .
+docker run --rm -ti -p8080:8080 -m256m test/xyz
+```
 
-Generally, all you need is to place an appropriate `Dockerfile` to the root of your project's git repository.
-See the following projects for examples:
+**IMPORTANT**: `-m256m` is a hard memory limit, matching `runtime.resources.memoryMb`. A JVM exceeding it is
+killed by the Linux OOM-killer with no log message. Run Java with `-Xmx` a bit below the limit, so the app fails
+with a visible `OutOfMemoryError` instead.
 
-1. Gradle+Embedded Jetty packaged as zip: [vaadin-boot-example-gradle](https://github.com/mvysny/vaadin-boot-example-gradle),
-   [vaadin14-boot-example-gradle](https://github.com/mvysny/vaadin14-boot-example-gradle),
+Examples:
+
+1. Gradle + embedded Jetty, zip: [vaadin-boot-example-gradle](https://github.com/mvysny/vaadin-boot-example-gradle),
    [karibu-helloworld-application](https://github.com/mvysny/karibu-helloworld-application),
    [beverage-buddy-vok](https://github.com/mvysny/beverage-buddy-vok),
    [vok-security-demo](https://github.com/mvysny/vok-security-demo)
-2. Maven+Embedded Jetty packaged as zip: [vaadin-boot-example-maven](https://github.com/mvysny/vaadin-boot-example-maven)
-3. Maven+Spring Boot packaged as executable jar: [vaadin-spring-karibu-testing](https://github.com/mvysny/vaadin-spring-karibu-testing),
+2. Maven + embedded Jetty, zip: [vaadin-boot-example-maven](https://github.com/mvysny/vaadin-boot-example-maven)
+3. Maven + Spring Boot, executable jar: [vaadin-spring-karibu-testing](https://github.com/mvysny/vaadin-spring-karibu-testing),
    [Liukuri](https://github.com/vesanieminen/ElectricityCostDashboard),
-   [my-hilla-app](https://github.com/mvysny/my-hilla-app), [vaadinplus](https://github.com/anezthes/vaadinplus), [TextField Formatter Zen](https://github.com/vaadin-component-factory/textfieldformatter-zen/)
-   [Vaadin Hilla Spring PetClinic](https://github.com/jcgueriaud1/spring-petclinic-vaadin-flow)
+   [my-hilla-app](https://github.com/mvysny/my-hilla-app),
+   [vaadinplus](https://github.com/anezthes/vaadinplus),
+   [TextField Formatter Zen](https://github.com/vaadin-component-factory/textfieldformatter-zen/),
+   [Spring PetClinic Vaadin](https://github.com/jcgueriaud1/spring-petclinic-vaadin-flow)
 
-Please try building and running the app on your own machine first - debugging
-any Docker-related issues is far easier on dev machine than remotely on Shepherd.
+## Private Repositories
 
-**IMPORTANT**: pay attention to the `-m256m` switch - this sets the hard limit on how much memory
-the container may use.  If JVM asks for more, it will be hard-killed by the Linux OOM-killer,
-without any warning or any log message (only host OS dmesg will log this). Make sure to have your Dockerfile run Java
-with the `-Xmx???m` VM argument; that way the app will crash with OutOfMemoryException which should be visible in the logs.
-The `-Xmx` value should be a bit lower value than the hard limit, to give a bit of room for JVM itself.
+A private repo needs credentials, typically an SSH key: e.g. create a GitHub user `foo-user` with its own SSH key
+and invite it to the private repo with read-only access.
 
-## Private Repositories & Credentials
+The Shepherd admin registers the credential in Jenkins, at *Dashboard / Manage Jenkins / Credentials / System / Global
+credentials*; describe in it what it contains (e.g. `/root/.ssh/id_rsa`) and where it's used (e.g. GitHub user
+`foo-user`). Then put the credential's ID into `gitRepo.credentialsID`.
 
-Private repositories may need private SSH key to access them. For example:
+## PostgreSQL
 
-* A private GitHub repository `foo-repo`. A GitHub user `foo-user` is created and a private SSH key is generated for him.
-  The `foo-user` then needs to be invited to the private repository, in order to gain read-only access.
-  Shepherd will have knowledge of the private SSH key. That way, Shepherd can impersonate the `foo-user` and can access `foo-repo`.
-
-Every credential has a unique identifier which needs to be passed in via the `credentialsID` in the config json file.
-Before that, the credential needs to be registered:
-
-* Either the Shepherd admin can do that directly, by creating the credential in Jenkins directly,
-* or the users can create their own credentials, via the Java functions offered by the `ShepherdClient` Java class (TBD)
-
-The credentials are all ultimately stored in Jenkins, at *Dashboard / Manage Jenkins / Credentials / System / Global credentials*.
-Every credential should contain information on which files it contains (e.g. `/root/.ssh/id_rsa`) and where it is used
-(e.g. GitHub user `foo-user`).
-
-## Enabling Additional Services
-
-### PostgreSQL database
-
-Adding a persistent postgresql database is easy:
-
-1. Add the `Postgres` additional service to the project descriptor JSON: `"additionalServices": [{"type": "Postgres"}]`
-2. Configure your app to connect to the `jdbc:postgresql://postgres-service:5432/postgres` URL, with the `postgres` username and `mysecretpassword` password.
+Shepherd Kubernetes only. Add `"additionalServices": [{"type": "Postgres"}]` to the project JSON, then connect to
+`jdbc:postgresql://postgres-service:5432/postgres` as `postgres` / `mysecretpassword`. Only your project can
+access the database.
 
 # Tips and Tricks
 
 ## Vaadin Offline Key
 
-For Vaadin Pro/Prime components you'll need a Vaadin License. The license must be present during
-the **build time**; adding `VAADIN_OFFLINE_KEY` to runtime environment variables is not enough.
+Vaadin Pro/Prime components need a license at **build time**; `VAADIN_OFFLINE_KEY` as a runtime env var is not enough.
 
-The license can be obtained at [My Licenses](https://vaadin.com/myaccount/licenses). You'll need the "Server license key",
-NOT the "Offline development license key" since the Machine ID changes unpredictably in CI/CD Docker environment.
+Get the "Server license key" at [My Licenses](https://vaadin.com/myaccount/licenses) — NOT the "Offline development
+license key", since the Machine ID changes unpredictably in CI Docker. Add it as a build argument, e.g. `offlinekey`
+(any name works, as long as the `Dockerfile` uses the same one), and read it in the `Dockerfile`:
 
-Once you have the key, edit the project in v-herd admin console and add the build argument
-`offlinekey` with the value of the license key itself.
-
-> Note: the name of the build argument can be anything, but you need to correctly refer to it in your `Dockerfile.`
-
-Then, in your `Dockerfile`, you'll fetch the license key from the build argument into an environment variable:
 ```dockerfile
 ARG offlinekey
 ENV VAADIN_OFFLINE_KEY=$offlinekey
 ```
-To test, build your app via
-```bash
-$ docker build -t test/xyz:latest --build-arg offlinekey=the_license_key .
-```
 
-Find the working `Dockerfile` example in the [vaadinplus](https://github.com/anezthes/vaadinplus) project.
+Test locally via `docker build -t test/xyz:latest --build-arg offlinekey=the_license_key .`.
+[vaadinplus](https://github.com/anezthes/vaadinplus) has a working example.
 
 ## Build Cache
 
-To speed up your build, you can cache your local Maven repository and the contents of the `~/.vaadin` folder.
-Edit your `Dockerfile` and update your Maven build command to mount the cache:
+Cache the Maven/Gradle repository and `~/.vaadin` between builds:
+
 ```dockerfile
 RUN --mount=type=cache,target=/root/.m2 --mount=type=cache,target=/root/.vaadin ./mvnw -C -e clean package -Pproduction
 ```
-Gradle:
+
 ```dockerfile
-RUN --mount=type=cache,target=/root/.gradle --mount=type=cache,target=/root/.vaadin ./gradlew clean build -Pvaadin.productionMode --no-daemon --info --stacktrace
+RUN --mount=type=cache,target=/root/.gradle --mount=type=cache,target=/root/.vaadin ./gradlew clean build -Pvaadin.productionMode --no-daemon
 ```
 
 # Maintenance
 
-It's important to keep the host Linux up-to-date, via `apt`. However,
-rebooting while Jenkins is building a project is not safe. To safely restart the host machine,
-it's best to shut down Jenkins gracefully first.
+Keep the host up-to-date via `apt`, but never reboot while Jenkins is building: shut Shepherd down gracefully first.
 
-## Shepherd-Traefik
+## Shepherd Traefik
 
-1. Stop Jenkins, by logging to Shepherd Web, going to `/admin` and clicking the "Shutdown" button.
-   Refresh the page until the text "Shutting down" changes to "Shepherd is shut down"
-2. Run `sudo reboot`
+1. Log in to Shepherd-Web, go to `/admin`, click "Shut Down", and refresh until it reads "Shepherd is shut down".
+2. `sudo reboot`
 
-Jenkins runs as a docker image and is never upgraded via `apt`. It is never exposed to public:
-only Shepherd-Web has access to Jenkins, and therefore it's not important to keep Jenkins up-to-date.
+Jenkins runs in Docker, isn't updated by `apt` and is reachable only by Shepherd-Web, so keeping it current isn't important.
 
-### Updating Shepherd-Web Docker Container
+### Updating the Shepherd-Web container
 
-1. `cd /opt/shepherd-traefik`
-2. `docker compose pull`
-3. `docker compose up -d --no-deps shepherd`
+```bash
+cd /opt/shepherd-traefik
+docker compose pull
+docker compose up -d --no-deps shepherd
+```
 
-Docker will re-create shepherd container from the newest image, and will automatically
-join it to the correct 'admin.int' network.
+Docker recreates the container from the newest image and joins it to the `admin.int` network.
+Don't update Traefik this way: `docker compose` drops its network bindings and Traefik can no longer route to the apps.
 
-Note that you must not update Traefik this way too, since docker compose will drop all container network bindings,
-which means that Traefik won't be able to route to apps.
-TODO Shepherd-Web could update Traefik and reconnect it to all app networks - investigate.
+## Shepherd Kubernetes (old)
 
-## Shepherd-Kubernetes (old)
+`apt` updates Jenkins frequently, which is unsafe mid-build:
 
-`apt upgrade` also frequently upgrades Jenkins since Jenkins issues frequent updates.
-However, it's not safe to update Jenkins while it's building a project. To update the host system:
-
-1. Stop jenkins, via `./shepherd-cli shutdown` - the script waits until it's safe to proceed further.
+1. `shepherd-cli shutdown` — waits until no build runs.
 2. `sudo apt update && sudo apt dist-upgrade`
-3. If Jenkins is updated, it will be restarted and will start taking new jobs. If a reboot is needed:
-   - Run `./shepherd-cli shutdown`
-   - Run `sudo reboot`
-
+3. An updated Jenkins restarts and resumes taking jobs; if a reboot is needed, run `shepherd-cli shutdown` again, then `sudo reboot`.
