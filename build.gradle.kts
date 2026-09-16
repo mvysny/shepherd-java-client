@@ -20,6 +20,14 @@ allprojects {
 
 defaultTasks("clean", "build")
 
+// the doc-layer checks (AGENTS.md, "Design docs"); needs bash and git, hence skipped in the Docker build
+val designTripwires by tasks.registering(Exec::class) {
+    group = "verification"
+    description = "Design docs: cited slugs resolve, headings and caps hold, CLAUDE.md is a symlink"
+    commandLine("design/verify_design_tripwires.sh")
+}
+tasks.check { dependsOn(designTripwires) }
+
 subprojects {
     apply {
         plugin("maven-publish")

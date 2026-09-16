@@ -29,3 +29,13 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew --no-daemon --no-watch-fs
 
+  design-tripwires:
+    runs-on: ubuntu-latest
+    container: buildpack-deps:scm
+    steps:
+    - uses: actions/checkout@v6
+    - name: Check design docs
+      run: |
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
+        design/verify_design_tripwires.sh
+
