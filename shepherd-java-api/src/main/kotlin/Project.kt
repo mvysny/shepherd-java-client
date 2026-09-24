@@ -98,13 +98,23 @@ public data class Resources(
  * @property resources how many resources to allocate for the build. Passed via `BUILD_MEMORY` and `CPU_QUOTA` env variables to `shepherd-build`.
  * @property buildArgs optional build args, passed as `--build-arg name="value"` to `docker build` via the `BUILD_ARGS` env variable passed to `shepherd-build`.
  * @property dockerFile if not null, we build off this dockerfile instead of the default `Dockerfile`. Passed via `DOCKERFILE` env variable to `shepherd-build`.
+ * @property buildContext if not null, specifies the subdirectory to use as the Docker build context (e.g., 'demo' or 'services/api'). Passed via `BUILD_CONTEXT` env variable to `shepherd-build`.
  */
 @Serializable
 public data class BuildSpec @JvmOverloads constructor(
     val resources: Resources,
     val buildArgs: Map<String, String> = mapOf(),
-    val dockerFile: String? = null
-)
+    val dockerFile: String? = null,
+    val buildContext: String? = null
+) {
+    init {
+        if (buildContext != null) {
+            require(!buildContext.containsWhitespaces()) { "buildContext must not contain whitespaces" }
+            require(!buildContext.contains("..")) { "buildContext must not contain '..' (directory traversal)" }
+            require(!buildContext.startsWith("/")) { "buildContext must be a relative path" }
+        }
+    }
+}
 
 /**
  * A git repository.
